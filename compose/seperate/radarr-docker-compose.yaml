@@ -1,0 +1,31 @@
+version: "3"
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    hostname: radarr
+    environment:
+      - PUID=1000                          # User ID for file permissions
+      - PGID=1000                          # Group ID for file permissions
+      - TZ=Etc/UTC                         # Timezone
+      # Optional configuration options:
+      # - UMASK_SET=022                    # File permissions mask
+      # - URL_BASE=/radarr                 # Base URL for reverse proxy
+      # - DOCKER_MODS=linuxserver/mods:radarr-striptracks # Optional Docker mods
+      # - LOG_LEVEL=info                   # Log level (trace/debug/info/warn/error)
+      # - RADARR_API_KEY=                  # API key for Radarr
+      # - RADARR_AUTHENTICATION_METHOD=None # Authentication method (None, Basic, Forms)
+      # - RADARR_AUTHENTICATION_REQUIRED=enabled # Authentication requirement
+      # - RADARR_BIND_ADDRESS=*            # Network address to bind to
+      # - RADARR_PORT=7878                 # Port to use for Radarr
+    volumes:
+      - /path/to/radarr/data:/config                      # Config directory
+      - /path/to/movies:/movies                           # Movies directory (optional)
+      - /path/to/download-client-downloads:/downloads     # Downloads directory (optional)
+    ports:
+      - 7878:7878                          # WebUI port
+    restart: unless-stopped
+    # Optionally connect to gluetun VPN:
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   - gluetun

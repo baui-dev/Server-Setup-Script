@@ -1,0 +1,31 @@
+version: "3"
+services:
+  maintainerr:
+    image: ghcr.io/jorenn92/maintainerr:latest # or jorenn92/maintainerr:latest
+    container_name: maintainerr
+    hostname: maintainerr
+    user: 1000:1000                        # Run as user:group
+    volumes:
+      - type: bind
+        source: ./data
+        target: /opt/data                  # Data directory
+    environment:
+      - TZ=Europe/Brussels                 # Timezone
+      # Optional configuration options:
+      # - DEBUG=true                       # Enable debug logs
+      # - BASE_PATH=/maintainerr           # Base URL for reverse proxy
+      # - UI_HOSTNAME=::                   # Interface to listen on (IPv6 default 0.0.0.0)
+      # - UI_PORT=6247                     # UI port (default 6246)
+      # - API_PORT=3002                    # API port (default 3001)
+      # - PLEX_URL=http://plex:32400       # Plex URL
+      # - PLEX_TOKEN=xxx                   # Plex authentication token
+      # - DB_TYPE=sqlite                   # Database type (sqlite or postgres)
+      # - DATA_PATH=/opt/data              # Path to store data
+      # - LOG_LEVEL=info                   # Log level
+    ports:
+      - 6246:6246                          # WebUI port
+    restart: unless-stopped
+    # Optionally connect to gluetun VPN:
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   - gluetun

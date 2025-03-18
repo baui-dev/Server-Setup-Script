@@ -1,0 +1,28 @@
+version: "2"
+services:
+  slskd:
+    image: slskd/slskd
+    container_name: slskd
+    hostname: slskd
+    network_mode: "service:gluetun"
+    ports:
+      - "5030:5030"                        # WebUI port
+      - "5031:5031"                        # API port
+      - "50300:50300"                      # Soulseek listen port
+    environment:
+      - SLSKD_REMOTE_CONFIGURATION=true    # Enable remote configuration
+      # Optional configuration options:
+      # - SLSKD_USERNAME=username          # Username for WebUI login
+      # - SLSKD_PASSWORD=password          # Password for WebUI login
+      # - SLSKD_SHARED_DIR=/app/shared     # Directory to share with others
+      # - SLSKD_DOWNLOAD_DIR=/app/downloads # Download directory
+      # - SLSKD_INCOMPLETE_DIR=/app/incomplete # Incomplete downloads directory
+      # - SLSKD_SOULSEEK_USERNAME=username # Soulseek username
+      # - SLSKD_SOULSEEK_PASSWORD=password # Soulseek password
+      # - SLSKD_LISTEN_PORT=50300          # Port for Soulseek communications
+      # - SLSKD_ENABLE_SECURITY=true       # Enable login security
+      # - SLSKD_HTTPS_PORT=5031            # HTTPS port
+      # - SLSKD_BASE_PATH=/slskd           # Base URL path when using reverse proxy
+    volumes:
+      - <path/to/application/data>:/app    # App data directory
+    restart: unless-stopped

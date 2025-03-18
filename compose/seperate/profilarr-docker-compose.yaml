@@ -1,0 +1,28 @@
+version: "3"
+services:
+  profilarr:
+    image: santiagosayshey/profilarr:latest # Use :beta for early access to new features
+    container_name: profilarr
+    hostname: profilarr
+    ports:
+      - 6868:6868 # WebUI port
+    volumes:
+      - /path/to/your/data:/config # Config directory (replace with your actual path)
+    environment:
+      - TZ=UTC # Timezone
+      # Optional configuration options:
+      # - PUID=1000                        # User ID for file permissions
+      # - PGID=1000                        # Group ID for file permissions
+      # - LOG_LEVEL=info                   # Log level (error, warn, info, debug, trace)
+      # - DB_TYPE=sqlite                   # Database type
+      # - SONARR_URL=                      # Sonarr URL
+      # - SONARR_API_KEY=                  # Sonarr API key
+      # - RADARR_URL=                      # Radarr URL
+      # - RADARR_API_KEY=                  # Radarr API key
+      # - LIDARR_URL=                      # Lidarr URL
+      # - LIDARR_API_KEY=                  # Lidarr API key
+    restart: unless-stopped
+    # Optionally connect to gluetun VPN:
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   - gluetun

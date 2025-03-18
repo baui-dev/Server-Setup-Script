@@ -1,0 +1,27 @@
+version: "3"
+services:
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    hostname: jellyseerr
+    environment:
+      - LOG_LEVEL=debug                    # Log level (error, warn, info, debug, trace)
+      - TZ=Asia/Tashkent                   # Timezone
+      - PORT=5055                          # WebUI port (optional)
+      # Optional configuration options:
+      # - JELLYFIN_TYPE=emby               # Type of media server (jellyfin, emby, plex)
+      # - JELLYFIN_URL=                    # Media server URL
+      # - JELLYFIN_API_KEY=                # Media server API key
+      # - JELLYSEERR_CACHE_DIRECTORY=/app/cache # Cache directory
+      # - NODE_ENV=production              # Node environment
+      # - PGID=1000                        # Group ID
+      # - PUID=1000                        # User ID
+    ports:
+      - 5055:5055                          # WebUI port
+    volumes:
+      - /path/to/appdata/config:/app/config # Config directory
+    restart: unless-stopped
+    # Optionally connect to gluetun VPN:
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   - gluetun

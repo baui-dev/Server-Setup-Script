@@ -1,0 +1,28 @@
+version: "3"
+services:
+  configarr:
+    image: ghcr.io/raydak-labs/configarr:latest
+    container_name: configarr
+    hostname: configarr
+    user: 1000:1000                        # Optional user:group for permissions (defaults to root:root)
+    environment:
+      - TZ=Etc/UTC                         # Timezone
+      # Optional configuration options:
+      # - LOG_LEVEL=info                   # Log level (error, warn, info, debug)
+      # - CONFIGARR_SECRET=                # Secret key for API
+      # - DATABASE_URL=                    # Database connection string
+      # - CONFIGARR_INTERVAL=0 */6 * * *   # Schedule for automatic run (cron format)
+      # - CONFIGARR_PORT=3280              # Web interface port
+      # - CONFIGARR_HOST=0.0.0.0           # Web interface binding
+    volumes:
+      - ./config:/app/config               # Contains the config.yml and secrets.yml
+      - ./dockerrepos:/app/repos           # Cache repositories
+      - ./custom/cfs:/app/cfs              # Optional if custom formats locally provided
+      - ./custom/templates:/app/templates  # Optional if custom templates
+    restart: "no"                          # Optional - make sure this is set to no or removed
+    # Optionally connect to gluetun VPN:
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   - gluetun
+    # ports:                              # Only needed if not using network_mode: "service:gluetun"
+    #   - 3280:3280                       # WebUI port

@@ -1,0 +1,43 @@
+version: "3"
+services:
+  notifiarr:
+    container_name: notifiarr
+    hostname: notifiarr
+    image: golift/notifiarr
+    restart: unless-stopped
+    ports:
+      - "5454:5454"                        # WebUI port
+    volumes:
+      - ${APPDATA}/notifiarr:/config       # Config directory (using APPDATA env variable)
+      - /var/run/utmp:/var/run/utmp        # System utmp file for system stats
+      - /etc/machine-id:/etc/machine-id    # Machine ID for identification
+    # Optional configuration options:
+    # environment:
+    #   - TZ=Etc/UTC                       # Timezone
+    #   - PUID=1000                        # User ID
+    #   - PGID=1000                        # Group ID
+    #   - DN_API_KEY=                      # Notifiarr API key
+    #   - DN_DEBUG=false                   # Debug mode
+    #   - DN_BIND_ADDR=0.0.0.0:5454        # Interface and port to bind to
+    #   - DN_SONARR_URL=                   # Sonarr URL
+    #   - DN_SONARR_API_KEY=               # Sonarr API key
+    #   - DN_RADARR_URL=                   # Radarr URL
+    #   - DN_RADARR_API_KEY=               # Radarr API key
+    #   - DN_LIDARR_URL=                   # Lidarr URL
+    #   - DN_LIDARR_API_KEY=               # Lidarr API key
+    #   - DN_READARR_URL=                  # Readarr URL
+    #   - DN_READARR_API_KEY=              # Readarr API key
+    #   - DN_PROWLARR_URL=                 # Prowlarr URL
+    #   - DN_PROWLARR_API_KEY=             # Prowlarr API key
+    #   - DN_TAUTULLI_URL=                 # Tautulli URL
+    #   - DN_TAUTULLI_API_KEY=             # Tautulli API key
+    #   - DN_PLEX_TOKEN=                   # Plex token
+    #   - DN_PLEX_URL=                     # Plex URL
+    #   - DN_TIMEOUT=1m0s                  # HTTP timeout
+    #   - DN_HTTP_LOG=false                # HTTP request logging
+    #   - DN_QUIET=false                   # Less logging
+    #   - DN_UPSTREAMS=                    # Upstream servers
+    # Optionally connect to gluetun VPN:
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   - gluetun

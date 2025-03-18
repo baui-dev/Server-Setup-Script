@@ -1,0 +1,28 @@
+version: "3"
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    hostname: sabnzbd
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000                          # User ID for file permissions
+      - PGID=1000                          # Group ID for file permissions
+      - TZ=Etc/UTC                         # Timezone
+      # Optional configuration options:
+      # - UMASK_SET=022                    # File permissions mask
+      # - URL_BASE=/sabnzbd                # Base URL for reverse proxy
+      # - DOCKER_MODS=linuxserver/mods:sabnzbd-xyz # Optional Docker mods
+      # - SABNZBD_LANGUAGE=en              # Interface language
+      # - SABNZBD_HOST_WHITELIST_ENTRIES=* # Allowed hosts
+      # - SABNZBD_DIRECT_UNPACK=1          # Enable direct unpack
+      # - SABNZBD_PASSWORD=                # WebUI password
+    volumes:
+      - /path/to/sabnzbd/config:/config                    # Config directory
+      - /path/to/downloads:/downloads                      # Completed downloads (optional)
+      - /path/to/incomplete/downloads:/incomplete-downloads # Incomplete downloads (optional)
+    depends_on:
+      - gluetun
+    ports:
+      - 8080:8080                          # WebUI port
+    restart: unless-stopped

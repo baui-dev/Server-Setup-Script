@@ -1,0 +1,29 @@
+version: "3"
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    hostname: bazarr
+    environment:
+      - PUID=1000                          # User ID for file permissions
+      - PGID=1000                          # Group ID for file permissions
+      - TZ=Etc/UTC                         # Timezone
+      # Optional configuration options:
+      # - UMASK_SET=022                    # File permissions mask
+      # - URL_BASE=/bazarr                 # Base URL for reverse proxy
+      # - DOCKER_MODS=linuxserver/mods:bazarr-xyz # Optional Docker mods
+      # - LOG_LEVEL=info                   # Log level
+      # - BAZARR_API_KEY=                  # API key for Bazarr
+      # - BAZARR_AUTHENTICATION_METHOD=None # Authentication method
+      # - BAZARR_AUTHENTICATION_REQUIRED=enabled # Authentication requirement
+    volumes:
+      - /path/to/bazarr/config:/config     # Config directory
+      - /path/to/movies:/movies            # Movies directory (optional)
+      - /path/to/tv:/tv                    # TV series directory (optional)
+    ports:
+      - 6767:6767                          # WebUI port
+    restart: unless-stopped
+    # Optionally connect to gluetun VPN:
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   - gluetun

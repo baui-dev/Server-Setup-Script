@@ -1,0 +1,47 @@
+version: "3"
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    hostname: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+      - 8085:8085 # qbittorrent
+      - 8989:8989 # Sonarr
+      - 9696:9696 # Prowlarr
+      - 7878:7878 # Radarr
+      - 6767:6767 # Bazarr
+      - 8686:8686 # Lidarr
+      - 7474:7474 # Autobrr
+      - 3333:3333 # Bitmagnet
+      - 5030:5030 # slskd
+      - 8001:8000 # pyload-ng
+      - 8082:8080 # sabnzbd
+      - 5801:5800 # jdownloader-2
+    volumes:
+      - /home/ubuntu/docker/arr-stack/gluetun:/gluetun
+    environment:
+      - VPN_SERVICE_PROVIDER=mullvad       # Set your VPN provider
+      - VPN_TYPE=wireguard                 # VPN protocol: wireguard or openvpn
+      - WIREGUARD_PRIVATE_KEY=3021307207212058  # Your WireGuard private key
+      - WIREGUARD_ADDRESSES=10.64.222.21/32  # WireGuard IP addresses
+      - SERVER_CITIES=Amsterdam            # Preferred server location
+      - TZ=Europe/London                   # Timezone for accurate log times
+      - UPDATER_PERIOD=24h                 # How often to update VPN server list
+      # VPN_PORT_FORWARDING=off             # Enable port forwarding
+      # Optional configuration options:
+      # - SERVER_COUNTRIES=Netherlands     # Select servers by country
+      # - SERVER_HOSTNAMES=x.x.x.x         # Specify exact VPN server hostnames
+      # - FIREWALL_OUTBOUND_SUBNETS=your.home.subnet  # Allow specific subnets to bypass VPN
+      # - DNS_KEEP_NAMESERVER=on           # Use your own DNS settings
+      # - DOT=on                           # Enable DNS over TLS
+      # - HTTP_PROXY=on                    # Enable HTTP proxy server for other containers
+      # - HTTP_PROXY_PORT=8888             # HTTP proxy port
+      # - LOG_LEVEL=info                   # Logging level (debug/info/warn/error)
+      # - WIREGUARD_PUBLIC_KEY=xxx         # Your WireGuard public key
+    restart: unless-stopped

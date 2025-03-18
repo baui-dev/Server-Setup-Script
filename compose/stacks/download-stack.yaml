@@ -1,0 +1,376 @@
+version: "3"
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    # Hostname to use for container, required in some instances for the rest of the stack to each other endpoints 
+    hostname: gluetun
+    # line above must be uncommented to allow external containers to connect.
+    # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md#external-container-to-gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+      - 8085:8085 # qbittorrent
+      - 8989:8989 # Sonarr
+      - 9696:9696 # Prowlarr
+      - 7878:7878 # Radarr
+      - 6767:6767 # Bazarr
+      - 8686:8686 # Lidarr
+      - 7474:7474 # Autobrr
+      - 3333:3333 # Bitmagnet
+      - 5030:5030 # slskd
+      - 8000:8000 # pyload-ng
+      - 8080:8080 # sabnzbd
+      - 5800:5800 # jdownloader-2
+    volumes:
+      - /home/ubuntu/docker/arr-stack/gluetun:/gluetun
+    environment:
+      - VPN_SERVICE_PROVIDER=mullvad
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=wOEI9rqqbDwnN8/Bpp22sVz48T71vJ4fYmFWujulwUU=
+      - WIREGUARD_ADDRESSES=10.64.222.21/32
+      - SERVER_CITIES=Amsterdam
+      # Timezone for accurate log times
+      - TZ=Europe/London
+      # Server list updater
+      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
+      - UPDATER_PERIOD=24h
+      - VPN_PORT_FORWARDING=on
+
+#Indexer Stack
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /home/ubuntu/docker/arr-stack/prowlarr/data:/config
+    restart: unless-stopped
+
+    services:
+  autobrr:
+    container_name: autobrr
+    hostname: autobrr
+    network_mode: "service:gluetun"
+    image: ghcr.io/autobrr/autobrr:latest
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    user: 1000:1000
+    volumes:
+      - ${BASE_DOCKER_DATA_PATH}/autobrr/config:/config
+    ports:
+      - 7474:7474
+
+    ---
+version: "2"
+services:
+  slskd:
+    image: slskd/slskd
+    container_name: slskd
+    hostname: slskd
+    network_mode: "service:gluetun"
+    ports:
+      - "5030:5030"
+      - "5031:5031"
+      - "50300:50300"
+    environment:
+      - SLSKD_REMOTE_CONFIGURATION=true
+    volumes:
+      - <path/to/application/data>:/app
+    restart: unless-stopped
+
+
+    servies:
+  bitmagnet:
+    image: ghcr.io/bitmagnet-io/bitmagnet:latest
+    container_name: bitmagnet
+    hostname: bitmagnet
+    network_mode: "service:gluetun"
+    ports:
+      # API and WebUI port:
+      - "3333:3333"
+      # BitTorrent ports:
+      - "3334:3334/tcp"
+      - "3334:3334/udp"
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PASSWORD=postgres
+    #      - TMDB_API_KEY=your_api_key
+    volumes:
+      - ./config:/root/.config/bitmagnet
+    command:
+      - worker
+      - run
+      - --keys=http_server
+      - --keys=queue_server
+      # disable the next line to run without DHT crawler
+      - --keys=dht_crawler
+    depends_on:
+      postgres:
+        condition: service_healthy
+      - gluetun
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: bitmagnet-postgres
+    hostname: bitmagnet-postgres
+    network_mode: "service:bitmagnet"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    #    ports:
+    #      - "5432:5432" Expose this port if you'd like to dig around in the database
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=bitmagnet
+      - PGUSER=postgres
+    shm_size: 1g
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready
+      start_period: 20s
+      interval: 10s
+
+  # --------------------------------------------------------
+
+#DOWNLOAD STACK
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
+    hostname: qbittorrent
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - WEBUI_PORT=8085
+      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest
+    volumes:
+      - /home/ubuntu/docker/arr-stack/qbittorrent:/config
+      - /home/ubuntu/docker/arr-stack/qbittorrent/downloads:/downloads
+    depends_on:
+      - gluetun
+    restart: always
+
+    ---
+services:
+  pyload-ng:
+    image: lscr.io/linuxserver/pyload-ng:latest
+    container_name: pyload-ng
+    hostname: pyload-ng
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/pyload-ng/config:/config
+      - /path/to/downloads:/downloads
+    ports:
+      - 8000:8000
+      - 9666:9666 #optional
+    restart: unless-stopped
+
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    hostname: sabnzbd
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/sabnzbd/config:/config
+      - /path/to/downloads:/downloads #optional
+      - /path/to/incomplete/downloads:/incomplete-downloads #optional
+    depends_on:
+      - gluetun
+    ports:
+      - 8080:8080
+    restart: unless-stopped 
+
+
+services:
+  jdownloader-2:
+    image: jlesage/jdownloader-2
+    container_name: jdownloader-2
+    hostname: jdownloader-2
+    network_mode: "service:gluetun"
+    volumes:
+      - "/docker/appdata/jdownloader-2:/config:rw"
+      - "/home/user/Downloads:/output:rw"
+    depends_on:
+      - gluetun
+    ports:
+      - "5800:5800"
+    restart: unless-stopped
+
+
+
+#Arr Stack
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    hostname: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/radarr/data:/config
+      - /path/to/movies:/movies #optional
+      - /path/to/download-client-downloads:/downloads #optional
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /home/ubuntu/docker/arr-stack/sonarr/data:/config
+      - /home/ubuntu/docker/arr-stack/sonarr/tvseries:/tv #optional
+      - /home/ubuntu/docker/arr-stack/sonarr/downloadclient-downloads:/downloads #optional
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    hostname: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/bazarr/config:/config
+      - /path/to/movies:/movies #optional
+      - /path/to/tv:/tv #optional
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+
+    lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    hostname: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/lidarr/config:/config
+      - /path/to/music:/music #optional
+      - /path/to/downloads:/downloads #optional
+    ports:
+      - 8686:8686
+    restart: unless-stopped
+
+
+services:
+    maintainerr:
+        image: ghcr.io/jorenn92/maintainerr:latest # or jorenn92/maintainerr:latest
+        container_name: maintainerr
+        hostname: maintainerr
+        user: 1000:1000
+        volumes:
+          - type: bind
+            source: ./data
+            target: /opt/data
+        environment:
+          - TZ=Europe/Brussels
+#      - DEBUG=true # uncomment to enable debug logs
+#      - BASE_PATH=/maintainerr # uncomment if you're serving maintainerr from a subdirectory
+#      - UI_HOSTNAME=:: # uncomment if you want to listen on IPv6 instead (default 0.0.0.0)
+#      - UI_PORT=6247 # uncomment to change the UI port (default 6246). Useful if you're on a network where the port is already in use
+#      - API_PORT=3002 # uncomment to change the API port (default 3001). Useful if you're on a network where the port is already in use
+        ports:
+          - 6246:6246
+        restart: unless-stopped
+
+
+        ---
+services:
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    hostname: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Tashkent
+      - PORT=5055 #optional
+    ports:
+      - 5055:5055
+    volumes:
+      - /path/to/appdata/config:/app/config
+    restart: unless-stopped
+
+
+
+    services:
+    profilarr:
+        image: santiagosayshey/profilarr:latest # Use :beta for early access to new features
+        container_name: profilarr
+        hostname: profilarr
+        ports:
+            - 6868:6868
+        volumes:
+            - /path/to/your/data:/config # Replace with your actual path
+        environment:
+            - TZ=UTC # Set your timezone
+        restart: unless-stopped
+
+
+
+#version: "3.8"
+services:
+  configarr:
+    image: ghcr.io/raydak-labs/configarr:latest
+    container_name: configarr
+    hostname: configarr
+    user: 1000:1000
+    #user: 1000:1000 # Optional, defaults to root:root
+    environment:
+      - TZ=Etc/UTC
+    volumes:
+      - ./config:/app/config # Contains the config.yml and secrets.yml
+      - ./dockerrepos:/app/repos # Cache repositories
+      - ./custom/cfs:/app/cfs # Optional if custom formats locally provided
+      - ./custom/templates:/app/templates # Optional if custom templates
+    # restart: "no" # optional make sure this is set to no or removed. Default is no
+
+    services:
+  # Replace or pass in APPDATA (below).
+  notifiarr:
+    container_name: notifiarr
+    hostname: notifiarr
+    image: golift/notifiarr
+    restart: unless-stopped
+    ports:
+      - "5454:5454"
+    volumes:
+      - ${APPDATA}/notifiarr:/config
+      - /var/run/utmp:/var/run/utmp
+      - /etc/machine-id:/etc/machine-id
+
+      ---

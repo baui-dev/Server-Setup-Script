@@ -1,0 +1,18 @@
+version: "3"
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000                          # User ID for file permissions
+      - PGID=1000                          # Group ID for file permissions
+      - TZ=Etc/UTC                         # Timezone
+      # Optional configuration options:
+      # - UMASK_SET=022                    # Set file creation permissions mask
+      # - URL_BASE=/prowlarr                # Add base URL if reverse proxying
+      # - DOCKER_MODS=linuxserver/mods:prowlarr-xxx  # Apply Docker mods
+    volumes:
+      - /home/ubuntu/docker/arr-stack/prowlarr/data:/config  # Config directory
+    restart: unless-stopped

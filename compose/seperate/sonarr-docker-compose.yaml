@@ -1,0 +1,28 @@
+version: "3"
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000                          # User ID for file permissions
+      - PGID=1000                          # Group ID for file permissions
+      - TZ=Etc/UTC                         # Timezone
+      # Optional configuration options:
+      # - UMASK_SET=022                    # File permissions mask
+      # - URL_BASE=/sonarr                 # Base URL for reverse proxy
+      # - DOCKER_MODS=linuxserver/mods:sonarr-striptracks # Optional Docker mods
+      # - LOG_LEVEL=info                   # Log level (trace/debug/info/warn/error)
+      # - SONARR_API_KEY=                  # API key for Sonarr
+      # - SONARR_AUTHENTICATION_METHOD=None # Authentication method (None, Basic, Forms)
+      # - SONARR_AUTHENTICATION_REQUIRED=enabled # Authentication requirement
+      # - SONARR_BIND_ADDRESS=*            # Network address to bind to
+      # - SONARR_PORT=8989                 # Port to use for Sonarr
+    volumes:
+      - /home/ubuntu/docker/arr-stack/sonarr/data:/config                     # Config directory
+      - /home/ubuntu/docker/arr-stack/sonarr/tvseries:/tv                     # TV series directory (optional)
+      - /home/ubuntu/docker/arr-stack/sonarr/downloadclient-downloads:/downloads # Downloads directory (optional)
+    restart: unless-stopped
+    depends_on:
+      - gluetun

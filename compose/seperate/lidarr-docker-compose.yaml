@@ -1,0 +1,31 @@
+version: "3"
+services:
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    hostname: lidarr
+    environment:
+      - PUID=1000                          # User ID for file permissions
+      - PGID=1000                          # Group ID for file permissions
+      - TZ=Etc/UTC                         # Timezone
+      # Optional configuration options:
+      # - UMASK_SET=022                    # File permissions mask
+      # - URL_BASE=/lidarr                 # Base URL for reverse proxy
+      # - DOCKER_MODS=linuxserver/mods:lidarr-xyz # Optional Docker mods
+      # - LOG_LEVEL=info                   # Log level (trace/debug/info/warn/error)
+      # - LIDARR_API_KEY=                  # API key for Lidarr
+      # - LIDARR_AUTHENTICATION_METHOD=None # Authentication method (None, Basic, Forms)
+      # - LIDARR_AUTHENTICATION_REQUIRED=enabled # Authentication requirement
+      # - LIDARR_BIND_ADDRESS=*            # Network address to bind to
+      # - LIDARR_PORT=8686                 # Port to use for Lidarr
+    volumes:
+      - /path/to/lidarr/config:/config     # Config directory
+      - /path/to/music:/music              # Music directory (optional)
+      - /path/to/downloads:/downloads      # Downloads directory (optional)
+    ports:
+      - 8686:8686                          # WebUI port
+    restart: unless-stopped
+    # Optionally connect to gluetun VPN:
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   - gluetun

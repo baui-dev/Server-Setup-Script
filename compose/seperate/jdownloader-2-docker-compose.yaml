@@ -1,0 +1,31 @@
+version: "3"
+services:
+  jdownloader-2:
+    image: jlesage/jdownloader-2
+    container_name: jdownloader-2
+    hostname: jdownloader-2
+    network_mode: "service:gluetun"
+    volumes:
+      - "/docker/appdata/jdownloader-2:/config:rw"   # Config directory
+      - "/home/user/Downloads:/output:rw"            # Downloads directory
+    depends_on:
+      - gluetun
+    ports:
+      - "5800:5800"                        # WebUI port
+    restart: unless-stopped
+    # Optional configuration options:
+    # environment:
+    #   - USER_ID=1000                     # User ID to run the application
+    #   - GROUP_ID=1000                    # Group ID to run the application
+    #   - TZ=Etc/UTC                       # Timezone
+    #   - MYJD_USERNAME=                   # MyJDownloader username
+    #   - MYJD_PASSWORD=                   # MyJDownloader password
+    #   - MYJD_DEVICE_NAME=JDownloader     # MyJDownloader device name
+    #   - KEEP_APP_RUNNING=1               # Keep application running if crashed
+    #   - VNC_PASSWORD=                    # VNC password for direct VNC access
+    #   - DISPLAY_WIDTH=1280               # Width of the display
+    #   - DISPLAY_HEIGHT=768               # Height of the display
+    #   - SECURE_CONNECTION=1              # Use HTTPS for web interface
+    #   - WEB_LISTENING_PORT=5800          # Port for web interface
+    #   - VNC_LISTENING_PORT=5900          # Port for VNC
+    #   - AUTO_DOWNLOAD_SECTION=false      # Auto-download best quality

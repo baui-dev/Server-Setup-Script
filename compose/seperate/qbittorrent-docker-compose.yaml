@@ -1,0 +1,28 @@
+version: "3"
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
+    hostname: qbittorrent
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000                          # User ID for file permissions
+      - PGID=1000                          # Group ID for file permissions
+      - TZ=Europe/London                   # Timezone
+      - WEBUI_PORT=8085                    # WebUI port
+      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest # VueTorrent UI mod
+      # Optional configuration options:
+      # - UMASK_SET=022                    # File permissions mask
+      # - WEBUI_USERNAME=admin             # WebUI username
+      # - WEBUI_PASSWORD=adminadmin        # WebUI password (default)
+      # - QBT_BITPORTFORWARD_ENABLED=true  # Enable UPnP/NAT-PMP
+      # - QBT_BITTORRENT_LISTENPORT=6881   # Listening port for torrents
+      # - QBT_MAXUPLOADSPEED=-1            # Max upload speed (KiB/s), -1 for no limit
+      # - QBT_MAXDOWNLOADSPEED=-1          # Max download speed (KiB/s), -1 for no limit
+      # - QBT_ADDRESS=0.0.0.0              # WebUI listen address
+    volumes:
+      - /home/ubuntu/docker/arr-stack/qbittorrent:/config  # Config directory
+      - /home/ubuntu/docker/arr-stack/qbittorrent/downloads:/downloads  # Downloads directory
+    depends_on:
+      - gluetun
+    restart: always

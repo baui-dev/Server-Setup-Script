@@ -1,0 +1,62 @@
+version: "3"
+services:
+  bitmagnet:
+    image: ghcr.io/bitmagnet-io/bitmagnet:latest
+    container_name: bitmagnet
+    hostname: bitmagnet
+    network_mode: "service:gluetun"
+    ports:
+      - "3333:3333"                        # API and WebUI port
+      - "3334:3334/tcp"                    # BitTorrent TCP port
+      - "3334:3334/udp"                    # BitTorrent UDP port
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=postgres             # PostgreSQL host
+      - POSTGRES_PASSWORD=postgres         # PostgreSQL password
+      # - TMDB_API_KEY=your_api_key        # TMDB API key for metadata
+      # Optional configuration options:
+      # - POSTGRES_USER=postgres           # PostgreSQL username
+      # - POSTGRES_DB=bitmagnet            # PostgreSQL database name
+      # - POSTGRES_PORT=5432               # PostgreSQL port
+      # - HTTP_SERVER_ADDR=:3333           # Address to bind HTTP server to
+      # - LOGGER_LEVEL=info                # Log level (debug, info, warn, error)
+      # - BITMAGNET_DATA_DIR=/data         # Data directory
+      # - DHT_BOOTSTRAP_NODES=router.bittorrent.com:6881 # DHT bootstrap nodes
+    volumes:
+      - ./config:/root/.config/bitmagnet   # Config directory
+    command:
+      - worker
+      - run
+      - --keys=http_server
+      - --keys=queue_server
+      - --keys=dht_crawler                 # Comment to disable DHT crawler
+    depends_on:
+      postgres:
+        condition: service_healthy
+      - gluetun
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: bitmagnet-postgres
+    hostname: bitmagnet-postgres
+    network_mode: "service:bitmagnet"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data  # Database storage
+    # ports:
+    #   - "5432:5432"                     # Expose this port to dig around in the database
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=postgres         # PostgreSQL password
+      - POSTGRES_DB=bitmagnet              # PostgreSQL database name
+      - PGUSER=postgres                    # PostgreSQL user
+      # Optional configuration options:
+      # - POSTGRES_USER=postgres           # PostgreSQL user
+      # - POSTGRES_HOST_AUTH_METHOD=trust  # Authentication method
+      # - PGDATA=/var/lib/postgresql/data  # Database storage location
+    shm_size: 1g                           # Shared memory size for PostgreSQL
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready
+      start_period: 20s
+      interval: 10s

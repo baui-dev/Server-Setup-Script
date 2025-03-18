@@ -1,0 +1,26 @@
+version: "3"
+services:
+  pyload-ng:
+    image: lscr.io/linuxserver/pyload-ng:latest
+    container_name: pyload-ng
+    hostname: pyload-ng
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000                          # User ID for file permissions
+      - PGID=1000                          # Group ID for file permissions
+      - TZ=Etc/UTC                         # Timezone
+      # Optional configuration options:
+      # - UMASK_SET=022                    # File permissions mask
+      # - URL_BASE=/pyload                 # Base URL for reverse proxy
+      # - PYLOAD_USERNAME=pyload           # Username
+      # - PYLOAD_PASSWORD=pyload           # Password
+      # - TRUSTED_SUBNET=192.168.1.0/24    # Trusted network subnet (for API access)
+      # - PYLOAD_DEBUG=1                   # Enable debug logging
+      # - PYLOAD_RESTORE=1                 # Restore default config
+    volumes:
+      - /path/to/pyload-ng/config:/config  # Config directory
+      - /path/to/downloads:/downloads      # Downloads directory
+    ports:
+      - 8000:8000                          # WebUI port
+      - 9666:9666                          # API port (optional)
+    restart: unless-stopped
