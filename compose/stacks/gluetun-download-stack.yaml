@@ -14,18 +14,25 @@ services:
     ports:
       - 6881:6881
       - 6881:6881/udp
-      - 8085:8085 # qbittorrent
-      - 8989:8989 # Sonarr
-      - 9696:9696 # Prowlarr
-      - 7878:7878 # Radarr
-      - 6767:6767 # Bazarr
-      - 8686:8686 # Lidarr
-      - 7474:7474 # Autobrr
+
       - 3333:3333 # Bitmagnet
-      - 5030:5030 # slskd
-      - 8000:8000 # pyload-ng
+      - 7878:7878 # Radarr
+      - 7474:7474 # Autobrr
+
+
+      - 8085:8085 # qbittorrent
       - 8080:8080 # sabnzbd
       - 5800:5800 # jdownloader-2
+      - 8000:8000 # pyload-ng
+      - 5030:5030 # slskd
+      
+
+
+
+      - 8989:8989 # Sonarr
+      - 9696:9696 # Prowlarr
+      - 6767:6767 # Bazarr
+      - 8686:8686 # Lidarr
     volumes:
       - /home/ubuntu/docker/arr-stack/gluetun:/gluetun
     environment:

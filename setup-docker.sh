@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Ensure script runs as root
-if [ "$(id -u)" -ne 0 ]; then
-    echo "Please run this script as root or with sudo."
-    exit 1
-fi
-
 install_docker() {
     # Update and install necessary packages
     apt-get update && apt-get install -y ca-certificates curl gnupg

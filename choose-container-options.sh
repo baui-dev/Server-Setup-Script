@@ -1,5 +1,26 @@
 #!/bin/bash
 
+# Function to setup docker
+setup_docker() {
+    local USER="$1"
+    local MODE="$2"
+    
+    if [[ "$MODE" == "rootless" ]]; then
+        install_docker_rootless
+    else
+        install_docker
+        usermod -aG docker "$USER"
+    fi
+}
+
+# Function to setup podman
+setup_podman() {
+    local USER="$1"
+    local MODE="$2"
+    
+    choose_podman_source
+}
+
 # Function to choose container manager
 choose_container_engine() {
     local USER="$1"
@@ -15,7 +36,7 @@ choose_container_engine() {
     2)
         echo "Installing Docker in rootless mode..."
         setup_docker "$USER" "rootless"
-        echo "docker"
+        echo "docker-rootless"
         ;;
     3)
         echo "Installing Podman..."
@@ -25,7 +46,7 @@ choose_container_engine() {
     4)
         echo "Installing Podman in rootless mode..."
         setup_podman "$USER" "rootless"
-        echo "podman"
+        echo "podman-rootless"
         ;;
     *)
         echo "Installing Docker..."
@@ -81,28 +102,28 @@ choose_container_manager() {
     case "$CONTAINER_MANAGER" in
     2)
         echo "Installing Cockpit..."
-        install_cockpit
+        install_cockpit "$CONTAINER_ENGINE"
         ;;
     3)
         if [[ "$CONTAINER_ENGINE" == "docker" ]]; then
             echo "Installing Komodo..."
-            install_komodo
+            install_komodo "$CONTAINER_ENGINE"
         else
             echo "Komodo requires Docker. Installing Portainer instead..."
-            install_portainer
+            install_portainer "$CONTAINER_ENGINE"
         fi
         ;;
     4)
         echo "Installing Yacht..."
-        install_yacht
+        install_yacht "$CONTAINER_ENGINE"
         ;;
     5)
         echo "Installing dweebui..."
-        install_dweebui
+        install_dweebui "$CONTAINER_ENGINE"
         ;;
     6)
         echo "Installing Dockge..."
-        install_dockge
+        install_dockge "$CONTAINER_ENGINE"
         ;;
     7)
         echo "Skipping container UI installation."
@@ -112,7 +133,7 @@ choose_container_manager() {
         ;;
     *)
         echo "Installing Portainer..."
-        install_portainer
+        install_portainer "$CONTAINER_ENGINE"
         ;;
     esac
 }
@@ -183,3 +204,40 @@ choose_aio_manager() {
 
 #Yunohost, HomelabOS, Ethibox, Elistio, Coop Cloud, Sandstorm, Caprover, Dokku, Freedombox, Easypanel, Cloudron, HexOS, PikaPods, (Cloudbox, Cloudcmd, CloudC2, Cloud9, Cloudify, )
 # https://forum.cloudron.io/topic/10000/a-list-of-cloudron-like-services-competitors
+
+# Placeholder install functions for AiO managers
+install_cosmosui() {
+    echo "CosmosUI installation not implemented yet."
+}
+
+install_casaos() {
+    echo "CasaOS installation not implemented yet."
+}
+
+install_runtipi() {
+    echo "Runtipi installation not implemented yet."
+}
+
+install_umbrel() {
+    echo "Umbrel installation not implemented yet."
+}
+
+install_dockstarter() {
+    echo "DockSTARTer installation not implemented yet."
+}
+
+install_coolify() {
+    echo "Coolify installation not implemented yet."
+}
+
+install_truenas() {
+    echo "TrueNas installation not implemented yet."
+}
+
+install_unraid() {
+    echo "Unraid installation not implemented yet."
+}
+
+install_openmediavault() {
+    echo "OpenMediaVault installation not implemented yet."
+}
