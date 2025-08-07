@@ -100,15 +100,15 @@ install_portainer() {
         ;;
     docker-rootless)
         docker volume create portainer_data
-        docker run -d -p 9443:9443 -v /run/user/1000/docker.sock:/var/run/docker.sock -v portainer_data:/data --name=portainer --restart=always $PORTAINER_IMAGE
+        docker run -d -p 9443:9443 -v $XDG_RUNTIME_DIR/docker.sock:/var/run/docker.sock -v portainer_data:/data --name=portainer --restart=always $PORTAINER_IMAGE
         ;;
     podman)
         podman volume create portainer_data
-        podman run -d -p 9443:9443 --name portainer -v /run/user/1000/podman/podman.sock:/var/run/docker.sock -v portainer_data:/data --restart=always --privileged $PORTAINER_IMAGE
+        podman run -d -p 9443:9443 --name portainer -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock -v portainer_data:/data --restart=always --privileged $PORTAINER_IMAGE
         ;;
     podman-rootless)
         podman volume create portainer_data
-        podman run -d -p 9443:9443 --name portainer -v /run/user/1000/podman/podman.sock:/var/run/docker.sock -v portainer_data:/data --restart=always --privileged $PORTAINER_IMAGE
+        podman run -d -p 9443:9443 --name portainer -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock -v portainer_data:/data --restart=always --privileged $PORTAINER_IMAGE
         ;;
     *)
         echo "Invalid container engine."
@@ -119,19 +119,25 @@ install_portainer() {
 # Install Komodo
 install_komodo() {
     local CONTAINER_ENGINE="$1"
-
+    echo "Komodo installation not implemented yet."
 }
 
 # Install Dockge
 install_dockge() {
     local CONTAINER_ENGINE="$1"
-
+    echo "Dockge installation not implemented yet."
 }
 
 # Install DweebUI
 install_dweebui() {
     local CONTAINER_ENGINE="$1"
+    echo "DweebUI installation not implemented yet."
+}
 
+# Install Cockpit
+install_cockpit() {
+    local CONTAINER_ENGINE="$1"
+    echo "Cockpit installation not implemented yet."
 }
 
 # Install Yacht
@@ -145,15 +151,15 @@ install_yacht() {
         ;;
     docker-rootless)
         docker volume create yacht_data
-        docker run -d -p 8000:8000 -v /run/user/1000/docker.sock:/var/run/docker.sock -v yacht_data:/config --name=yacht --restart=always selfhostedpro/yacht:latest
+        docker run -d -p 8000:8000 -v $XDG_RUNTIME_DIR/docker.sock:/var/run/docker.sock -v yacht_data:/config --name=yacht --restart=always selfhostedpro/yacht:latest
         ;;
     podman)
         podman volume create yacht_data
-        podman run -d -p 8000:8000 --name yacht -v /run/user/1000/podman/podman.sock -v yacht_data:/config --restart=always --privileged selfhostedpro/yacht:latest
+        podman run -d -p 8000:8000 --name yacht -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock -v yacht_data:/config --restart=always --privileged selfhostedpro/yacht:latest
         ;;
     podman-rootless)
         podman volume create yacht_data
-        podman run -d -p 8000:8000 --name yacht -v /run/user/1000/podman/podman.sock -v yacht_data:/config --restart=always --privileged selfhostedpro/yacht:latest
+        podman run -d -p 8000:8000 --name yacht -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock -v yacht_data:/config --restart=always --privileged selfhostedpro/yacht:latest
         ;;
     *)
         echo "Invalid container engine."

@@ -1,9 +1,18 @@
 #!/bin/bash
 
+# Define SSH config file path
+SSH_CONFIG="/etc/ssh/sshd_config"
+
 # Function to configure SSH
 configure_ssh() {
     local SSH_PORT="$1"
     local USER="$2"
+    
+    # Validate inputs
+    if [[ -z "$SSH_PORT" || -z "$USER" ]]; then
+        echo "Error: SSH port and user must be provided"
+        return 1
+    fi
 
     # Ask for authentication methods
     echo "Please select the authentication methods to accept:"
@@ -31,11 +40,31 @@ configure_ssh() {
     # Backup original SSH config
     cp "$SSH_CONFIG" "${SSH_CONFIG}.bak"
 
-    # Configure SSH
+    # Determine user home directory
+    local USER_HOME
+    if [[ "$USER" == "root" ]]; then
+        USER_HOME="/root"
+    else
+        USER_HOME="/home/$USER"
+    fi
+
+    # Configure SSH - handle both commented and uncommented lines
     sed -i "s/^#Port 22/Port $SSH_PORT/" "$SSH_CONFIG"
+    sed -i "s/^Port .*/Port $SSH_PORT/" "$SSH_CONFIG"
     sed -i "s/^#PermitRootLogin prohibit-password/PermitRootLogin $PERMIT_ROOT_LOGIN/" "$SSH_CONFIG"
-    sed -i "s/^#PasswordAuthentication yes/PasswordAuthentication no/" "$SSH_CONFIG"
+    sed -i "s/^PermitRootLogin .*/PermitRootLogin $PERMIT_ROOT_LOGIN/" "$SSH_CONFIG"
+    
+    # Set password authentication based on selected methods
+    if [[ "$AUTH_METHODS" == *"password"* ]]; then
+        sed -i "s/^#PasswordAuthentication .*/PasswordAuthentication yes/" "$SSH_CONFIG"
+        sed -i "s/^PasswordAuthentication .*/PasswordAuthentication yes/" "$SSH_CONFIG"
+    else
+        sed -i "s/^#PasswordAuthentication .*/PasswordAuthentication no/" "$SSH_CONFIG"
+        sed -i "s/^PasswordAuthentication .*/PasswordAuthentication no/" "$SSH_CONFIG"
+    fi
+    
     sed -i "s/^#PubkeyAuthentication yes/PubkeyAuthentication yes/" "$SSH_CONFIG"
+    sed -i "s/^PubkeyAuthentication .*/PubkeyAuthentication yes/" "$SSH_CONFIG"
 
     # Add allowed user
     echo "AllowUsers $USER" >>"$SSH_CONFIG"
@@ -44,11 +73,11 @@ configure_ssh() {
     echo "AuthenticationMethods $AUTH_METHODS" >>"$SSH_CONFIG"
 
     # Setup key authentication for the user
-    mkdir -p /home/$USER/.ssh
-    touch /home/$USER/.ssh/authorized_keys
-    chmod 700 /home/$USER/.ssh
-    chmod 600 /home/$USER/.ssh/authorized_keys
-    chown -R $USER:$USER /home/$USER/.ssh
+    mkdir -p "$USER_HOME/.ssh"
+    touch "$USER_HOME/.ssh/authorized_keys"
+    chmod 700 "$USER_HOME/.ssh"
+    chmod 600 "$USER_HOME/.ssh/authorized_keys"
+    chown -R $USER:$USER "$USER_HOME/.ssh"
 
     if [[ "$AUTH_METHODS" == *"publickey"* ]]; then
         # Ask whether to create a keypair or provide one
@@ -57,13 +86,14 @@ configure_ssh() {
         CREATE_KEYPAIR=${CREATE_KEYPAIR:-yes}
 
         if [[ "$CREATE_KEYPAIR" == "yes" ]]; then
-            ssh-keygen -t rsa -b 2048 -f /home/$USER/.ssh/id_rsa -N ""
-            cat /home/$USER/.ssh/id_rsa.pub >>/home/$USER/.ssh/authorized_keys
+            ssh-keygen -t rsa -b 2048 -f "$USER_HOME/.ssh/id_rsa" -N ""
+            cat "$USER_HOME/.ssh/id_rsa.pub" >>"$USER_HOME/.ssh/authorized_keys"
+            chown -R $USER:$USER "$USER_HOME/.ssh"
             echo "SSH keypair created for user $USER."
             echo "Public Key:"
-            cat /home/$USER/.ssh/id_rsa.pub
+            cat "$USER_HOME/.ssh/id_rsa.pub"
             echo "Private Key:"
-            cat /home/$USER/.ssh/id_rsa
+            cat "$USER_HOME/.ssh/id_rsa"
             echo "Please save the private key securely."
             echo "Press Enter to continue..."
             read -r
@@ -72,7 +102,7 @@ configure_ssh() {
             read -r SSH_KEY
 
             if [[ -n "$SSH_KEY" ]]; then
-                echo "$SSH_KEY" >>/home/$USER/.ssh/authorized_keys
+                echo "$SSH_KEY" >>"$USER_HOME/.ssh/authorized_keys"
                 echo "SSH key added for user $USER."
             else
                 echo "No SSH key provided. You will need to add one later."
@@ -94,7 +124,7 @@ configure_ssh() {
         echo "Please select an option:"
         echo "1) Write changes to config file"
         echo "2) Restart config"
-        echo "3) Cancel configuration and return to server-manager.sh"
+        echo "3) Cancel configuration"
         read -r USER_CHOICE
 
         case $USER_CHOICE in
@@ -119,11 +149,10 @@ configure_ssh() {
             break
             ;;
         3)
-            # Restore original SSH config and return to server-manager.sh
+            # Restore original SSH config and exit
             cp "${SSH_CONFIG}.bak" "$SSH_CONFIG"
-            echo "Configuration cancelled. Returning to server-manager.sh..."
-            ./server-manager.sh
-            break
+            echo "Configuration cancelled."
+            return 1
             ;;
         *)
             echo "Invalid option. Please try again."
