@@ -218,7 +218,7 @@ services:
       - 8266:8266 # server port
     environment:
       - TZ=${TZ}
-      - PUID=${PUID}
+      - PUID=${PUID}baui5.cloud
       - PGID=${PGID}
       - UMASK_SET=002
       - nodeName=ServerNode
@@ -294,7 +294,7 @@ services:
     environment:
       - APP_URL=${WIZARR_URL} #URL at which you will access and share 
       - DISABLE_BUILTIN_AUTH=false #Set to true ONLY if you are using another auth provider (Authelia, Authentik, etc)
-      - TZ=${TZ} #Set your timezone here
+      - TZ=${TZ} #Set your timezoone here
       
   #Dozzle - Used to easily view logs of any container in real time!    
   dozzle:
