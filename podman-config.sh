@@ -38,6 +38,38 @@ choose_podman_source() {
     esac
 }
 
+choose_podman_source_prompt() {
+    local choice
+    echo "Choose Podman source:"
+    echo "1) Github release (standard)"
+    echo "2) Debian repository"
+    echo "3) Alvistack repository"
+    read -r -p "Select option (1-3) [1]: " choice
+    case "$choice" in
+        2) echo "debian" ;;
+        3) echo "alvistack" ;;
+        *) echo "github" ;;
+    esac
+}
+
+apply_podman_install() {
+    local source="$1"
+    case "$source" in
+        debian)
+            apt-get update && apt-get install -y podman podman-compose podman-netavark
+            setup_podman_config
+            ;;
+        alvistack)
+            install_podman_alvistack
+            setup_podman_config
+            ;;
+        github|*)
+            install_podman_github
+            setup_podman_config
+            ;;
+    esac
+}
+
 # Install Podman from Github release
 install_podman_github() {
     TARGET_USER=$(get_target_user)

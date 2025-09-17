@@ -160,3 +160,97 @@ configure_ssh() {
         esac
     done
 }
+
+apply_ssh_config() {
+    local SSH_PORT="$1"
+    local USER="$2"
+    local AUTH_METHODS="$3"               # e.g., publickey or publickey,password
+    local PERMIT_ROOT_LOGIN="$4"          # yes|no
+    local SSH_PUBKEY_INPUT="${5:-}"
+    local GENERATE_KEYPAIR="${6:-yes}"
+
+    if [[ -z "$SSH_PORT" || -z "$USER" ]]; then
+        echo "apply_ssh_config: SSH port and user are required" >&2
+        return 1
+    fi
+
+    local USER_HOME; USER_HOME=$([[ "$USER" == "root" ]] && echo "/root" || echo "/home/$USER")
+
+    # Ensure user exists
+    if ! id -u "$USER" >/dev/null 2>&1; then
+        echo "User $USER does not exist; creating..."
+        useradd -m -s /bin/bash "$USER"
+        usermod -aG sudo "$USER"
+    fi
+
+    # Backup config once
+    local SSH_CONFIG="/etc/ssh/sshd_config"
+    [[ -f "${SSH_CONFIG}.bak" ]] || cp "$SSH_CONFIG" "${SSH_CONFIG}.bak"
+
+    # Update key directives robustly
+    if grep -qE '^#?Port ' "$SSH_CONFIG"; then
+        sed -i "s/^#\?Port .*/Port $SSH_PORT/" "$SSH_CONFIG"
+    else
+        echo "Port $SSH_PORT" >> "$SSH_CONFIG"
+    fi
+
+    if grep -qE '^#?PermitRootLogin ' "$SSH_CONFIG"; then
+        sed -i "s/^#\?PermitRootLogin .*/PermitRootLogin $PERMIT_ROOT_LOGIN/" "$SSH_CONFIG"
+    else
+        echo "PermitRootLogin $PERMIT_ROOT_LOGIN" >> "$SSH_CONFIG"
+    fi
+
+    if [[ "$AUTH_METHODS" == *"password"* ]]; then
+        sed -i "s/^#\?PasswordAuthentication .*/PasswordAuthentication yes/" "$SSH_CONFIG"
+    else
+        sed -i "s/^#\?PasswordAuthentication .*/PasswordAuthentication no/" "$SSH_CONFIG"
+    fi
+
+    sed -i "s/^#\?PubkeyAuthentication .*/PubkeyAuthentication yes/" "$SSH_CONFIG" || echo "PubkeyAuthentication yes" >> "$SSH_CONFIG"
+
+    # Add AllowUsers (ensure idempotent)
+    grep -q "^AllowUsers .*\b$USER\b" "$SSH_CONFIG" || echo "AllowUsers $USER" >> "$SSH_CONFIG"
+
+    # AuthenticationMethods
+    if grep -q '^AuthenticationMethods ' "$SSH_CONFIG"; then
+        sed -i "s/^AuthenticationMethods .*/AuthenticationMethods $AUTH_METHODS/" "$SSH_CONFIG"
+    else
+        echo "AuthenticationMethods $AUTH_METHODS" >> "$SSH_CONFIG"
+    fi
+
+    # Setup authorized_keys
+    install -d -m 700 "$USER_HOME/.ssh"
+    touch "$USER_HOME/.ssh/authorized_keys"
+    chmod 600 "$USER_HOME/.ssh/authorized_keys"
+    chown -R "$USER:$USER" "$USER_HOME/.ssh"
+
+    if [[ "$AUTH_METHODS" == *"publickey"* ]]; then
+        if [[ "$GENERATE_KEYPAIR" == "yes" ]]; then
+            if [[ ! -f "$USER_HOME/.ssh/id_ed25519" ]]; then
+                sudo -iu "$USER" ssh-keygen -t ed25519 -N "" -f "$USER_HOME/.ssh/id_ed25519" <<<"" >/dev/null 2>&1 || true
+            fi
+            cat "$USER_HOME/.ssh/id_ed25519.pub" >> "$USER_HOME/.ssh/authorized_keys"
+        elif [[ -n "$SSH_PUBKEY_INPUT" ]]; then
+            grep -qF "$SSH_PUBKEY_INPUT" "$USER_HOME/.ssh/authorized_keys" || echo "$SSH_PUBKEY_INPUT" >> "$USER_HOME/.ssh/authorized_keys"
+        fi
+    fi
+
+    systemctl restart ssh
+}
+
+apply_firewall() {
+    local SSH_PORT="$1"
+    apt-get install -y iptables-persistent >/dev/null 2>&1 || true
+    iptables -F
+    iptables -P INPUT DROP
+    iptables -P FORWARD DROP
+    iptables -P OUTPUT ACCEPT
+    iptables -A INPUT -i lo -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+    iptables -A INPUT -p tcp --dport "$SSH_PORT" -j ACCEPT
+    iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+    iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+    iptables -A INPUT -p tcp --dport 8000 -j ACCEPT  # Yacht
+    iptables -A INPUT -p tcp --dport 9443 -j ACCEPT  # Portainer
+    iptables-save > /etc/iptables/rules.v4
+}

@@ -202,6 +202,24 @@ choose_aio_manager() {
     esac
 }
 
+# Non-install prompt that returns a keyword for the selected engine
+choose_container_engine_prompt() {
+    local USER="$1"
+    local choice
+    echo "Choose container engine:"
+    echo "1) Docker (Standard)"
+    echo "2) Docker (Rootless)"
+    echo "3) Podman (Standard)"
+    echo "4) Podman (Rootless)"
+    read -r -p "Select option (1-4) [1]: " choice
+    case "$choice" in
+        2) echo "docker-rootless" ;;
+        3) echo "podman" ;;
+        4) echo "podman-rootless" ;;
+        *) echo "docker" ;;
+    esac
+}
+
 #Yunohost, HomelabOS, Ethibox, Elistio, Coop Cloud, Sandstorm, Caprover, Dokku, Freedombox, Easypanel, Cloudron, HexOS, PikaPods, (Cloudbox, Cloudcmd, CloudC2, Cloud9, Cloudify, )
 # https://forum.cloudron.io/topic/10000/a-list-of-cloudron-like-services-competitors
 
