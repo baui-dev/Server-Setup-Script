@@ -495,136 +495,135 @@ services:
       - jellystat
       - proxy
 
+    decluttarr:
+      image: ghcr.io/manimatter/decluttarr:latest
+      container_name: decluttarr
+      restart: always
+      environment:
+        TZ: Europe/Zurich
+        PUID: 1000
+        PGID: 1000
 
- decluttarr:
-    image: ghcr.io/manimatter/decluttarr:latest
-    container_name: decluttarr
-    restart: always
-    environment:
-      TZ: Europe/Zurich
-      PUID: 1000
-      PGID: 1000
+        LOG_LEVEL: INFO
+        TEST_RUN: True
+        TIMER: 10
+        # IGNORED_DOWNLOAD_CLIENTS: >
+        #   - emulerr
+        # SSL_VERIFICATION: true
+        # PRIVATE_TRACKER_HANDLING: "obsolete_tag"
+        # PUBLIC_TRACKER_HANDLING: "remove"
+        # OBSOLETE_TAG: "Obsolete"
+        # PROTECTED_TAG: "Keep"
 
-      LOG_LEVEL: INFO
-      TEST_RUN: True
-      TIMER: 10
-      # IGNORED_DOWNLOAD_CLIENTS: >
-      #   - emulerr
-      # SSL_VERIFICATION: true
-      # PRIVATE_TRACKER_HANDLING: "obsolete_tag"
-      # PUBLIC_TRACKER_HANDLING: "remove"
-      # OBSOLETE_TAG: "Obsolete"
-      # PROTECTED_TAG: "Keep"
+        # # --- Optional: Job Defaults ---
+        # You can use these to set those parameters across all jobs. If you don't specify it here, the defaults set by system will be used
+        # If you set job-specific parameters (further down below), they will override these settings.
+        # max_strikes: 3
+        # MIN_DAYS_BETWEEN_SEARCHES: 7
+        # MAX_CONCURRENT_SEARCHES: 3
 
-      # # --- Optional: Job Defaults ---
-      # You can use these to set those parameters across all jobs. If you don't specify it here, the defaults set by system will be used
-      # If you set job-specific parameters (further down below), they will override these settings.
-      # max_strikes: 3
-      # MIN_DAYS_BETWEEN_SEARCHES: 7
-      # MAX_CONCURRENT_SEARCHES: 3
+        # # --- Jobs (short notation) ---
+        # If you want to go with the most basic settings, you can just turn them all on:
+        REMOVE_BAD_FILES: True
+        REMOVE_FAILED_DOWNLOADS: True
+        REMOVE_FAILED_IMPORTS: True
+        REMOVE_METADATA_MISSING: True
+        REMOVE_MISSING_FILES: True
+        REMOVE_ORPHANS: True
+        REMOVE_SLOW: True
+        REMOVE_STALLED: True
+        REMOVE_UNMONITORED: True
+        SEARCH_BETTER: True
+        SEARCH_MISSING: True
+        DETECT_DELETIONS: True
 
-      # # --- Jobs (short notation) ---
-      # If you want to go with the most basic settings, you can just turn them all on:
-      REMOVE_BAD_FILES: True
-      REMOVE_FAILED_DOWNLOADS: True
-      REMOVE_FAILED_IMPORTS: True
-      REMOVE_METADATA_MISSING: True
-      REMOVE_MISSING_FILES: True
-      REMOVE_ORPHANS: True
-      REMOVE_SLOW: True
-      REMOVE_STALLED: True
-      REMOVE_UNMONITORED: True
-      SEARCH_BETTER: True
-      SEARCH_MISSING: True
-      DETECT_DELETIONS: True
+        # # --- OR: Jobs (with job-specific settings) ---
+        # Alternatively, you can use the below notation, which for certain jobs allows you to set additional parameters
+        # As written above, these can also be set as Job Defaults so you don't have to specify them as granular as below.
+        # REMOVE_BAD_FILES: |
+        #   keep_archives: True
+        # REMOVE_FAILED_DOWNLOADS: True
+        # REMOVE_FAILED_IMPORTS: |
+        #   message_patterns:
+        #     - "Not a Custom Format upgrade for existing*"
+        #     - "Not an upgrade for existing*"
+        #     - "*Found potentially dangerous file with extension*"
+        #     - "Invalid video file*"
+        #     - "No files found are eligible for import*"
+        #     - "One or more episodes expected in this release were not imported or missing from the release"
+        # REMOVE_METADATA_MISSING: |
+        #   max_strikes: 3
+        # REMOVE_MISSING_FILES: True
+        # REMOVE_ORPHANS: True
+        # REMOVE_SLOW: |
+        #   min_speed: 100
+        #   max_strikes: 3
+        # REMOVE_STALLED: |
+        #   max_strikes: 3
+        # REMOVE_UNMONITORED: True
+        # SEARCH_UNMET_CUTOFF: |
+        #   min_days_between_searches: 7
+        #   max_concurrent_searches: 3
+        # SEARCH_MISSING: |
+        #   min_days_between_searches: 7
+        #   max_concurrent_searches: 3
+        # DETECT_DELETIONS:
 
-      # # --- OR: Jobs (with job-specific settings) ---
-      # Alternatively, you can use the below notation, which for certain jobs allows you to set additional parameters
-      # As written above, these can also be set as Job Defaults so you don't have to specify them as granular as below.
-      # REMOVE_BAD_FILES: |
-      #   keep_archives: True
-      # REMOVE_FAILED_DOWNLOADS: True
-      # REMOVE_FAILED_IMPORTS: |
-      #   message_patterns:
-      #     - "Not a Custom Format upgrade for existing*"
-      #     - "Not an upgrade for existing*"
-      #     - "*Found potentially dangerous file with extension*"
-      #     - "Invalid video file*"
-      #     - "No files found are eligible for import*"
-      #     - "One or more episodes expected in this release were not imported or missing from the release"
-      # REMOVE_METADATA_MISSING: |
-      #   max_strikes: 3
-      # REMOVE_MISSING_FILES: True
-      # REMOVE_ORPHANS: True
-      # REMOVE_SLOW: |
-      #   min_speed: 100
-      #   max_strikes: 3
-      # REMOVE_STALLED: |
-      #   max_strikes: 3
-      # REMOVE_UNMONITORED: True
-      # SEARCH_UNMET_CUTOFF: |
-      #   min_days_between_searches: 7
-      #   max_concurrent_searches: 3
-      # SEARCH_MISSING: |
-      #   min_days_between_searches: 7
-      #   max_concurrent_searches: 3
-      # DETECT_DELETIONS:
+        # --- Instances ---
+        SONARR: >
+          - base_url: "http://sonarr1:8989"
+            api_key: "$SONARR_API_KEY"
+          - base_url: "http://sonarr2:8989"
+            api_key: "$SONARR_API_KEY"
 
-      # --- Instances ---
-      SONARR: >
-        - base_url: "http://sonarr1:8989"
-          api_key: "$SONARR_API_KEY"
-        - base_url: "http://sonarr2:8989"
-          api_key: "$SONARR_API_KEY"
+        # RADARR: >
+        #   - base_url: "http://radarr:7878"
+        #     api_key: "$RADARR_API_KEY"
 
-      # RADARR: >
-      #   - base_url: "http://radarr:7878"
-      #     api_key: "$RADARR_API_KEY"
+        # READARR: >
+        #   - base_url: "http://readarr:8787"
+        #     api_key: "$READARR_API_KEY"
 
-      # READARR: >
-      #   - base_url: "http://readarr:8787"
-      #     api_key: "$READARR_API_KEY"
+        # LIDARR: >
+        #   - base_url: "http://lidarr:8686"
+        #     api_key: "$LIDARR_API_KEY"
 
-      # LIDARR: >
-      #   - base_url: "http://lidarr:8686"
-      #     api_key: "$LIDARR_API_KEY"
+        # WHISPARR: >
+        #   - base_url: "http://whisparr:6969"
+        #     api_key: "$WHISPARR_API_KEY"
 
-      # WHISPARR: >
-      #   - base_url: "http://whisparr:6969"
-      #     api_key: "$WHISPARR_API_KEY"
-
-      # --- Download Clients ---
-      QBITTORRENT: >
-        - base_url: "http://qbittorrent:8080"
-          # username: "$QBIT_USERNAME" # (optional -> if not provided, assuming not needed)
-          # password: "$QBIT_PASSWORD" # (optional -> if not provided, assuming not needed)
-          name: "qBittorrent 1" # (optional -> if not provided, assuming "qBittorrent". Must correspond with what is specified in your *arr as download client name)
-        - base_url: "http://qbittorrent:8080"
-          name: "qBittorrent 2" 
-    volumes:
-      # - $DOCKERDIR/appdata/decluttarr/logs:/app/logs # Uncomment to get logs in text file, too      
-      # - $DATADIR/media:/media # If you use detect_deletions, add the identical mount paths that you use in your sonarr/radarr instances. This may be different to this example!
-
+        # --- Download Clients ---
+        QBITTORRENT: >
+          - base_url: "http://qbittorrent:8080"
+            # username: "$QBIT_USERNAME" # (optional -> if not provided, assuming not needed)
+            # password: "$QBIT_PASSWORD" # (optional -> if not provided, assuming not needed)
+            name: "qBittorrent 1" # (optional -> if not provided, assuming "qBittorrent". Must correspond with what is specified in your *arr as download client name)
+          - base_url: "http://qbittorrent:8080"
+            name: "qBittorrent 2" 
+      volumes:
+        # - $DOCKERDIR/appdata/decluttarr/logs:/app/logs # Uncomment to get logs in text file, too      
+        # - $DATADIR/media:/media # If you use detect_deletions, add the identical mount paths that you use in your sonarr/radarr instances. This may be different to this example!
 
 
-  
-  janitorr:
-    container_name: janitorr
-    image: ghcr.io/schaka/janitorr:stable
-    user: ${PUID}:${PGID} # Replace with your user who should own your application.yml file
-    volumes:
-      - ${BASE_PATH}/janitorr/application.yml:/workspace/application.yml
-      - ${BASE_PATH}/janitorr/logs:/logs
-      - ${MEDIA_SHARE}:/data
-    healthcheck:
-      test: "wget -T5 -qO- http://localhost:8081/health | grep UP || exit 1"
-      start_period: 30s
-      interval: 5s
-      retries: 3
-    networks:
-      - starr
 
-  
+    
+    janitorr:
+      container_name: janitorr
+      image: ghcr.io/schaka/janitorr:stable
+      user: ${PUID}:${PGID} # Replace with your user who should own your application.yml file
+      volumes:
+        - ${BASE_PATH}/janitorr/application.yml:/workspace/application.yml
+        - ${BASE_PATH}/janitorr/logs:/logs
+        - ${MEDIA_SHARE}:/data
+      healthcheck:
+        test: "wget -T5 -qO- http://localhost:8081/health | grep UP || exit 1"
+        start_period: 30s
+        interval: 5s
+        retries: 3
+      networks:
+        - starr
+
+    
 
   profilarr:
     image: santiagosayshey/profilarr:latest
