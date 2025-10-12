@@ -25,11 +25,14 @@ source "${DIR}/podman-config.sh"
 source "${DIR}/container-manager-config.sh"
 source "${DIR}/choose-container-options.sh"
 source "${DIR}/network-config.sh"
+
+source "${DIR}/sources-list.sh"  # for adding apt sources if needed
 # security-config.sh is a standalone executable script; we'll invoke it at apply time if present
 
 # Defaults
-USERNAME=""
 CREATE_NEW_USER=0
+USERNAME=""
+SERVER_URL=""
 SSH_PORT=22
 AUTH_METHODS="publickey"
 PERMIT_ROOT_LOGIN="no"

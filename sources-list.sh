@@ -1,0 +1,7 @@
+
+Types: deb
+URIs: https://www.deb-multimedia.org
+Suites: unstable
+Components: main non-free
+Signed-By: /usr/share/keyrings/deb-multimedia-keyring.pgp
+Enabled: yes
