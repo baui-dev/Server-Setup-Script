@@ -43,9 +43,8 @@ check_root() {
 enable_multilib() {
     log "INFO" "1. Enabling [multilib] repository..."
     # Use sed to safely uncomment the multilib section and its Include line.[2, 3]
-    if! grep -q '\[multilib\]' /etc/pacman.conf |
-
-| grep -q '^#\[multilib\]' /etc/pacman.conf; then
+    # Check if the [multilib] header is currently commented out
+    if grep -q '^#\[multilib\]' /etc/pacman.conf; then
         sed -i '/\[multilib\]/{
             s/^#//;
             n;
@@ -85,7 +84,7 @@ install_xerolinux() {
 
     if! grep -q '\[xerolinux\]' /etc/pacman.conf; then
         log "INFO" "Appending [xerolinux] definition to pacman.conf."
-        echo -e "$XEROLINUX_REPO_BLOCK" | tee -a /etc/pacman.conf > /dev/null [19]
+        echo -e "$XEROLININUX_REPO_BLOCK" | tee -a /etc/pacman.conf > /dev/null [13]
     else
         log "WARNING" "[xerolinux] definition already present. Skipping append."
     fi
@@ -99,7 +98,7 @@ sync_databases() {
 
 install_aur_helper() {
     log "INFO" "5. Installing Paru AUR helper."
-    # Leveraging the pre-built binary package available in Chaotic-AUR for speed.[16]
+    # Leveraging the pre-built binary package available in Chaotic-AUR for speed.[17]
     log "INFO" "Installing paru directly using pacman."
     pacman -S --noconfirm paru
     log "INFO" "Paru installed successfully. AUR is now accessible."
