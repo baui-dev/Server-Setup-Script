@@ -23,10 +23,14 @@ log() {
 cleanup() {
     log "INFO" "Cleaning up temporary directory: $TEMP_DIR"
     rm -rf "$TEMP_DIR"
+<<<<<<< Updated upstream
     # Note: $? holds the exit status of the script's main execution *before* the trap runs,
     # but since `set -e` is active, the script might exit from a command failure,
     # so we'll just log that cleanup is running.
     log "INFO" "Script finished execution."
+=======
+    log "INFO" "Script finished execution with status $?."
+>>>>>>> Stashed changes
 }
 
 # Trap exit signal to ensure cleanup runs on success or failure
@@ -45,7 +49,11 @@ check_root() {
 
 enable_multilib() {
     log "INFO" "1. Enabling [multilib] repository..."
+<<<<<<< Updated upstream
     # Use sed to safely uncomment the multilib section and its Include line.
+=======
+    # Use sed to safely uncomment the multilib section and its Include line.[2, 3]
+>>>>>>> Stashed changes
     # Check if the [multilib] header is currently commented out
     if grep -q '^#\[multilib\]' /etc/pacman.conf; then
         sed -i '/\[multilib\]/{
@@ -62,7 +70,11 @@ enable_multilib() {
 install_chaotic_aur() {
     log "INFO" "2. Installing Chaotic-AUR keyring and repository definition."
 
+<<<<<<< Updated upstream
     # Install the keyring and mirrorlist packages directly via pacman -U, bypassing keyservers.
+=======
+    # Install the keyring and mirrorlist packages directly via pacman -U, bypassing keyservers.[10, 12]
+>>>>>>> Stashed changes
     log "INFO" "Downloading keyring and mirrorlist packages..."
     curl -sL -o "$TEMP_DIR/chaotic-keyring.pkg.tar.zst" "$CHAOTIC_KEYRING_URL"
     curl -sL -o "$TEMP_DIR/chaotic-mirrorlist.pkg.tar.zst" "$CHAOTIC_MIRRORLIST_URL"
@@ -70,9 +82,14 @@ install_chaotic_aur() {
     log "INFO" "Installing packages via pacman -U to establish trust..."
     pacman -U --noconfirm "$TEMP_DIR/chaotic-keyring.pkg.tar.zst" "$TEMP_DIR/chaotic-mirrorlist.pkg.tar.zst"
     
+<<<<<<< Updated upstream
     # Append the repository block to the end, ensuring lowest precedence.
     # FIXED: Added space between 'if' and '!'
     if ! grep -q '\[chaotic-aur\]' /etc/pacman.conf; then
+=======
+    # Append the repository block to the end, ensuring lowest precedence.[8, 11]
+    if! grep -q '\[chaotic-aur\]' /etc/pacman.conf; then
+>>>>>>> Stashed changes
         log "INFO" "Appending [chaotic-aur] definition to pacman.conf."
         echo -e "\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist" | tee -a /etc/pacman.conf > /dev/null
     else
@@ -86,10 +103,16 @@ install_xerolinux() {
     # Note: The use of TrustAll reduces security and is generally discouraged for unknown repositories.
     XEROLINUX_REPO_BLOCK="\n[xerolinux]\nSigLevel = Optional TrustAll\nServer = https://repos.xerolinux.xyz/\$repo/\$arch"
 
+<<<<<<< Updated upstream
     # FIXED: Added space between 'if' and '!'
     if ! grep -q '\[xerolinux\]' /etc/pacman.conf; then
         log "INFO" "Appending [xerolinux] definition to pacman.conf."
         echo -e "$XEROLINUX_REPO_BLOCK" | tee -a /etc/pacman.conf > /dev/null
+=======
+    if! grep -q '\[xerolinux\]' /etc/pacman.conf; then
+        log "INFO" "Appending [xerolinux] definition to pacman.conf."
+        echo -e "$XEROLININUX_REPO_BLOCK" | tee -a /etc/pacman.conf > /dev/null [13]
+>>>>>>> Stashed changes
     else
         log "WARNING" "[xerolinux] definition already present. Skipping append."
     fi
@@ -103,7 +126,11 @@ sync_databases() {
 
 install_aur_helper() {
     log "INFO" "5. Installing Paru AUR helper."
+<<<<<<< Updated upstream
     # Leveraging the pre-built binary package available in Chaotic-AUR for speed.
+=======
+    # Leveraging the pre-built binary package available in Chaotic-AUR for speed.[17]
+>>>>>>> Stashed changes
     log "INFO" "Installing paru directly using pacman."
     pacman -S --noconfirm paru
     log "INFO" "Paru installed successfully. AUR is now accessible."
