@@ -30,18 +30,54 @@ source "${DIR}/sources-list.sh"  # for adding apt sources if needed
 # security-config.sh is a standalone executable script; we'll invoke it at apply time if present
 
 # Defaults
-CREATE_NEW_USER=0
-USERNAME=""
+CREATE_ADMIN_USER=0
+ADMIN_USER=""
+CREATE_MANAGEMENT_USER=0
+MANAGEMENT_USER=""
+CREATE_CONTAINER_USER=0
+CONTAINER_USER=""
+
+
+CONTAINER_PATH=""
+CONTAINER_CONFIG_PATH=""
+MEDIA_DIRECTORIES="[]"
+CONFIG_FOLDER=""
+
 SERVER_URL=""
 SSH_PORT=22
 AUTH_METHODS="publickey"
 PERMIT_ROOT_LOGIN="no"
 SSH_PUBKEY=""
 GENERATE_SSH_KEYPAIR="yes"
+SYSTEM_SOFTWARE="micro, tmux, fzf, btop, git, sudo, vim, nano, net-tools, iputils-ping, ufw, rsync"
 USE_RCLONE="no"
 CONTAINER_ENGINE="docker"            # docker | docker-rootless | podman | podman-rootless
 PODMAN_SOURCE="github"               # github | debian | alvistack
 CONTAINER_MANAGER="portainer"        # portainer | cockpit | komodo | yacht | dweebui | dockge | none
+SOCKET_PATH=""
+
+
+/*
+# Variables
+LOG_DIR="/var/log/security-audit"
+SSH_CONFIG="/etc/ssh/sshd_config"
+CRON_JOB="/etc/cron.d/security-audit"
+MOTD_FILE="/etc/motd"
+SEVERE_LOG="/var/log/security-audit/severe.log"
+
+# Source required scripts
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/network.sh"
+source "$DIR/security.sh"
+source "$DIR/containers.sh"
+source "$DIR/docker-manager.sh"
+source "$DIR/podman-manager.sh"
+source "$DIR/rclone.sh"
+
+# Update and upgrade the system first
+echo "Updating system packages..."
+apt update && apt dist-upgrade -y/*
+
 
 # Helpers
 list_existing_users() { awk -F: '($3>=1000)&&($1!="nobody") {print $1}' /etc/passwd; }
