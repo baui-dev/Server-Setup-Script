@@ -49,7 +49,7 @@ AUTH_METHODS="publickey"
 PERMIT_ROOT_LOGIN="no"
 SSH_PUBKEY=""
 GENERATE_SSH_KEYPAIR="yes"
-SYSTEM_SOFTWARE="micro, tmux, fzf, btop, git, sudo, vim, nano, net-tools, iputils-ping, ufw, rsync"
+SYSTEM_SOFTWARE="micro, tmux, fzf, btop, git, sudo, vim, nano, net-tools, iputils-ping, ufw, rsync, atuin, btop, bash-completion"
 USE_RCLONE="no"
 CONTAINER_ENGINE="docker"            # docker | docker-rootless | podman | podman-rootless
 PODMAN_SOURCE="github"               # github | debian | alvistack
@@ -57,7 +57,6 @@ CONTAINER_MANAGER="portainer"        # portainer | cockpit | komodo | yacht | dw
 SOCKET_PATH=""
 
 
-/*
 # Variables
 LOG_DIR="/var/log/security-audit"
 SSH_CONFIG="/etc/ssh/sshd_config"
