@@ -9,7 +9,7 @@ networks:
     external: true
   jellystat:
     external: true
-  gluetun_network:
+  gluetun_network: 
     external: true
       
 services:
