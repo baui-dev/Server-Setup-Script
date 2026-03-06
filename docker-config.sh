@@ -1,55 +1,57 @@
 #!/bin/bash
+# Docker installation functions
+# Provides: install_docker(), install_docker_rootless()
+# Requires: add_docker_apt_source() from sources-list.sh
 
 install_docker() {
-    # Update and install necessary packages
-    apt-get update && apt-get install -y ca-certificates curl gnupg
-
-    # Create keyring directory and download Docker's official GPG key
-    install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-    chmod a+r /etc/apt/keyrings/docker.asc
-
-    # Add Docker repository
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list >/dev/null
-
-    # Update and install Docker
-    apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-    # Enable and start Docker
-    systemctl enable docker
-    systemctl start docker
-
+    add_docker_apt_source
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        docker-ce docker-ce-cli containerd.io \
+        docker-buildx-plugin docker-compose-plugin
+    systemctl enable --now docker
     echo "Docker installed successfully."
 }
 
-# Install Docker Rootless
 install_docker_rootless() {
-    local TARGET_USER="${1:-${SUDO_USER:-$USER}}"
-    local TARGET_HOME
-    if [[ "$TARGET_USER" == "root" ]]; then
-        echo "Rootless Docker cannot be installed for root user." >&2
+    local target_user="${1:-}"
+
+    if [[ -z "$target_user" ]]; then
+        echo "install_docker_rootless: target user is required" >&2
         return 1
     fi
-    TARGET_HOME="/home/$TARGET_USER"
+    if [[ "$target_user" == "root" ]]; then
+        echo "install_docker_rootless: rootless Docker cannot run as root" >&2
+        return 1
+    fi
+    if ! id -u "$target_user" >/dev/null 2>&1; then
+        echo "install_docker_rootless: user '${target_user}' does not exist" >&2
+        return 1
+    fi
 
-    # System deps
-    apt-get update && apt-get install -y uidmap dbus-user-session iptables slirp4netns curl
+    # System-level dependencies
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        uidmap dbus-user-session slirp4netns curl
 
-    # Enable lingering so user services can run without login
-    loginctl enable-linger "$TARGET_USER" || true
+    # Enable lingering so user services survive logout
+    loginctl enable-linger "$target_user" || true
 
     # Run the official rootless installer as the target user
-    sudo -iu "$TARGET_USER" bash -lc '
+    sudo -iu "$target_user" bash -lc '
         set -e
         export XDG_RUNTIME_DIR="/run/user/$(id -u)"
         export PATH="$HOME/bin:$PATH"
         curl -fsSL https://get.docker.com/rootless | sh
-        echo "export PATH=\$HOME/bin:\$PATH" >> "$HOME/.bashrc"
-        echo "export DOCKER_HOST=unix://\$XDG_RUNTIME_DIR/docker.sock" >> "$HOME/.bashrc"
-        mkdir -p "$HOME/.config/systemd/user"
+        # Persist environment for future sessions
+        grep -q "DOCKER_HOST" "$HOME/.bashrc" 2>/dev/null || {
+            echo "export PATH=\"\$HOME/bin:\$PATH\""                         >> "$HOME/.bashrc"
+            echo "export DOCKER_HOST=\"unix://\$XDG_RUNTIME_DIR/docker.sock\"" >> "$HOME/.bashrc"
+        }
+        grep -q "DOCKER_HOST" "$HOME/.profile" 2>/dev/null || {
+            echo "export PATH=\"\$HOME/bin:\$PATH\""                         >> "$HOME/.profile"
+            echo "export DOCKER_HOST=\"unix://\$XDG_RUNTIME_DIR/docker.sock\"" >> "$HOME/.profile"
+        }
         systemctl --user enable --now docker.service || true
     '
 
-    echo "Docker (rootless) installed for user $TARGET_USER."
-    echo "Verify with: sudo -iu $TARGET_USER systemctl --user status docker"
+    echo "Docker (rootless) installed for user ${target_user}."
 }

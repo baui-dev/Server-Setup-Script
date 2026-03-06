@@ -1,157 +1,140 @@
 #!/bin/bash
+# Podman installation functions
+# Provides: apply_podman_install(), setup_podman_rootless()
+# Requires: add_alvistack_apt_source() from sources-list.sh
 
-# Function to get target user
-get_target_user() {
-    if [[ $EUID -eq 0 ]]; then
-        # Running as root, get the actual user
-        echo "${SUDO_USER:-root}"
-    else
-        # Running as regular user
-        echo "$USER"
-    fi
-}
-
-# Use Github release, debian or alvistack repo?
-choose_podman_source() {
-    echo "Choose Podman source:"
-    echo "1. Github release (standard)"
-    echo "2. Debian repository"
-    echo "3. Alvistack repository"
-    read -p "Select option (1/3): " PODMAN_SOURCE
-
-    case "$PODMAN_SOURCE" in
-    2)
-        echo "Using Debian repository..."
-        apt install -y podman podman-compose podman-netavark
-        setup_podman_config
-        ;;
-    3)
-        echo "Using Alvistack repository..."
-        install_podman_alvistack
-        setup_podman_config
-        ;;
-    *)
-        echo "Using Github release..."
-        install_podman_github
-        setup_podman_config
-        ;;
-    esac
-}
-
-choose_podman_source_prompt() {
-    local choice
-    echo "Choose Podman source:"
-    echo "1) Github release (standard)"
-    echo "2) Debian repository"
-    echo "3) Alvistack repository"
-    read -r -p "Select option (1-3) [1]: " choice
-    case "$choice" in
-        2) echo "debian" ;;
-        3) echo "alvistack" ;;
-        *) echo "github" ;;
-    esac
-}
-
+# Install Podman from the selected source.
 apply_podman_install() {
-    local source="$1"
+    local source="${1:-github}"
     case "$source" in
         debian)
-            apt-get update && apt-get install -y podman podman-compose podman-netavark
-            setup_podman_config
+            apt-get update -qq
+            DEBIAN_FRONTEND=noninteractive apt-get install -y \
+                podman podman-compose
+            _setup_podman_config
             ;;
         alvistack)
-            install_podman_alvistack
-            setup_podman_config
+            add_alvistack_apt_source
+            DEBIAN_FRONTEND=noninteractive apt-get install -y \
+                podman podman-compose
+            _setup_podman_config
             ;;
         github|*)
-            install_podman_github
-            setup_podman_config
+            _install_podman_github
+            _setup_podman_config
             ;;
     esac
 }
 
-# Install Podman from Github release
-install_podman_github() {
-    TARGET_USER=$(get_target_user)
-    TARGET_HOME="/home/$TARGET_USER"
-    if [[ "$TARGET_USER" == "root" ]]; then
-        TARGET_HOME="/root"
-    fi
-    
-    # Update and install necessary packages
-    apt-get update && apt-get install -y git uidmap fuse3 fuse-overlayfs python3-full python3-pip python3-venv
+# Install the latest Podman release binary from GitHub.
+_install_podman_github() {
+    local target_user
+    target_user="${ADMIN_USER:-${SUDO_USER:-root}}"
+    local target_home
+    target_home="$([[ "$target_user" == "root" ]] && echo "/root" || echo "/home/$target_user")"
 
-    mkdir -p "${TARGET_HOME}/.podman_temp"
-    curl -sL $(curl -s https://api.github.com/repos/containers/podman/releases/latest | grep "browser_download_url.*podman-remote-static-linux_amd64.tar.gz" | cut -d '"' -f 4) -o "${TARGET_HOME}/.podman_temp/podman-remote-static-linux_amd64.tar.gz"
-    tar --strip-components=2 -xzf "${TARGET_HOME}/.podman_temp/podman-remote-static-linux_amd64.tar.gz" -C /usr/local/bin bin/podman
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        git uidmap fuse3 fuse-overlayfs python3-full python3-pip python3-venv curl
 
-    # Podman Compose
-    python3 -m venv "${TARGET_HOME}/.venv/"
-    "${TARGET_HOME}/.venv/bin/pip3" install --upgrade pip
-    "${TARGET_HOME}/.venv/bin/pip3" install podman-compose
+    local tmp_dir
+    tmp_dir="$(mktemp -d)"
+    trap 'rm -rf "$tmp_dir"' RETURN
 
-    # Add to PATH
-    echo "export PATH=\$PATH:${TARGET_HOME}/.venv/bin" >>"${TARGET_HOME}/.bashrc"
+    local download_url
+    download_url="$(
+        curl -s https://api.github.com/repos/containers/podman/releases/latest \
+        | grep '"browser_download_url"' \
+        | grep 'podman-remote-static-linux_amd64.tar.gz"' \
+        | head -1 \
+        | cut -d '"' -f 4
+    )"
 
-    # Set permissions and aliases
-    chmod +x "${TARGET_HOME}/.venv/bin/podman-compose"
-    chown -R "${TARGET_USER}:${TARGET_USER}" "${TARGET_HOME}/.venv"
-
-    # Cleanup
-    rm -rf "${TARGET_HOME}/.podman_temp"
-}
-
-install_podman_alvistack() {
-    # Add Alvistack key and repository
-    source /etc/os-release
-    wget http://downloadcontent.opensuse.org/repositories/home:/alvistack/Debian_$VERSION_ID/Release.key -O alvistack_key
-    cat alvistack_key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/alvistack.gpg >/dev/null
-
-    echo "deb http://downloadcontent.opensuse.org/repositories/home:/alvistack/Debian_$VERSION_ID/ /" | sudo tee /etc/apt/sources.list.d/alvistack.list
-
-    apt-get update && apt-get install -y podman podman-compose podman-netavark
-}
-
-# Function to setup podman configuration
-setup_podman_config() {
-    TARGET_USER=$(get_target_user)
-    TARGET_HOME="/home/$TARGET_USER"
-    if [[ "$TARGET_USER" == "root" ]]; then
-        TARGET_HOME="/root"
+    if [[ -z "$download_url" ]]; then
+        echo "install_podman_github: could not fetch release URL from GitHub API" >&2
+        return 1
     fi
 
-    # Leave containers running after logout
-    loginctl enable-linger "$TARGET_USER"
+    curl -sL "$download_url" -o "${tmp_dir}/podman.tar.gz"
+    tar --strip-components=2 -xzf "${tmp_dir}/podman.tar.gz" \
+        -C /usr/local/bin bin/podman
+    chmod +x /usr/local/bin/podman
 
-    # Enable privileged ports for Podman
-    echo "net.ipv4.ip_unprivileged_port_start=80" | tee -a /etc/sysctl.d/podman-privileged-ports.conf
-    sysctl --load /etc/sysctl.d/podman-privileged-ports.conf
+    # podman-compose via venv (scoped to admin user)
+    local venv_dir="${target_home}/.venv"
+    python3 -m venv "$venv_dir"
+    "${venv_dir}/bin/pip3" install --quiet --upgrade pip
+    "${venv_dir}/bin/pip3" install --quiet podman-compose
+    chmod +x "${venv_dir}/bin/podman-compose"
+    chown -R "${target_user}:${target_user}" "$venv_dir"
 
-    # Run as the target user
-    sudo -u "$TARGET_USER" bash << EOF
-# Create directories for Podman
-mkdir -p "$TARGET_HOME/podman"
-mkdir -p "$TARGET_HOME/.config/systemd/user"
-mkdir -p "$TARGET_HOME/.config/containers"
+    # Persist PATH for both interactive (.bashrc) and login (.profile) shells
+    for rc_file in "${target_home}/.bashrc" "${target_home}/.profile"; do
+        grep -q "venv/bin" "$rc_file" 2>/dev/null \
+            || echo "export PATH=\"\$PATH:${venv_dir}/bin\"" >> "$rc_file"
+    done
+}
 
-# Add container registries
+# Common post-install configuration applied for any Podman installation.
+_setup_podman_config() {
+    local target_user
+    target_user="${ADMIN_USER:-${SUDO_USER:-root}}"
+    local target_home
+    target_home="$([[ "$target_user" == "root" ]] && echo "/root" || echo "/home/$target_user")"
+
+    # Keep containers running after logout
+    loginctl enable-linger "$target_user" || true
+
+    # Allow unprivileged containers to bind ports ≥80
+    echo "net.ipv4.ip_unprivileged_port_start=80" \
+        > /etc/sysctl.d/50-podman-unprivileged-ports.conf
+    sysctl --load /etc/sysctl.d/50-podman-unprivileged-ports.conf >/dev/null
+
+    # Create config directories and configure registries as the target user
+    # Use 'su' rather than 'sudo' when already root to avoid the sudo
+    # dependency on a minimal fresh system
+    if [[ "$(id -u)" -eq 0 && "$target_user" != "root" ]]; then
+        su - "$target_user" -s /bin/bash << HEREDOC
+set -e
+mkdir -p "\$HOME/podman" "\$HOME/.config/systemd/user" "\$HOME/.config/containers"
+
+# Container registries
 if [[ -f /etc/containers/registries.conf ]]; then
-    cp /etc/containers/registries.conf "$TARGET_HOME/.config/containers/"
-else
-    touch "$TARGET_HOME/.config/containers/registries.conf"
+    cp /etc/containers/registries.conf "\$HOME/.config/containers/"
 fi
 
-echo "
+# Ensure docker.io, ghcr.io and quay.io are always searched
+if ! grep -q 'docker.io' "\$HOME/.config/containers/registries.conf" 2>/dev/null; then
+    cat >> "\$HOME/.config/containers/registries.conf" << 'EOF'
 [registries.search]
-registries = ['docker.io', 'ghcr.io', 'quay.io']" >> "$TARGET_HOME/.config/containers/registries.conf"
+registries = ['docker.io', 'ghcr.io', 'quay.io']
+EOF
+fi
 
-# Enable Podman socket
+# Enable the Podman socket for API-compatible tools (e.g. Portainer)
 systemctl --user enable --now podman.socket 2>/dev/null || true
 
-# Add alias for Podman
-if ! grep -q "alias docker=podman" "$TARGET_HOME/.bashrc" 2>/dev/null; then
-    echo "alias docker=podman" >> "$TARGET_HOME/.bashrc"
-    echo "alias docker-compose=podman-compose" >> "$TARGET_HOME/.bashrc"
-fi
-EOF
+# Convenience aliases
+for rc_file in "\$HOME/.bashrc" "\$HOME/.profile"; do
+    grep -q 'alias docker=podman' "\$rc_file" 2>/dev/null && continue
+    echo "alias docker=podman"         >> "\$rc_file"
+    echo "alias docker-compose=podman-compose" >> "\$rc_file"
+done
+HEREDOC
+    fi
+}
+
+# Configure rootless Podman for a specific user (called separately when
+# CONTAINER_ENGINE=podman-rootless)
+setup_podman_rootless() {
+    local target_user="${1:-${ADMIN_USER:-}}"
+
+    if [[ -z "$target_user" || "$target_user" == "root" ]]; then
+        echo "setup_podman_rootless: a non-root user is required" >&2
+        return 1
+    fi
+
+    loginctl enable-linger "$target_user" || true
+
+    echo "  Rootless Podman configured for ${target_user}."
+    echo "  Run 'systemctl --user status podman.socket' as ${target_user} to verify."
 }
