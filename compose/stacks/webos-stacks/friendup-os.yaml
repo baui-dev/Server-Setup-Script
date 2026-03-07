@@ -1,0 +1,36 @@
+# FriendUP
+# GitHub: https://github.com/FriendUPCloud/friendup
+# Image: friendupcloud/friendup (build from source; see repo for docker-compose)
+# Docs: https://developers.friendos.com/docs
+#
+# FriendUP (FriendOS) is a full cloud OS platform written in C and JavaScript.
+# It provides a multi-user desktop environment accessible from any browser with
+# file management, applications, and system tools. The upstream repo contains a
+# docker-compose.yml for a multi-container setup. The canonical port is 6502.
+#
+# Setup from source:
+#   git clone https://github.com/FriendUPCloud/friendup /tmp/friendup-src
+#   cd /tmp/friendup-src && docker build -t friendup .
+#   Copy volumes and adjust image name below, or use the upstream compose file.
+
+services:
+  friendup-os:
+    image: friendupcloud/friendup:latest
+    container_name: friendup-os
+    hostname: friendup-os
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}   # User ID for file permissions
+      # - PGID=${PGID}   # Group ID for file permissions
+    volumes:
+      - ${BASE_DATA}/friendup-os/cfg:/home/friend/friendup/build/cfg         # Config
+      - ${BASE_DATA}/friendup-os/storage:/home/friend/friendup/build/storage # User storage
+    ports:
+      - ${PORT_FRIENDUP:-6502}:6502
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

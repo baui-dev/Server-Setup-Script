@@ -1,0 +1,31 @@
+# CV4PVE-ADMIN
+# GitHub: https://github.com/Corsinvest/cv4pve-admin
+# Image: corsinvest/cv4pve-admin:latest
+# Docs: https://github.com/Corsinvest/cv4pve-admin#readme
+#
+# cv4pve-admin is a web administration interface for Proxmox VE by Corsinvest.
+# Provides an enhanced management UI for Proxmox Virtual Environment clusters,
+# VMs, and containers, with additional reporting and automation features.
+
+services:
+  cv4pve-admin:
+    image: corsinvest/cv4pve-admin:latest
+    container_name: cv4pve-admin
+    hostname: cv4pve-admin
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Proxmox VE cluster connection — set your PVE host/port
+      # - PVE_HOST=proxmox.${DOMAIN}
+      # - PVE_PORT=8006
+    volumes:
+      - ${BASE_DATA}/cv4pve-admin/config:/config
+      - ${BASE_DATA}/cv4pve-admin/data:/data
+    ports:
+      - ${PORT_CV4PVE_ADMIN:-8080}:8080
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

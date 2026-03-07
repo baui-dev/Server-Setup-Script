@@ -1,0 +1,82 @@
+# Linkwarden
+# GitHub: https://github.com/linkwarden/linkwarden
+# Image: ghcr.io/linkwarden/linkwarden:latest
+# Docs: https://docs.linkwarden.app
+#
+# Collaborative bookmark manager with team sharing, link archiving (Wayback Machine,
+# screenshot, PDF snapshot), and tagging. Requires PostgreSQL. Supports SSO via
+# multiple OAuth providers. Offers a browser extension and mobile-friendly UI.
+#
+# Required env vars: LINKWARDEN_NEXTAUTH_SECRET, LINKWARDEN_DATABASE_URL
+# LINKWARDEN_DATABASE_URL format: postgresql://USER:PASS@host:5432/linkwarden
+
+services:
+  linkwarden:
+    image: ghcr.io/linkwarden/linkwarden:latest
+    container_name: linkwarden
+    hostname: linkwarden
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Database connection URL (required)
+      - DATABASE_URL=${LINKWARDEN_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@linkwarden-postgres:5432/linkwarden}
+      # NextAuth secret - generate with: openssl rand -hex 32
+      - NEXTAUTH_SECRET=${LINKWARDEN_NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=https://${DOMAIN}
+      # Disable public registration (set false to allow self-registration)
+      - NEXT_PUBLIC_DISABLE_REGISTRATION=true
+      # Storage backend (local filesystem or S3-compatible)
+      - STORAGE_FOLDER=data  # relative to /data mount inside container
+      # Optional: S3/MinIO for archived screenshots and PDFs
+      # - SPACES_KEY=${LINKWARDEN_S3_KEY}
+      # - SPACES_SECRET=${LINKWARDEN_S3_SECRET}
+      # - SPACES_ENDPOINT=https://s3.${DOMAIN}
+      # - SPACES_BUCKET_NAME=linkwarden
+      # - SPACES_REGION=us-east-1
+      # Optional: SSO providers (configure as needed)
+      # GitHub OAuth:
+      # - GITHUB_CLIENT_ID=${LINKWARDEN_GITHUB_CLIENT_ID}
+      # - GITHUB_CLIENT_SECRET=${LINKWARDEN_GITHUB_CLIENT_SECRET}
+      # Google OAuth:
+      # - GOOGLE_CLIENT_ID=${LINKWARDEN_GOOGLE_CLIENT_ID}
+      # - GOOGLE_CLIENT_SECRET=${LINKWARDEN_GOOGLE_CLIENT_SECRET}
+      # Generic OpenID Connect (Authentik, Authelia, Keycloak, etc.):
+      # - CUSTOM_PROVIDER_NAME=authentik
+      # - CUSTOM_PROVIDER_CLIENT_ID=${LINKWARDEN_OIDC_CLIENT_ID}
+      # - CUSTOM_PROVIDER_CLIENT_SECRET=${LINKWARDEN_OIDC_CLIENT_SECRET}
+      # - CUSTOM_PROVIDER_WELLKNOWN=https://auth.${DOMAIN}/application/o/linkwarden/.well-known/openid-configuration
+      # Optional: email SMTP (for password resets, invitations)
+      # - EMAIL_FROM=linkwarden@${DOMAIN}
+      # - EMAIL_SERVER=smtp://user:pass@smtp.${DOMAIN}:587
+    volumes:
+      - ${BASE_DATA}/linkwarden/data:/data/data
+    ports:
+      - ${PORT_LINKWARDEN:-3000}:3000
+    depends_on:
+      linkwarden-postgres:
+        condition: service_healthy
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  linkwarden-postgres:
+    image: postgres:16-alpine
+    container_name: linkwarden-postgres
+    hostname: linkwarden-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=linkwarden
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/linkwarden/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d linkwarden"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

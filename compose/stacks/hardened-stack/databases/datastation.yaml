@@ -1,0 +1,38 @@
+# DATASTATION
+# GitHub: https://github.com/multiprocessio/datastation
+# Image: multiprocessio/datastation:latest
+# Docs: https://datastation.multiprocess.io/docs/
+#
+# Open-source data IDE for exploring and analyzing data from databases, APIs,
+# and files. Supports SQL, Python, JavaScript, and more. Can connect to
+# PostgreSQL, MySQL, SQLite, Elasticsearch, ClickHouse, and other sources.
+# NOTE: The upstream project was archived in early 2024; verify the image is
+# still maintained before using in production.
+
+services:
+  datastation:
+    image: multiprocessio/datastation:latest
+    container_name: datastation
+    hostname: datastation
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Server address to bind (default 0.0.0.0)
+      # - HOST=0.0.0.0
+      # Internal listening port (default 8080)
+      # - PORT=8080
+      # Authentication token — leave empty to disable (not recommended for public)
+      # - AUTH_TOKEN=changeme
+    volumes:
+      # Project files and connection configs are stored here
+      - ${BASE_DATA}/datastation/data:/root/.datastation
+    ports:
+      - ${PORT_DATASTATION}:8080
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

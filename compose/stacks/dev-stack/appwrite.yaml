@@ -1,0 +1,407 @@
+# APPWRITE
+# GitHub: https://github.com/appwrite/appwrite
+# Image: appwrite/appwrite:latest
+# Docs: https://appwrite.io/docs/advanced/self-hosting
+#
+# Open-source Backend-as-a-Service (BaaS) platform providing authentication,
+# databases, storage, functions, messaging, and realtime APIs. Requires MariaDB,
+# Redis, and MeiliSearch. Visit http://localhost:<PORT>/console after first start
+# to complete setup.
+#
+# IMPORTANT: Change all values marked "CHANGE THIS" before deploying.
+# Generate secrets with: openssl rand -hex 32
+
+# Shared environment block — referenced by all Appwrite worker/service containers
+# to avoid repeating dozens of variables across every service definition.
+x-appwrite-env: &appwrite-env
+  TZ: ${TZ}
+  _APP_ENV: production                           # Use "development" for verbose error output
+  _APP_LOCALE: en                                # Default locale for the console UI
+  _APP_WORKER_PER_CORE: "6"                      # Background worker threads per CPU core
+  _APP_CONSOLE_WHITELIST_ROOT: enabled           # Restrict console access to whitelisted emails
+  _APP_CONSOLE_WHITELIST_EMAILS:                 # Comma-separated admin emails (blank = allow all)
+  _APP_CONSOLE_WHITELIST_IPS:                    # Comma-separated admin IPs (blank = allow all)
+  _APP_SYSTEM_EMAIL_NAME: Appwrite
+  _APP_SYSTEM_EMAIL_ADDRESS: team@appwrite.io
+  _APP_SYSTEM_SECURITY_EMAIL_ADDRESS: security@appwrite.io
+  _APP_OPTIONS_ABUSE: enabled                    # Rate-limit abuse protection
+  _APP_OPTIONS_FORCE_HTTPS: disabled             # Redirect HTTP→HTTPS (enable behind TLS terminator)
+  _APP_OPTIONS_FUNCTIONS_FORCE_HTTPS: disabled   # Force HTTPS on function execution endpoints
+  # --- Encryption (CHANGE BOTH) ---
+  _APP_OPENSSL_KEY_V1: your-secret-key-here      # CHANGE THIS — generate: openssl rand -hex 32
+  # --- Domains ---
+  _APP_DOMAIN: localhost                         # Appwrite console/API domain
+  _APP_DOMAIN_TARGET: localhost                  # Target domain for Let's Encrypt cert generation
+  _APP_DOMAIN_FUNCTIONS: functions.localhost     # Domain for serverless function execution endpoints
+  # --- Redis ---
+  _APP_REDIS_HOST: appwrite-redis
+  _APP_REDIS_PORT: "6379"
+  _APP_REDIS_USER:                               # Redis ACL username (Redis 6+ — leave blank if unused)
+  _APP_REDIS_PASS:                               # Redis password (leave blank if none)
+  # --- Database ---
+  _APP_DB_HOST: appwrite-mariadb
+  _APP_DB_PORT: "3306"
+  _APP_DB_SCHEMA: appwrite
+  _APP_DB_USER: appwrite
+  _APP_DB_PASS: appwrite_db_pass                 # CHANGE THIS — must match MYSQL_PASSWORD below
+  _APP_DB_ROOT_PASS: appwrite_root_pass          # CHANGE THIS — must match MYSQL_ROOT_PASSWORD below
+  # --- Storage ---
+  _APP_STORAGE_LIMIT: "30000000"                 # Max upload file size in bytes (default: 30 MB)
+  _APP_STORAGE_PREVIEW_LIMIT: "20000000"         # Max preview image size in bytes
+  _APP_STORAGE_ANTIVIRUS: disabled               # Enable ClamAV antivirus (add appwrite-clamav service)
+  _APP_STORAGE_ANTIVIRUS_HOST: appwrite-clamav
+  _APP_STORAGE_ANTIVIRUS_PORT: "3310"
+  _APP_STORAGE_DEVICE: local                     # Storage driver: local | s3 | dospaces | backblaze | linode | wasabi
+  # _APP_STORAGE_S3_ACCESS_KEY:                  # S3 access key (required if using S3/compatible)
+  # _APP_STORAGE_S3_SECRET:                      # S3 secret key
+  # _APP_STORAGE_S3_REGION: us-east-1            # S3 bucket region
+  # _APP_STORAGE_S3_BUCKET: appwrite             # S3 bucket name
+  # --- Functions / Serverless ---
+  _APP_FUNCTIONS_SIZE_LIMIT: "30000000"          # Max function deployment archive size in bytes
+  _APP_FUNCTIONS_TIMEOUT: "900"                  # Default function timeout in seconds (max: 900)
+  _APP_FUNCTIONS_BUILD_TIMEOUT: "900"            # Max build time per function in seconds
+  _APP_FUNCTIONS_CONTAINERS: "10"                # Max concurrent running function containers
+  _APP_FUNCTIONS_CPUS: "0"                       # CPU limit per function container (0 = unlimited)
+  _APP_FUNCTIONS_MEMORY: "0"                     # Memory limit per function container in MB (0 = unlimited)
+  _APP_FUNCTIONS_RUNTIMES: "node-18.0,php-8.1,python-3.10,ruby-3.1,deno-1.24"
+  _APP_EXECUTOR_SECRET: your-executor-secret     # CHANGE THIS — shared secret between API and executor
+  _APP_EXECUTOR_HOST: http://appwrite-executor/v1
+  # --- SMTP / Email ---
+  _APP_SMTP_HOST:                                # SMTP hostname (blank = disable all outbound email)
+  _APP_SMTP_PORT: "587"                          # SMTP port (587=STARTTLS, 465=SSL, 25=plain)
+  _APP_SMTP_SECURE:                              # Encryption: "tls" | "ssl" | blank for none
+  _APP_SMTP_USERNAME:                            # SMTP username
+  _APP_SMTP_PASSWORD:                            # SMTP password
+  # --- MeiliSearch ---
+  _APP_SEARCH_MEILISEARCH_HOST: http://appwrite-meili:7700
+  _APP_SEARCH_MEILISEARCH_API_KEY: appwrite_meili_key  # CHANGE THIS — must match MEILI_MASTER_KEY below
+  # --- Error Logging ---
+  _APP_LOGGING_PROVIDER:                         # Error tracking provider: sentry | raygun | appsignal | logowl
+  _APP_LOGGING_CONFIG:                           # Provider config string (e.g., Sentry DSN URL)
+  # --- Maintenance & Retention ---
+  _APP_MAINTENANCE_INTERVAL: "86400"             # Maintenance run interval in seconds (default: 24h)
+  _APP_MAINTENANCE_RETENTION_EXECUTION: "1209600"    # Function execution log retention (default: 14d)
+  _APP_MAINTENANCE_RETENTION_CACHE: "2592000"        # Cache file retention (default: 30d)
+  _APP_MAINTENANCE_RETENTION_ABUSE: "86400"          # Abuse log retention (default: 1d)
+  _APP_MAINTENANCE_RETENTION_AUDIT: "1209600"        # Audit log retention (default: 14d)
+  _APP_MAINTENANCE_RETENTION_USAGE_HOURLY: "8640000" # Hourly usage stats retention (default: 100d)
+  _APP_MAINTENANCE_RETENTION_SCHEDULES: "86400"      # Scheduled task retention (default: 1d)
+  # --- GitHub VCS Integration (optional) ---
+  # _APP_VCS_GITHUB_APP_NAME:                    # GitHub App name
+  # _APP_VCS_GITHUB_PRIVATE_KEY:                 # GitHub App private key (PEM, newlines as \n)
+  # _APP_VCS_GITHUB_APP_ID:                      # GitHub App ID
+  # _APP_VCS_GITHUB_WEBHOOK_SECRET:              # GitHub webhook secret
+  # _APP_VCS_GITHUB_CLIENT_ID:                   # GitHub OAuth2 client ID
+  # _APP_VCS_GITHUB_CLIENT_SECRET:               # GitHub OAuth2 client secret
+
+services:
+  # ------------------------------------------------------------------ #
+  # Main API + Console
+  # ------------------------------------------------------------------ #
+  appwrite:
+    image: appwrite/appwrite:latest
+    container_name: appwrite
+    hostname: appwrite
+    restart: unless-stopped
+    environment:
+      <<: *appwrite-env
+    volumes:
+      - ${BASE_DATA}/appwrite/uploads:/storage/uploads
+      - ${BASE_DATA}/appwrite/cache:/storage/cache
+      - ${BASE_DATA}/appwrite/config:/storage/config
+      - ${BASE_DATA}/appwrite/certificates:/storage/certificates
+      - ${BASE_DATA}/appwrite/functions:/storage/functions
+    ports:
+      - ${PORT_APPWRITE}:80
+    depends_on:
+      appwrite-mariadb:
+        condition: service_healthy
+      appwrite-redis:
+        condition: service_healthy
+      appwrite-meili:
+        condition: service_started
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # ------------------------------------------------------------------ #
+  # Realtime WebSocket Service
+  # ------------------------------------------------------------------ #
+  appwrite-realtime:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-realtime
+    hostname: appwrite-realtime
+    restart: unless-stopped
+    command: realtime
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-mariadb:
+        condition: service_healthy
+      appwrite-redis:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------ #
+  # Workers
+  # ------------------------------------------------------------------ #
+  appwrite-worker-audits:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-audits
+    restart: unless-stopped
+    command: worker-audits
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+      appwrite-mariadb:
+        condition: service_healthy
+
+  appwrite-worker-webhooks:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-webhooks
+    restart: unless-stopped
+    command: worker-webhooks
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  appwrite-worker-deletes:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-deletes
+    restart: unless-stopped
+    command: worker-deletes
+    environment:
+      <<: *appwrite-env
+    volumes:
+      - ${BASE_DATA}/appwrite/uploads:/storage/uploads
+      - ${BASE_DATA}/appwrite/cache:/storage/cache
+      - ${BASE_DATA}/appwrite/functions:/storage/functions
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+      appwrite-mariadb:
+        condition: service_healthy
+
+  appwrite-worker-databases:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-databases
+    restart: unless-stopped
+    command: worker-databases
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+      appwrite-mariadb:
+        condition: service_healthy
+
+  appwrite-worker-builds:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-builds
+    restart: unless-stopped
+    command: worker-builds
+    environment:
+      <<: *appwrite-env
+    volumes:
+      - ${BASE_DATA}/appwrite/functions:/storage/functions
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  appwrite-worker-functions:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-functions
+    restart: unless-stopped
+    command: worker-functions
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+      appwrite-executor:
+        condition: service_started
+
+  appwrite-worker-certificates:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-certificates
+    restart: unless-stopped
+    command: worker-certificates
+    environment:
+      <<: *appwrite-env
+    volumes:
+      - ${BASE_DATA}/appwrite/config:/storage/config
+      - ${BASE_DATA}/appwrite/certificates:/storage/certificates
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  appwrite-worker-mails:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-mails
+    restart: unless-stopped
+    command: worker-mails
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  appwrite-worker-messaging:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-messaging
+    restart: unless-stopped
+    command: worker-messaging
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  appwrite-worker-migrations:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-migrations
+    restart: unless-stopped
+    command: worker-migrations
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+      appwrite-mariadb:
+        condition: service_healthy
+
+  appwrite-worker-usage:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-usage
+    restart: unless-stopped
+    command: worker-usage
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  appwrite-worker-usage-dump:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-worker-usage-dump
+    restart: unless-stopped
+    command: worker-usage-dump
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------ #
+  # Maintenance & Schedulers
+  # ------------------------------------------------------------------ #
+  appwrite-maintenance:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-maintenance
+    restart: unless-stopped
+    command: maintenance
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  appwrite-schedule-functions:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-schedule-functions
+    restart: unless-stopped
+    command: schedule-functions
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  appwrite-schedule-messages:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-schedule-messages
+    restart: unless-stopped
+    command: schedule-messages
+    environment:
+      <<: *appwrite-env
+    depends_on:
+      appwrite-redis:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------ #
+  # Function Executor — spawns isolated runtime containers
+  # ------------------------------------------------------------------ #
+  appwrite-executor:
+    image: appwrite/appwrite:latest
+    container_name: appwrite-executor
+    restart: unless-stopped
+    command: executor
+    environment:
+      <<: *appwrite-env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Required: executor creates function containers
+      - ${BASE_DATA}/appwrite/functions:/storage/functions
+
+  # ------------------------------------------------------------------ #
+  # MariaDB — primary relational database
+  # ------------------------------------------------------------------ #
+  appwrite-mariadb:
+    image: mariadb:10.11
+    container_name: appwrite-mariadb
+    hostname: appwrite-mariadb
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=appwrite_root_pass    # CHANGE THIS — must match _APP_DB_ROOT_PASS
+      - MYSQL_DATABASE=appwrite
+      - MYSQL_USER=appwrite
+      - MYSQL_PASSWORD=appwrite_db_pass           # CHANGE THIS — must match _APP_DB_PASS
+    volumes:
+      - ${BASE_DATA}/appwrite/mariadb:/var/lib/mysql
+    command: mysqld --innodb-flush-method=fsync   # Safer flush method on some filesystems
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "appwrite", "-pappwrite_db_pass"]
+      timeout: 10s
+      interval: 15s
+      retries: 10
+      start_period: 30s
+
+  # ------------------------------------------------------------------ #
+  # Redis — message queue broker and cache layer
+  # ------------------------------------------------------------------ #
+  appwrite-redis:
+    image: redis:7.2-alpine
+    container_name: appwrite-redis
+    hostname: appwrite-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ${BASE_DATA}/appwrite/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ------------------------------------------------------------------ #
+  # MeiliSearch — full-text search engine
+  # ------------------------------------------------------------------ #
+  appwrite-meili:
+    image: getmeili/meilisearch:v1.7
+    container_name: appwrite-meili
+    hostname: appwrite-meili
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_ENV=production
+      - MEILI_MASTER_KEY=appwrite_meili_key       # CHANGE THIS — must match _APP_SEARCH_MEILISEARCH_API_KEY
+    volumes:
+      - ${BASE_DATA}/appwrite/meili:/meili_data
+
+# networks:
+#   proxy:
+#     external: true

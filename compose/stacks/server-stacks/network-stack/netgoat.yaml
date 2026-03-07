@@ -1,0 +1,35 @@
+# NETGOAT
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/netgoat/netgoat → no such organization found
+# Docker Hub image netgoat/netgoat → does NOT exist
+#
+# ✅ Verified alternatives for network monitoring and management:
+#   - ntopng:      https://github.com/ntop/ntopng                 (network traffic analysis)
+#                  Image: ntop/ntopng
+#   - Netdata:     https://github.com/netdata/netdata             (real-time system + network monitoring)
+#                  Image: netdata/netdata
+#   - LibreNMS:    https://github.com/librenms/librenms           (full NMS, SNMP, alerting)
+#                  Image: librenms/librenms
+#   - Zabbix:      https://github.com/zabbix/zabbix              (enterprise-grade monitoring)
+#                  Image: zabbix/zabbix-server-pgsql
+#   - Grafana+Prometheus: comprehensive metrics stack
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified network monitoring tool or remove this file.
+
+# services:
+#   netgoat:
+#     image: netgoat/netgoat:latest  # ← DOES NOT EXIST
+#     container_name: netgoat
+#     hostname: netgoat
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#     volumes:
+#       - ${BASE_DATA}/netgoat/config:/config
+#       - ${BASE_DATA}/netgoat/data:/data
+#     ports:
+#       - ${PORT_NETGOAT:-8080}:8080
+#     # network_mode: host  # Uncomment for full network scanning access

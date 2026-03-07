@@ -1,0 +1,99 @@
+# KEYCLOAK
+# GitHub: https://github.com/keycloak/keycloak
+# Image: quay.io/keycloak/keycloak:latest
+# Docs: https://www.keycloak.org/server/containers
+#
+# Enterprise-grade open-source Identity and Access Management (IAM)
+# solution. Provides SSO, OAuth2, OIDC, SAML 2.0, LDAP/AD federation,
+# social login, and fine-grained authorization. Used widely in
+# enterprise environments. Backed by Red Hat / supported by a large community.
+
+services:
+  keycloak-postgres:
+    image: postgres:16-alpine
+    container_name: keycloak-postgres
+    hostname: keycloak-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=${KEYCLOAK_POSTGRES_PASSWORD:-keycloak_pass}
+    volumes:
+      - ${BASE_DATA}/keycloak/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    hostname: keycloak
+    restart: unless-stopped
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+    # Run in production mode (requires HTTPS or proxy headers)
+    # Use 'start-dev' for development (no HTTPS required)
+    command: start --optimized
+    environment:
+      - TZ=${TZ}
+      # Admin credentials (change immediately after first login)
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN:-admin}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-changeme}
+      # Database
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloak-postgres:5432/keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=${KEYCLOAK_POSTGRES_PASSWORD:-keycloak_pass}
+      # Hostname (required for production mode)
+      - KC_HOSTNAME=auth.${DOMAIN}
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      # HTTP settings
+      - KC_HTTP_ENABLED=true
+      - KC_HTTP_PORT=8080
+      # Proxy mode: edge (reverse proxy handles TLS), reencrypt, passthrough
+      - KC_PROXY=edge
+      # Health and metrics endpoints
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      # Logging
+      - KC_LOG_LEVEL=${KC_LOG_LEVEL:-INFO}
+      # Caching (ispn = Infinispan, local = single node)
+      - KC_CACHE=local
+      # Theme (optional custom theme)
+      # - KC_SPI_THEME_DEFAULT=keycloak
+    volumes:
+      - ${BASE_DATA}/keycloak/config:/opt/keycloak/conf
+      # Optional: custom themes
+      # - ${BASE_DATA}/keycloak/themes:/opt/keycloak/themes
+      # Optional: custom providers/extensions
+      # - ${BASE_DATA}/keycloak/providers:/opt/keycloak/providers
+    ports:
+      - ${PORT_KEYCLOAK:-8080}:8080
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Access http://your-server:${PORT_KEYCLOAK:-8080}/admin
+# 2. Login with KEYCLOAK_ADMIN / KEYCLOAK_ADMIN_PASSWORD
+# 3. Create a new realm (do not use the master realm for apps)
+# 4. Create clients for each application needing SSO
+#
+# For development (no reverse proxy), use:
+#   command: start-dev
+#   Remove KC_HOSTNAME, KC_PROXY, KC_HOSTNAME_STRICT settings
+#
+# Build optimized image for production:
+#   docker build --build-arg KC_DB=postgres -t keycloak-custom .
+# ============================================================

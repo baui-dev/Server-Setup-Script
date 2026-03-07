@@ -1,0 +1,52 @@
+# BACKVAULT
+# GitHub: https://github.com/nicedoc/backvault
+# Image: nicedoc/backvault:latest
+# Docs: https://github.com/nicedoc/backvault#readme
+#
+# Encrypted backup vault for self-hosted secrets and credentials. Stores
+# encrypted snapshots on configurable backends (local, S3-compatible, SFTP).
+# Useful for scheduling encrypted backups of AliasVault, Vaultwarden, or any
+# other sensitive database. Verify the image name against current upstream docs
+# before deploying.
+
+services:
+  backvault:
+    image: nicedoc/backvault:latest
+    container_name: backvault
+    hostname: backvault
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Encryption passphrase for backup archives (required — generate: openssl rand -hex 32)
+      - ENCRYPTION_KEY=${SECRET_KEY}
+      # Cron schedule for automatic backups (default: 02:00 daily)
+      # - BACKUP_SCHEDULE=0 2 * * *
+      # Number of snapshots to retain
+      # - RETAIN_DAILY=7
+      # - RETAIN_WEEKLY=4
+      # - RETAIN_MONTHLY=3
+      # Optional S3-compatible remote target
+      # - S3_ENDPOINT=https://s3.${DOMAIN}
+      # - S3_BUCKET=backvault
+      # - S3_ACCESS_KEY=changeme
+      # - S3_SECRET_KEY=changeme
+      # Optional SFTP remote target
+      # - SFTP_HOST=backup.${DOMAIN}
+      # - SFTP_USER=backupuser
+      # - SFTP_PRIVATE_KEY_PATH=/config/ssh/id_rsa
+    volumes:
+      - ${BASE_DATA}/backvault/config:/config
+      - ${BASE_DATA}/backvault/data:/data
+      # Mount source directories to include in backups (read-only recommended)
+      # - ${BASE_DATA}/aliasvault:/sources/aliasvault:ro
+      # - ${BASE_DATA}/infisical:/sources/infisical:ro
+    ports:
+      - ${PORT_BACKVAULT}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

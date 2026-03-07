@@ -1,0 +1,85 @@
+# SLSKD (Soulseek Daemon)
+# GitHub: https://github.com/slskd/slskd
+# Image: slskd/slskd:latest
+# Docs: https://github.com/slskd/slskd/blob/master/docs/config.md
+#
+# Self-hosted Soulseek client daemon with a modern web UI. Soulseek is a
+# peer-to-peer music sharing network focused on rare, indie, and niche music
+# not available on streaming services. slskd provides search, download, upload,
+# chat, and room functionality via a web interface. Supports configuration via
+# YAML file or environment variables and exposes a REST API.
+
+services:
+  slskd:
+    image: slskd/slskd:latest
+    container_name: slskd
+    hostname: slskd
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Soulseek credentials
+      - SLSKD_SLSK_USERNAME=${SLSKD_USERNAME}
+      - SLSKD_SLSK_PASSWORD=${SLSKD_PASSWORD}
+      # Web UI credentials
+      - SLSKD_USERNAME=${SLSKD_WEB_USERNAME:-admin}
+      - SLSKD_PASSWORD=${SLSKD_WEB_PASSWORD:-changeme}
+      # Allow configuration changes via the web UI
+      - SLSKD_REMOTE_CONFIGURATION=true
+      # App configuration
+      - SLSKD_HTTP_PORT=5030
+      # HTTPS (optional)
+      # - SLSKD_HTTPS_PORT=5031
+      # Log level: Trace, Debug, Information, Warning, Error
+      - SLSKD_LOG_LEVEL=${SLSKD_LOG_LEVEL:-Information}
+      # Shared directories (shown to other Soulseek users)
+      # - SLSKD_SHARED_DIR=/music
+      # Download directory
+      # - SLSKD_DOWNLOADS_DIR=/downloads/slskd
+      # Ignore dotfiles in shared dirs
+      # - SLSKD_FILTER_EXPRESSIONS=^\..*
+      # Connection settings
+      # - SLSKD_LISTEN_PORT=50300
+      # - SLSKD_SLSK_DESCRIPTION=slskd
+    volumes:
+      # Application config and state
+      - ${BASE_DATA}/slskd/config:/app
+      # Downloads directory
+      - ${DOWNLOADS_DIR:-/downloads}/slskd:/downloads
+      # Shared music directory (other Soulseek users can browse/download)
+      # - /path/to/your/music:/music:ro
+    ports:
+      # Web UI
+      - ${PORT_SLSKD:-5030}:5030
+      # Soulseek P2P listener port
+      - 50300:50300/tcp
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Access:
+#   http://your-server:${PORT_SLSKD:-5030}
+#   Login with SLSKD_WEB_USERNAME / SLSKD_WEB_PASSWORD
+#
+# First-time setup:
+# 1. Access the web UI
+# 2. Verify Soulseek network connection status (green icon)
+# 3. Navigate to Searches to find music
+# 4. Configure shared folders under Settings -> Shares
+#    (Important: sharing is expected on the Soulseek network)
+# 5. Set download path under Settings -> Directories
+#
+# Configuration file (alternative to env vars):
+#   ${BASE_DATA}/slskd/config/slskd.yml
+#   Generated automatically on first run; edit to customize.
+#
+# API access:
+#   Swagger UI: http://your-server:${PORT_SLSKD:-5030}/swagger
+#   API key: generated in slskd.yml or via Settings -> API
+#
+# Note: Port 50300 must be reachable from the internet for
+# proper P2P connectivity. Add a firewall/NAT rule if needed.
+# ============================================================

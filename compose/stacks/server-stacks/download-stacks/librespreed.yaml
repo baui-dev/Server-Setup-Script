@@ -1,0 +1,68 @@
+# LIBRESPEED
+# GitHub: https://github.com/librespeed/speedtest
+# Image: lscr.io/linuxserver/librespeed:latest
+# Docs: https://github.com/librespeed/speedtest/wiki/Docker
+#
+# Self-hosted internet speed test server. Provides a clean web UI for
+# testing download speed, upload speed, ping, and jitter against your
+# own server. Supports multiple test servers, telemetry/history logging
+# to a database, and a REST API for programmatic speed testing.
+# Alternative to speedtest.net and fast.com.
+
+services:
+  librespeed:
+    image: lscr.io/linuxserver/librespeed:latest
+    container_name: librespeed
+    hostname: librespeed
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Mode: standalone (no DB), backend (with DB for telemetry)
+      - MODE=standalone
+      # Telemetry - log test results to a database
+      # - TELEMETRY=true
+      # Database for telemetry (comment out if MODE=standalone)
+      # - DB_TYPE=sqlite   # sqlite, mysql, postgresql
+      # - DB_NAME=/config/database.sql
+      # For MySQL/PostgreSQL:
+      # - DB_HOSTNAME=librespeed-db
+      # - DB_USERNAME=librespeed
+      # - DB_PASSWORD=${LIBRESPEED_DB_PASSWORD:-librespeed_pass}
+      # Password to protect the statistics page (optional)
+      # - STATS_PASSWORD=${LIBRESPEED_STATS_PASSWORD}
+      # Custom title for the speed test page
+      # - TITLE=My Speed Test Server
+      # Disable chunk (default: false)
+      # - DISABLE_IPINFO=true
+      # IPINFO API key for IP lookup (optional)
+      # - IPINFO_APIKEY=${IPINFO_API_KEY}
+    volumes:
+      - ${BASE_DATA}/librespeed/config:/config
+    ports:
+      - ${PORT_LIBRESPEED:-8080}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Access:
+#   http://your-server:${PORT_LIBRESPEED:-8080}
+#
+# Telemetry (optional test history):
+#   Set TELEMETRY=true and configure a database
+#   View results at: http://your-server:${PORT_LIBRESPEED:-8080}/results/telemetry.php
+#   (Requires STATS_PASSWORD if set)
+#
+# API testing (headless):
+#   curl http://your-server:${PORT_LIBRESPEED:-8080}/backend/empty.php
+#   Use the LibreSpeed CLI: https://github.com/librespeed/speedtest-cli
+#   ./librespeed-cli --server http://your-server:${PORT_LIBRESPEED:-8080}
+#
+# Multiple servers (edit /config/servers.json):
+#   Add multiple server entries for regional testing
+# ============================================================

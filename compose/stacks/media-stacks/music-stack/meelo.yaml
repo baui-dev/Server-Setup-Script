@@ -1,0 +1,82 @@
+# Meelo
+# GitHub: https://github.com/Arthi-chaud/Meelo
+# Image: ghcr.io/arthi-chaud/meelo-server:latest
+# Docs: https://github.com/Arthi-chaud/Meelo/wiki
+#
+# Self-hosted music streaming platform with a modern web interface. Supports
+# multiple audio formats, automatic metadata and artwork fetching from MusicBrainz
+# and other providers, Subsonic-compatible API, Last.fm scrobbling, and full-text
+# search powered by Meilisearch. Requires PostgreSQL and Meilisearch.
+
+services:
+  meelo-server:
+    image: ghcr.io/arthi-chaud/meelo-server:latest
+    container_name: meelo-server
+    hostname: meelo-server
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@meelo-db:5432/meelo
+      - MEILISEARCH_URL=http://meelo-search:7700
+      - MEILISEARCH_KEY=${MEELO_MEILISEARCH_KEY:-masterKey}
+    volumes:
+      - ${BASE_DATA}/meelo/server:/data
+      - ${MUSIC_DIR}:/music:ro
+    depends_on:
+      meelo-db:
+        condition: service_healthy
+      meelo-search:
+        condition: service_started
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  meelo-front:
+    image: ghcr.io/arthi-chaud/meelo-front:latest
+    container_name: meelo-front
+    hostname: meelo-front
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - API_URL=http://meelo-server:4000
+    ports:
+      - ${PORT_MEELO}:3000
+    depends_on:
+      - meelo-server
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  meelo-db:
+    image: postgres:16-alpine
+    container_name: meelo-db
+    hostname: meelo-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=meelo
+    volumes:
+      - ${BASE_DATA}/meelo/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d meelo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  meelo-search:
+    image: getmeili/meilisearch:latest
+    container_name: meelo-search
+    hostname: meelo-search
+    restart: unless-stopped
+    environment:
+      - MEILI_MASTER_KEY=${MEELO_MEILISEARCH_KEY:-masterKey}
+      - MEILI_NO_ANALYTICS=true
+    volumes:
+      - ${BASE_DATA}/meelo/search:/meili_data
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

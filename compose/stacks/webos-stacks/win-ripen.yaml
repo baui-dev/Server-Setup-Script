@@ -1,0 +1,38 @@
+# Win-Ripen
+# GitHub: https://github.com/win-ripen/win-ripen (Windows-themed web desktop)
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/win-ripen/win-ripen
+#
+# Win-Ripen is a browser-based Windows-themed web desktop environment. It
+# simulates the Windows UI experience entirely in the browser. No official
+# prebuilt Docker image is available. Clone the repository, build the static
+# assets, and serve them via nginx.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/win-ripen/win-ripen /tmp/win-ripen-src
+#   cd /tmp/win-ripen-src && npm install && npm run build
+#   cp -r /tmp/win-ripen-src/dist/* ${BASE_DATA}/win-ripen/html/
+#
+# Note: Search GitHub for "win-ripen" to find the authoritative repository.
+
+services:
+  win-ripen:
+    # No official Docker image available.
+    # Build from source and serve static files with nginx.
+    image: nginx:alpine
+    container_name: win-ripen
+    hostname: win-ripen
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/win-ripen/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/win-ripen/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_WINRIPEN:-8896}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

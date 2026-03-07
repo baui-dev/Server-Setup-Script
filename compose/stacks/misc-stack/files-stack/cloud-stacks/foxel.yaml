@@ -1,0 +1,66 @@
+# Foxel — Lightweight Photo Gallery & Cloud
+# GitHub: https://github.com/Foxel-team/Foxel (verify upstream)
+# Image: foxel/foxel:latest
+# Docs: https://github.com/Foxel-team/Foxel#readme
+#
+# Minimalist self-hosted photo gallery and personal cloud service.
+# Organises photos into albums with automatic EXIF metadata extraction,
+# thumbnail generation, and a clean mobile-friendly web UI.
+# NOTE: Foxel is a niche project. Verify the correct Docker Hub or GHCR image
+# name against the upstream repository before deploying.
+
+services:
+  foxel:
+    image: foxel/foxel:latest
+    container_name: foxel
+    hostname: foxel
+    restart: unless-stopped
+    depends_on:
+      foxel-db:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Database connection
+      - DB_HOST=foxel-db
+      - DB_PORT=3306
+      - DB_DATABASE=foxel
+      - DB_USERNAME=${MYSQL_USER:-foxel}
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      # Application key (generate with: openssl rand -base64 32)
+      - APP_KEY=${FOXEL_APP_KEY:-changeme_use_openssl_rand_base64_32}
+      - APP_URL=https://foxel.${DOMAIN}
+      - APP_ENV=production
+    volumes:
+      - ${BASE_DATA}/foxel/storage:/var/www/html/storage
+      - ${BASE_DATA}/foxel/photos:/var/www/html/public/photos
+    ports:
+      - ${PORT_FOXEL:-8085}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  foxel-db:
+    image: mariadb:11
+    container_name: foxel-db
+    hostname: foxel-db
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=foxel
+      - MYSQL_USER=${MYSQL_USER:-foxel}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/foxel/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

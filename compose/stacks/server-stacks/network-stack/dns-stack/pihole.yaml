@@ -1,0 +1,88 @@
+# PI-HOLE
+# GitHub: https://github.com/pi-hole/pi-hole
+# Image: pihole/pihole:latest
+# Docs: https://github.com/pi-hole/docker-pi-hole
+#
+# Network-wide ad blocker that acts as a DNS sinkhole. Blocks ads,
+# tracking, and malicious domains for all devices on your network by
+# intercepting DNS queries. Features a web dashboard, real-time query
+# log, gravity (blocklist) management, custom DNS records, DHCP server
+# capability, and per-client statistics.
+
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    hostname: pihole
+    restart: unless-stopped
+    # Needed for DHCP server functionality (optional)
+    # network_mode: host
+    environment:
+      - TZ=${TZ}
+      # Web UI password
+      - WEBPASSWORD=${PIHOLE_WEBPASSWORD}
+      # Upstream DNS servers (used for non-blocked queries)
+      - PIHOLE_DNS_=${PIHOLE_DNS1:-1.1.1.1};${PIHOLE_DNS2:-8.8.8.8}
+      # Enable DNSSEC validation
+      - DNSSEC=true
+      # Reverse DNS (optional, your local network subnet)
+      # - REV_SERVER=true
+      # - REV_SERVER_DOMAIN=local
+      # - REV_SERVER_TARGET=192.168.1.1
+      # - REV_SERVER_CIDR=192.168.1.0/24
+      # Web UI theme (default, darker, darkblue)
+      # - WEBTHEME=default-dark
+      # Custom hostname for the Pi-hole server
+      # - VIRTUAL_HOST=pihole.${DOMAIN}
+      # Listen on all interfaces (needed in some setups)
+      # - DNSMASQ_LISTENING=all
+      # Interface to use for DNS
+      # - INTERFACE=eth0
+      # DHCP settings (optional)
+      # - DHCP_ACTIVE=false
+      # - DHCP_START=192.168.1.100
+      # - DHCP_END=192.168.1.200
+      # - DHCP_ROUTER=192.168.1.1
+      # - DHCP_LEASETIME=24
+      # Disable FTL (Faster Than Light) log
+      # - FTLCONF_LOCAL_IPV4=0.0.0.0
+    volumes:
+      - ${BASE_DATA}/pihole/config:/etc/pihole
+      - ${BASE_DATA}/pihole/dnsmasq:/etc/dnsmasq.d
+    ports:
+      # Web UI
+      - ${PORT_PIHOLE:-80}:80/tcp
+      # DNS (UDP + TCP)
+      - ${PORT_PIHOLE_DNS:-53}:53/udp
+      - ${PORT_PIHOLE_DNS:-53}:53/tcp
+      # HTTPS Web UI (optional)
+      # - ${PORT_PIHOLE_HTTPS:-443}:443/tcp
+      # DHCP (optional, only if using Pi-hole DHCP)
+      # - 67:67/udp
+    cap_add:
+      - NET_ADMIN
+      - SYS_TIME
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# If port 53 is in use by systemd-resolved:
+#   sudo systemctl stop systemd-resolved && sudo systemctl disable systemd-resolved
+#   echo "nameserver 127.0.0.1" | sudo tee /etc/resolv.conf
+#
+# Access the web interface:
+#   http://your-server:${PORT_PIHOLE:-80}/admin
+#   Password: ${PIHOLE_WEBPASSWORD}
+#
+# Add blocklists via the web UI under Tools -> Manage Blocklists:
+#   https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+#   https://raw.githubusercontent.com/nicehash/NiceHashQuickMiner/main/assets/blocklist.txt
+#   https://big.oisd.nl
+#
+# Using Unbound as upstream resolver:
+#   Set PIHOLE_DNS_ to: 127.0.0.1#5335 (or host-gateway:5335)
+# ============================================================

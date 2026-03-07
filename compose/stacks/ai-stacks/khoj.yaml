@@ -1,0 +1,130 @@
+# KHOJ
+# GitHub: https://github.com/khoj-ai/khoj
+# Image: ghcr.io/khoj-ai/khoj:latest
+# Docs: https://docs.khoj.dev/self-hosting/setup
+#
+# Khoj is an AI-powered "second brain" — a personal AI assistant that can search and
+# chat over your notes, documents, and the web. It indexes your personal knowledge base
+# (Org-mode, Markdown, PDF, images, Notion, Obsidian) and lets you query it conversationally.
+# Supports multiple LLM backends (OpenAI, Anthropic, Ollama, Mistral, Gemini).
+# Requires PostgreSQL with pgvector extension and Redis.
+#
+# === QUICK START ===
+# 1. Copy config.env to .env and set KHOJ_ADMIN_EMAIL, KHOJ_ADMIN_PASSWORD, KHOJ_DJANGO_SECRET_KEY
+# 2. docker compose -f khoj.yaml up -d
+# 3. Navigate to http://localhost:${PORT_KHOJ}
+# 4. Log in with your admin credentials
+
+services:
+
+  # --- PostgreSQL with pgvector (required for vector similarity search) ---
+  khoj-postgres:
+    image: ankane/pgvector:latest      # PostgreSQL with pgvector extension for semantic search
+    container_name: khoj-postgres
+    hostname: khoj-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=khoj
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/khoj/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d khoj"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # --- Redis (required for task queue and caching) ---
+  khoj-redis:
+    image: redis:7-alpine
+    container_name: khoj-redis
+    hostname: khoj-redis
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    volumes:
+      - ${BASE_DATA}/khoj/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # --- Khoj Server ---
+  khoj:
+    image: ghcr.io/khoj-ai/khoj:latest
+    container_name: khoj
+    hostname: khoj
+    restart: unless-stopped
+    depends_on:
+      khoj-postgres:
+        condition: service_healthy
+      khoj-redis:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+
+      # --- Admin Account (created on first start) ---
+      - KHOJ_ADMIN_EMAIL=${KHOJ_ADMIN_EMAIL:-admin@example.com}
+      - KHOJ_ADMIN_PASSWORD=${KHOJ_ADMIN_PASSWORD:-changeme}
+      # Django secret key - REQUIRED, generate with: openssl rand -hex 32
+      - KHOJ_DJANGO_SECRET_KEY=${KHOJ_DJANGO_SECRET_KEY:-changeme_generate_with_openssl_rand_hex_32}
+
+      # --- Database (PostgreSQL with pgvector) ---
+      - POSTGRES_DB=khoj
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=khoj-postgres
+      - POSTGRES_PORT=5432
+
+      # --- Redis ---
+      - KHOJ_REDIS_URL=redis://:${REDIS_PASSWORD}@khoj-redis:6379/0
+
+      # --- LLM Providers (configure at least one) ---
+      # Khoj will use these for AI chat and agent features
+      # - OPENAI_API_KEY=              # OpenAI API key (gpt-4o, gpt-4-turbo, etc.)
+      # - ANTHROPIC_API_KEY=           # Anthropic API key (claude-3-5-sonnet, etc.)
+      # - GEMINI_API_KEY=              # Google Gemini API key
+      # - MISTRAL_API_KEY=             # Mistral AI API key (mistral-large, etc.)
+      # - COHERE_API_KEY=              # Cohere API key
+
+      # --- Ollama / Local LLM ---
+      # - OLLAMA_HOST=http://host.docker.internal:11434  # Ollama endpoint for local models
+
+      # --- Search / Features ---
+      # - KHOJ_TELEMETRY_DISABLED=true # Disable anonymous telemetry (recommended for self-hosted)
+      - KHOJ_TELEMETRY_DISABLED=true
+      # - KHOJ_DEBUG=false             # Enable Django debug mode (do NOT use in production)
+
+      # --- Storage ---
+      # - KHOJ_MODELS_DIR=/root/.khoj/models  # Directory to cache downloaded embedding models
+
+      # --- Web Search (for web agent) ---
+      # - SERPER_DEV_API_KEY=          # Serper.dev key for Google web search agent capability
+      # - BING_SEARCH_V7_SUBSCRIPTION_KEY=  # Bing Search API key
+      # - JINA_API_KEY=                # Jina.ai reader key (for URL content extraction)
+
+    volumes:
+      - ${BASE_DATA}/khoj/config:/root/.khoj    # Config files, model cache, uploaded files
+
+    ports:
+      - ${PORT_KHOJ}:42110             # WebUI + API
+
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.khoj.rule=Host(`khoj.${DOMAIN}`)"
+    #   - "traefik.http.routers.khoj.entrypoints=websecure"
+    #   - "traefik.http.routers.khoj.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.khoj.loadbalancer.server.port=42110"
+
+# networks:
+#   proxy:
+#     external: true

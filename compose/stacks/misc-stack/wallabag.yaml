@@ -1,0 +1,90 @@
+# Wallabag
+# GitHub: https://github.com/wallabag/wallabag
+# Image: wallabag/wallabag:latest
+# Docs: https://doc.wallabag.org/en/admin/installation/installation.html
+#
+# Self-hosted read-it-later application. Save web articles to read offline with
+# full content extraction, tagging, annotations, and export to e-reader formats.
+# Requires MySQL and Redis for caching and queuing.
+
+services:
+  wallabag:
+    image: wallabag/wallabag:latest
+    container_name: wallabag
+    hostname: wallabag
+    restart: unless-stopped
+    depends_on:
+      wallabag-db:
+        condition: service_healthy
+      wallabag-redis:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Database connection
+      - SYMFONY__ENV__DATABASE_DRIVER=pdo_mysql
+      - SYMFONY__ENV__DATABASE_HOST=wallabag-db
+      - SYMFONY__ENV__DATABASE_PORT=3306
+      - SYMFONY__ENV__DATABASE_NAME=wallabag
+      - SYMFONY__ENV__DATABASE_USER=${MYSQL_USER:-wallabag}
+      - SYMFONY__ENV__DATABASE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - SYMFONY__ENV__DATABASE_CHARSET=utf8mb4
+      - SYMFONY__ENV__DATABASE_TABLE_PREFIX=wallabag_
+      # Redis for caching
+      - SYMFONY__ENV__REDIS_HOST=wallabag-redis
+      - SYMFONY__ENV__REDIS_PORT=6379
+      # Application secret (change to a long random string)
+      - SYMFONY__ENV__SECRET=${WALLABAG_SECRET:-changeme_use_a_random_string}
+      # Public-facing domain name
+      - SYMFONY__ENV__DOMAIN_NAME=https://wallabag.${DOMAIN}
+      # SMTP (optional)
+      - SYMFONY__ENV__MAILER_HOST=127.0.0.1
+      - SYMFONY__ENV__MAILER_USER=~
+      - SYMFONY__ENV__MAILER_PASSWORD=~
+      - SYMFONY__ENV__FROM_EMAIL=wallabag@${DOMAIN}
+      # Set to true only on first run to initialise the database
+      - POPULATE_DATABASE=false
+    volumes:
+      - ${BASE_DATA}/wallabag/data:/var/www/wallabag/data
+      - ${BASE_DATA}/wallabag/images:/var/www/wallabag/web/assets/images
+    ports:
+      - ${PORT_WALLABAG}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  wallabag-db:
+    image: mariadb:11
+    container_name: wallabag-db
+    hostname: wallabag-db
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=wallabag
+      - MYSQL_USER=${MYSQL_USER:-wallabag}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/wallabag/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  wallabag-redis:
+    image: redis:7-alpine
+    container_name: wallabag-redis
+    hostname: wallabag-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

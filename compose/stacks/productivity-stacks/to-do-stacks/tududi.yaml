@@ -1,0 +1,55 @@
+# Tududi
+# GitHub: https://github.com/chrisvel/tududi
+# Image: chrisvel/tududi:latest
+# Docs: https://github.com/chrisvel/tududi#readme
+#
+# Self-hosted task and project management application built with Ruby on Rails.
+# Combines to-do lists, projects, notes, and areas of focus in a unified interface.
+# Inspired by GTD (Getting Things Done) methodology. Uses SQLite for storage.
+# See also: note-container/tududi.yaml for the same service under the notes category.
+
+services:
+  tududi:
+    image: chrisvel/tududi:latest
+    container_name: tududi
+    hostname: tududi
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Rails environment
+      - RAILS_ENV=production
+      # Secret key base - generate with: openssl rand -hex 64
+      - SECRET_KEY_BASE=${TUDUDI_SECRET_KEY:-changeme_generate_a_real_64char_hex_secret}
+      # Admin user credentials (created on first run if no users exist)
+      - TUDUDI_USER_EMAIL=${TUDUDI_USER_EMAIL:-admin@example.com}
+      - TUDUDI_USER_PASSWORD=${TUDUDI_USER_PASSWORD:-changeme}
+      # Database (SQLite by default)
+      # Uncomment below to use PostgreSQL instead:
+      # - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@tududi-postgres:5432/tududi
+      # Application domain
+      - APP_DOMAIN=${DOMAIN}
+    volumes:
+      - ${BASE_DATA}/tududi/data:/app/db
+    ports:
+      - ${PORT_TUDUDI:-4567}:4567
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# Uncomment to use a dedicated PostgreSQL backend:
+# tududi-postgres:
+#   image: postgres:16-alpine
+#   container_name: tududi-postgres
+#   hostname: tududi-postgres
+#   restart: unless-stopped
+#   environment:
+#     - POSTGRES_DB=tududi
+#     - POSTGRES_USER=${POSTGRES_USER}
+#     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+#   volumes:
+#     - ${BASE_DATA}/tududi/postgres:/var/lib/postgresql/data
+
+# networks:
+#   proxy:
+#     external: true

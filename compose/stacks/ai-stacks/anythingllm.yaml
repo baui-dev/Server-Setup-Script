@@ -1,0 +1,120 @@
+# ANYTHINGLLM
+# GitHub: https://github.com/Mintplex-Labs/anything-llm
+# Image: mintplexlabs/anythingllm:latest
+# Docs: https://docs.anythingllm.com/installation/self-hosted/docker
+#
+# AnythingLLM is a full-stack application for building private, local AI chatbots and
+# RAG (Retrieval Augmented Generation) applications. Supports multiple LLM providers
+# (Ollama, OpenAI, Anthropic, etc.) and vector databases (LanceDB, Chroma, Qdrant, etc.)
+# Includes multi-user support, document ingestion, agent workflows, and a browser extension.
+#
+# === QUICK START ===
+# 1. Copy config.env to .env and fill in ANYTHINGLLM_JWT_SECRET (required)
+# 2. Set LLM_PROVIDER and related API keys/URLs for your chosen backend
+# 3. docker compose -f anythingllm.yaml up -d
+# 4. Navigate to http://localhost:${PORT_ANYTHINGLLM} and complete the setup wizard
+
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm:latest
+    container_name: anythingllm
+    hostname: anythingllm
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+
+      # --- Server ---
+      - SERVER_PORT=3001                        # Internal listen port (must match exposed container port)
+      - STORAGE_DIR=/app/server/storage         # Internal path where all data (docs, vectors, configs) is stored
+
+      # --- Authentication ---
+      # JWT_SECRET is REQUIRED - signs all auth tokens; generate with: openssl rand -hex 32
+      - JWT_SECRET=${ANYTHINGLLM_JWT_SECRET}
+      # AUTH_TOKEN enables single-user password mode (no account creation flow)
+      # Leave empty/unset to allow multi-user mode or open access during setup
+      # - AUTH_TOKEN=${ANYTHINGLLM_AUTH_TOKEN}
+
+      # --- LLM Provider ---
+      # Options: openai | anthropic | groq | cohere | mistral | ollama | localai |
+      #          lm-studio | azure | gemini | openrouter | perplexity | together-ai | native
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_PATH=http://host.docker.internal:11434    # Ollama local endpoint
+      # - OLLAMA_MODEL_PREF=llama3.2                          # Default Ollama chat model
+      # - OLLAMA_NUM_CTX=8192                                 # Context window size for Ollama
+      # - OPENAI_API_KEY=                                     # OpenAI API key
+      # - OPEN_AI_MODEL_PREF=gpt-4o                           # OpenAI model preference
+      # - ANTHROPIC_API_KEY=                                  # Anthropic Claude API key
+      # - ANTHROPIC_MODEL_PREF=claude-3-5-sonnet-20241022     # Anthropic model preference
+      # - GROQ_API_KEY=                                       # Groq API key
+      # - GROQ_MODEL_PREF=llama3-70b-8192                     # Groq model preference
+      # - OPENROUTER_API_KEY=                                 # OpenRouter API key
+      # - OPENROUTER_MODEL_PREF=meta-llama/llama-3.1-8b-instruct
+      # - GEMINI_API_KEY=                                     # Google Gemini API key
+      # - GEMINI_LLM_MODEL_PREF=gemini-pro                    # Gemini model preference
+      # - AZURE_OPENAI_ENDPOINT=                              # Azure OpenAI endpoint URL
+      # - AZURE_OPENAI_KEY=                                   # Azure OpenAI API key
+      # - AZURE_OPENAI_MODEL_PREF=gpt-4o                      # Azure OpenAI deployment name
+
+      # --- Embedding Engine ---
+      # Options: native | openai | azure | localai | ollama | lm-studio | cohere | voyageai
+      - EMBEDDING_ENGINE=native                 # native = built-in fast embeddings (no extra setup)
+      # - EMBEDDING_MODEL_PREF=nomic-embed-text # Model name when using Ollama for embeddings
+      # - EMBEDDING_ENGINE=ollama
+      # - OLLAMA_EMBEDDING_BASE_PATH=http://host.docker.internal:11434
+      # - OPENAI_EMBEDDING_MODEL_PREF=text-embedding-3-small  # OpenAI embedding model
+      # - EMBEDDING_BASE_PATH=                                # localai/lm-studio base URL
+
+      # --- Vector Database ---
+      # Options: lancedb (built-in) | chroma | pinecone | qdrant | weaviate | milvus | astra
+      - VECTOR_DB=lancedb                       # LanceDB is embedded - requires no external service
+      # - CHROMA_ENDPOINT=http://chromadb:8000  # Chroma endpoint (if running Chroma externally)
+      # - CHROMA_API_HEADER=                    # Chroma auth header name (if auth enabled)
+      # - CHROMA_API_KEY=                       # Chroma API key
+      # - QDRANT_ENDPOINT=http://qdrant:6333    # Qdrant endpoint
+      # - QDRANT_API_KEY=                       # Qdrant API key (for Qdrant Cloud)
+      # - PINECONE_API_KEY=                     # Pinecone API key
+      # - PINECONE_INDEX=anythingllm            # Pinecone index name
+      # - WEAVIATE_ENDPOINT=http://weaviate:8080
+      # - WEAVIATE_API_KEY=                     # Weaviate API key
+
+      # --- Document Processing & Transcription ---
+      # - WHISPER_PROVIDER=local                # Audio transcription: local or openai
+      # - TTS_PROVIDER=native                   # Text-to-speech: native or openai
+      # - OPENAI_TTS_VOICE=alloy                # OpenAI TTS voice (alloy/echo/fable/onyx/nova/shimmer)
+      # - OPENAI_TTS_MODEL=tts-1                # OpenAI TTS model (tts-1 or tts-1-hd)
+
+      # --- Agent Tools ---
+      # - AGENT_SERPER_DEV_KEY=                 # Serper.dev API key for web search capability
+      # - AGENT_BING_SEARCH_KEY=                # Bing Search API key
+      # - AGENT_SERPAPI_API_KEY=                # SerpAPI key for Google/Bing/DuckDuckGo search
+      # - AGENT_SEARCH_PROVIDER=google          # Search provider: google, bing, duckduckgo, searxng
+      # - AGENT_SEARXNG_API_URL=                # SearXNG instance URL (if using searxng provider)
+      # - BROWSER_USE_DOCKER_HOST=true          # Use Docker host for browser-based agents
+
+      # --- Telemetry ---
+      - DISABLE_TELEMETRY=true                  # Disable anonymous usage telemetry (recommended for self-hosted)
+
+    volumes:
+      - ${BASE_DATA}/anythingllm/storage:/app/server/storage     # All data: documents, vector DB, workspaces, configs
+      # - ${BASE_DATA}/anythingllm/hotdir:/app/collector/hotdir  # Optional: watched folder for auto-document ingestion
+      # - ${BASE_DATA}/anythingllm/outputs:/app/collector/outputs # Optional: processed file outputs
+
+    ports:
+      - ${PORT_ANYTHINGLLM}:3001    # WebUI
+
+    cap_add:
+      - SYS_ADMIN                   # Required for Chromium-based document processing (PDF rendering, web scraping)
+
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.anythingllm.rule=Host(`anythingllm.${DOMAIN}`)"
+    #   - "traefik.http.routers.anythingllm.entrypoints=websecure"
+    #   - "traefik.http.routers.anythingllm.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.anythingllm.loadbalancer.server.port=3001"
+
+# networks:
+#   proxy:
+#     external: true

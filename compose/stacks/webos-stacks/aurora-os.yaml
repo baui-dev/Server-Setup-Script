@@ -1,0 +1,33 @@
+# Aurora OS
+# GitHub: https://github.com/aurora-os/aurora (community web desktop project)
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/aurora-os/aurora
+#
+# Aurora OS is a browser-based desktop environment / web OS. It is a static
+# web application with no official prebuilt Docker image. Clone the repo,
+# build the static assets, then mount them into nginx for serving.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/aurora-os/aurora /tmp/aurora-os-src
+#   cd /tmp/aurora-os-src && npm install && npm run build
+#   cp -r /tmp/aurora-os-src/dist/* ${BASE_DATA}/aurora-os/html/
+
+services:
+  aurora-os:
+    image: nginx:alpine
+    container_name: aurora-os
+    hostname: aurora-os
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/aurora-os/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/aurora-os/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_AURORAOS:-8882}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

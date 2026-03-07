@@ -1,0 +1,93 @@
+# ZITADEL
+# GitHub: https://github.com/zitadel/zitadel
+# Image: ghcr.io/zitadel/zitadel:latest
+# Docs: https://zitadel.com/docs/self-hosting/deploy/compose
+#
+# Modern, cloud-native Identity and Access Management (IAM) platform.
+# Supports OAuth2, OIDC, SAML, passkeys, MFA, and machine-to-machine auth.
+# Built on Go with a CockroachDB or PostgreSQL backend. Suitable for
+# multi-tenant applications. Features an admin console and rich REST/gRPC APIs.
+
+services:
+  zitadel-postgres:
+    image: postgres:16-alpine
+    container_name: zitadel-postgres
+    hostname: zitadel-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=zitadel
+      - POSTGRES_USER=zitadel
+      - POSTGRES_PASSWORD=${ZITADEL_POSTGRES_PASSWORD:-zitadel_pass}
+    volumes:
+      - ${BASE_DATA}/zitadel/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zitadel -d zitadel"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  zitadel:
+    image: ghcr.io/zitadel/zitadel:latest
+    container_name: zitadel
+    hostname: zitadel
+    restart: unless-stopped
+    depends_on:
+      zitadel-postgres:
+        condition: service_healthy
+    command: start-from-init --masterkey "${ZITADEL_MASTERKEY}" --tlsMode disabled
+    environment:
+      - TZ=${TZ}
+      # Master key for encryption - generate with: zitadel keys generate or openssl rand -hex 32
+      - ZITADEL_MASTERKEY=${ZITADEL_MASTERKEY}
+      # Database (PostgreSQL)
+      - ZITADEL_DATABASE_POSTGRES_HOST=zitadel-postgres
+      - ZITADEL_DATABASE_POSTGRES_PORT=5432
+      - ZITADEL_DATABASE_POSTGRES_DATABASE=zitadel
+      - ZITADEL_DATABASE_POSTGRES_USER_USERNAME=zitadel
+      - ZITADEL_DATABASE_POSTGRES_USER_PASSWORD=${ZITADEL_POSTGRES_PASSWORD:-zitadel_pass}
+      - ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE=disable
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME=zitadel
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=${ZITADEL_POSTGRES_PASSWORD:-zitadel_pass}
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable
+      # External domain - the public-facing URL
+      - ZITADEL_EXTERNALDOMAIN=${DOMAIN}
+      - ZITADEL_EXTERNALPORT=${PORT_ZITADEL:-8080}
+      - ZITADEL_EXTERNALSECURE=false
+      # First instance admin user (created on first start)
+      - ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME=${ZITADEL_ADMIN_EMAIL:-admin@${DOMAIN}}
+      - ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD=${ZITADEL_ADMIN_PASSWORD:-Password1!}
+      # Port
+      - ZITADEL_PORT=8080
+      # Log level: debug, info, warn, error
+      # - ZITADEL_LOG_LEVEL=info
+    volumes:
+      - ${BASE_DATA}/zitadel/config:/config
+    ports:
+      - ${PORT_ZITADEL:-8080}:8080
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Access http://your-server:${PORT_ZITADEL:-8080}/ui/console
+# 2. Login with ZITADEL_ADMIN_EMAIL and ZITADEL_ADMIN_PASSWORD
+# 3. You will be prompted to change the password on first login
+# 4. Create organizations, projects, and applications from the console
+#
+# For production with TLS:
+#   Change --tlsMode to 'external' or 'enabled'
+#   Set ZITADEL_EXTERNALSECURE=true
+#   Set ZITADEL_EXTERNALPORT=443
+#
+# CockroachDB alternative (for distributed deployments):
+#   Replace postgres service with CockroachDB and update
+#   ZITADEL_DATABASE_COCKROACH_* env vars instead
+# ============================================================

@@ -1,0 +1,119 @@
+# Omnivore
+# GitHub: https://github.com/omnivore-app/omnivore
+# Image: ghcr.io/omnivore-app/omnivore-api:latest
+# Docs: https://docs.omnivore.app/self-hosting/self-hosting.html
+#
+# Full-featured read-it-later / read-later service with highlighting, labels,
+# newsletter subscriptions, browser extension, and mobile apps. The self-hosted
+# setup requires multiple services: API backend, web frontend, PostgreSQL,
+# Redis, and an optional content-fetching service.
+#
+# NOTE: Omnivore Inc was acquired by ElevenLabs in 2024. The project is open
+# source and a community-maintained self-hosted version exists. Check the
+# GitHub repo for the latest image names and compose instructions, as the
+# self-hosted setup has evolved since the acquisition.
+#
+# Required env vars: OMNIVORE_JWT_SECRET, POSTGRES_USER, POSTGRES_PASSWORD
+
+services:
+  omnivore-api:
+    image: ghcr.io/omnivore-app/omnivore-api:latest
+    container_name: omnivore-api
+    hostname: omnivore-api
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - NODE_ENV=production
+      # Database
+      - PG_HOST=omnivore-postgres
+      - PG_PORT=5432
+      - PG_DB=omnivore
+      - PG_USER=${POSTGRES_USER}
+      - PG_PASSWORD=${POSTGRES_PASSWORD}
+      # Redis
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@omnivore-redis:6379
+      # Security
+      - JWT_SECRET=${OMNIVORE_JWT_SECRET}
+      - SSO_JWT_SECRET=${OMNIVORE_JWT_SECRET}
+      # Application URLs
+      - CLIENT_URL=https://${DOMAIN}
+      - BACKEND_URL=https://${DOMAIN}/api
+      # Content fetching (Puppeteer service)
+      - PUPPETEER_URL=http://omnivore-puppeteer:9000
+      # Optional: email for notifications
+      # - SENDGRID_API_KEY=${OMNIVORE_SENDGRID_KEY}
+      # - SENDGRID_SENDER_EMAIL=omnivore@${DOMAIN}
+      # Optional: Disable sign-up to only allow invited users
+      # - DISABLE_EMAIL_REGISTRATION=true
+    depends_on:
+      omnivore-postgres:
+        condition: service_healthy
+      omnivore-redis:
+        condition: service_started
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  omnivore-web:
+    image: ghcr.io/omnivore-app/omnivore-web:latest
+    container_name: omnivore-web
+    hostname: omnivore-web
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - NEXT_PUBLIC_APP_ENV=prod
+      - NEXT_PUBLIC_BASE_URL=https://${DOMAIN}
+      - NEXT_PUBLIC_SERVER_BASE_URL=http://omnivore-api:8080
+      - NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=https://${DOMAIN}
+    ports:
+      - ${PORT_OMNIVORE:-3000}:3000
+    depends_on:
+      - omnivore-api
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  omnivore-puppeteer:
+    image: ghcr.io/omnivore-app/omnivore-puppeteer-parse:latest
+    container_name: omnivore-puppeteer
+    hostname: omnivore-puppeteer
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@omnivore-redis:6379
+    depends_on:
+      - omnivore-redis
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  omnivore-postgres:
+    image: ankane/pgvector:latest
+    container_name: omnivore-postgres
+    hostname: omnivore-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=omnivore
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/omnivore/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d omnivore"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  omnivore-redis:
+    image: redis:7-alpine
+    container_name: omnivore-redis
+    hostname: omnivore-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/omnivore/redis:/data
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

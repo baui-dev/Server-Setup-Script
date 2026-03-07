@@ -1,0 +1,39 @@
+# DaedalOS
+# GitHub: https://github.com/DustinBrett/daedalOS
+# Image: ghcr.io/dustinbrett/daedal-os:latest (or build from source)
+# Docs: https://github.com/DustinBrett/daedalOS#readme
+#
+# DaedalOS is a web-based desktop environment inspired by Windows, running
+# entirely in the browser using Next.js. It features a file system, apps,
+# background processes, and more. Serves as a static Next.js application.
+#
+# If no prebuilt image is available, build from source:
+#   git clone https://github.com/DustinBrett/daedalOS /tmp/daedal-src
+#   cd /tmp/daedal-src && yarn install && yarn build && yarn export
+#   cp -r /tmp/daedal-src/out/* ${BASE_DATA}/daedal-os/html/
+#
+# Then switch image to nginx:alpine and mount the html volume.
+
+services:
+  daedal-os:
+    image: nginx:alpine
+    container_name: daedal-os
+    hostname: daedal-os
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      # Build from source then copy Next.js static export here:
+      #   git clone https://github.com/DustinBrett/daedalOS /tmp/daedal-src
+      #   cd /tmp/daedal-src && yarn install && yarn build && yarn export
+      #   cp -r /tmp/daedal-src/out/* ${BASE_DATA}/daedal-os/html/
+      - ${BASE_DATA}/daedal-os/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/daedal-os/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_DAEDALOS:-8886}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

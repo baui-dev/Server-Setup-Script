@@ -1,0 +1,50 @@
+# JELLYFIN
+# GitHub: https://github.com/jellyfin/jellyfin
+# Image: lscr.io/linuxserver/jellyfin:latest
+# Docs: https://jellyfin.org/docs/general/installation/container
+#
+# Jellyfin is a free and open-source media server. It enables you to collect, manage,
+# and stream your media. No subscriptions, no tracking, no central server required.
+# Supports movies, TV shows, music, live TV, and more with hardware transcoding.
+
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    hostname: jellyfin
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_BASE_URL:-http://jellyfin:8096}   # URL used for autodiscovery and DLNA
+      # - DOCKER_MODS=linuxserver/mods:jellyfin-opencl-intel                    # Optional: Intel OpenCL transcoding mod
+    volumes:
+      - ${BASE_DATA}/jellyfin/config:/config     # Jellyfin configuration, metadata, and plugins
+      - ${BASE_DATA}/jellyfin/cache:/cache       # Transcoding cache and thumbnail cache
+      - ${MOVIES_DIR}:/data/movies               # Movie library
+      - ${TV_DIR}:/data/tv                       # TV show library
+      - ${MUSIC_DIR}:/data/music                 # Music library (optional)
+      # - ${MEDIA_DIR}:/data/media               # Optional: mount a unified media directory instead
+      # - /usr/lib/jellyfin-ffmpeg:/usr/lib/jellyfin-ffmpeg  # Optional: host ffmpeg for hardware transcoding
+    ports:
+      - ${PORT_JELLYFIN:-8096}:8096              # HTTP web interface
+      - ${PORT_JELLYFIN_HTTPS:-8920}:8920        # HTTPS web interface (optional)
+      - ${PORT_JELLYFIN_DLNA:-1900}:1900/udp     # DLNA service discovery
+      - 7359:7359/udp                            # Jellyfin local network discovery
+    # Optional: GPU passthrough for hardware transcoding
+    # devices:
+    #   - /dev/dri:/dev/dri                      # Intel/AMD GPU (VA-API)
+    #   - /dev/nvidia0:/dev/nvidia0              # NVIDIA GPU
+    #   - /dev/nvidiactl:/dev/nvidiactl
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]              # NVIDIA GPU reservation (Docker Swarm)
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

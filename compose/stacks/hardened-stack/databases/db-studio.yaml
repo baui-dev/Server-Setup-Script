@@ -1,1 +1,35 @@
-https://github.com/husamql3/db-studio
+# DB STUDIO
+# GitHub: https://github.com/husamql3/db-studio
+# Image: husamql3/db-studio:latest
+# Docs: https://github.com/husamql3/db-studio#readme
+#
+# Lightweight, web-based database studio for browsing and querying databases
+# via a clean browser UI. Supports common SQL databases. No backend persistence
+# is required — connection credentials are entered per session.
+
+services:
+  db-studio:
+    image: husamql3/db-studio:latest
+    container_name: db-studio
+    hostname: db-studio
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Optional: pre-configure a default database host
+      # - DB_HOST=postgres
+      # - DB_PORT=5432
+      # - DB_USER=${POSTGRES_USER}
+      # - DB_PASSWORD=${POSTGRES_PASSWORD}
+      # - DB_NAME=${POSTGRES_DB}
+    volumes:
+      - ${BASE_DATA}/db-studio/config:/config
+    ports:
+      - ${PORT_DB_STUDIO}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

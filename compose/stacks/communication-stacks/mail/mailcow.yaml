@@ -1,0 +1,60 @@
+# MAILCOW (DOCKERIZED)
+# GitHub: https://github.com/mailcow/mailcow-dockerized
+# Image: Multiple images (see official docker-compose.yml)
+# Docs: https://docs.mailcow.email
+#
+# Mailcow is a full mail server suite based on Postfix, Dovecot, Rspamd,
+# ClamAV, SOGo, and other components. It ships with its OWN elaborate
+# docker-compose.yml that must be used directly — it is NOT suitable for
+# embedding as a single service in a custom compose file.
+#
+# ===========================================================================
+#  DO NOT DEPLOY THIS FILE DIRECTLY.
+#  Follow the official installation steps below.
+# ===========================================================================
+#
+# Official installation steps:
+#
+#   1. Clone the mailcow repository:
+#        git clone https://github.com/mailcow/mailcow-dockerized /opt/mailcow
+#        cd /opt/mailcow
+#
+#   2. Run the setup script to generate mailcow.conf:
+#        ./generate_config.sh
+#        # Enter your mail hostname when prompted (e.g. mail.example.com)
+#
+#   3. Review and customise mailcow.conf as needed.
+#        nano mailcow.conf
+#
+#   4. Pull all images and start the stack:
+#        docker compose pull
+#        docker compose up -d
+#
+#   5. Access the admin UI:
+#        https://mail.example.com
+#        Default credentials: admin / moohoo
+#        Change the password immediately after first login.
+#
+# Alternatively, download the official compose file directly:
+#   curl -o docker-compose.yml \
+#     https://raw.githubusercontent.com/mailcow/mailcow-dockerized/master/docker-compose.yml
+#
+# Ports used by mailcow (managed by mailcow.conf — do NOT change here):
+#   25    — SMTP (Postfix, inbound)
+#   587   — SMTP Submission (Postfix, authenticated outbound)
+#   465   — SMTPS (Postfix, implicit TLS)
+#   110   — POP3 (Dovecot)
+#   995   — POP3S (Dovecot, implicit TLS)
+#   143   — IMAP (Dovecot, STARTTLS)
+#   993   — IMAPS (Dovecot, implicit TLS)
+#   4190  — ManageSieve (Dovecot)
+#   80    — HTTP (nginx, redirect to HTTPS + ACME challenge)
+#   443   — HTTPS (nginx, SOGo webmail + admin UI)
+#   8080  — HTTP alt (ACME / Let's Encrypt verification)
+#   8443  — HTTPS alt
+#
+# For documentation on updating, troubleshooting, and customisation:
+#   https://docs.mailcow.email/getting-started/installation/
+
+# This file is intentionally left without services.
+# Use the official mailcow docker-compose.yml as described above.

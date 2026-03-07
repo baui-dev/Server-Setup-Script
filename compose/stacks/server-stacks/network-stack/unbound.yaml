@@ -1,0 +1,67 @@
+# UNBOUND (Network Stack)
+# GitHub: https://github.com/NLnetLabs/unbound
+# Image: mvance/unbound:latest
+# Docs: https://unbound.docs.nlnetlabs.nl/en/latest/
+#
+# Validating, recursive, and caching DNS resolver. Provides DNSSEC
+# validation, DNS-over-TLS (DoT), and DNS-over-HTTPS (DoH).
+# Commonly used as an upstream recursive resolver for Pi-hole or
+# AdGuard Home to eliminate reliance on third-party DNS servers.
+# This instance is placed in the network stack as a shared resolver.
+# See dns-stack/unbound.yaml for the DNS-specific instance.
+
+services:
+  unbound:
+    image: mvance/unbound:latest
+    container_name: unbound
+    hostname: unbound
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/unbound/config:/opt/unbound/etc/unbound
+    ports:
+      # UDP DNS
+      - ${PORT_UNBOUND:-5335}:53/udp
+      # TCP DNS
+      - ${PORT_UNBOUND:-5335}:53/tcp
+    cap_add:
+      - NET_ADMIN
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Create ${BASE_DATA}/unbound/config/unbound.conf with:
+# ============================================================
+# server:
+#   verbosity: 1
+#   interface: 0.0.0.0
+#   port: 53
+#   do-ip4: yes
+#   do-udp: yes
+#   do-tcp: yes
+#   do-ip6: no
+#   prefer-ip6: no
+#   root-hints: /opt/unbound/etc/unbound/root.hints
+#   harden-glue: yes
+#   harden-dnssec-stripped: yes
+#   use-caps-for-id: no
+#   edns-buffer-size: 1472
+#   prefetch: yes
+#   num-threads: 1
+#   so-rcvbuf: 1m
+#   private-address: 192.168.0.0/16
+#   private-address: 169.254.0.0/16
+#   private-address: 172.16.0.0/12
+#   private-address: 10.0.0.0/8
+#   private-address: fd00::/8
+#   private-address: fe80::/10
+#
+# Download root hints:
+#   wget -O ${BASE_DATA}/unbound/config/root.hints \
+#     https://www.internic.net/domain/named.root
+# ============================================================

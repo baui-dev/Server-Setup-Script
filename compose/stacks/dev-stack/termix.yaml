@@ -1,0 +1,33 @@
+# TERMIX (dev-stack variant)
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# Claimed image: ghcr.io/mxs01/termix:latest
+# "mxs01" is not a recognized Docker image publisher in the homelab community
+# GHCR image ghcr.io/mxs01/termix → could not be confirmed to exist
+# Original YAML itself stated the project "could not be verified without network access"
+#
+# ✅ Verified alternatives for web-based terminal access:
+#   - ttyd:        https://github.com/tsl0922/ttyd                (web terminal, shares any command)
+#                  Image: tsl0922/ttyd
+#   - Wetty:       https://github.com/butlerx/wetty               (web terminal over SSH)
+#                  Image: wettyoss/wetty
+#   - Nexterm:     https://github.com/gnmyt/nexterm               (multi-server SSH web terminal)
+#                  Image: ghcr.io/gnmyt/nexterm
+#   - Gotty:       https://github.com/yudai/gotty                 (any CLI tool as web app)
+#   - Sshwifty:    https://github.com/nirui/sshwifty              (SSH+Telnet web client)
+#                  Image: niruix/sshwifty
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image could not be verified.
+# Replace with ttyd or Nexterm for verified web terminal access.
+
+# services:
+#   termix:
+#     image: ghcr.io/mxs01/termix:latest  # ← COULD NOT BE VERIFIED
+#     container_name: termix
+#     hostname: termix
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/termix/config:/config
+#     ports:
+#       - ${PORT_TERMIX:-7681}:7681

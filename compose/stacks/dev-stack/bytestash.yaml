@@ -1,0 +1,36 @@
+# BYTESTASH
+# GitHub: https://github.com/jordan-dalby/ByteStash
+# Image: ghcr.io/jordan-dalby/bytestash:latest
+# Docs: https://github.com/jordan-dalby/ByteStash#readme
+#
+# Self-hosted code snippet manager with syntax highlighting, search,
+# tagging, and multi-language support. Uses SQLite — no external
+# database required.
+
+services:
+  bytestash:
+    image: ghcr.io/jordan-dalby/bytestash:latest
+    container_name: bytestash
+    hostname: bytestash
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # --- Authentication ---
+      - SECRET_KEY=${SECRET_KEY}               # JWT signing secret — generate: openssl rand -hex 32
+      # - TOKEN_EXPIRY_HOURS=168               # JWT token lifespan in hours (default: 168 = 7 days)
+      # - ALLOW_REGISTRATION=true              # Set false to prevent new account self-registration
+      # - ALLOW_ANONYMOUS_READ=false           # Set true to allow unauthenticated read-only access
+      # --- Base URL (recommended for correct link generation) ---
+      # - BASE_URL=https://snippets.example.com  # Public URL of this instance
+    volumes:
+      - ${BASE_DATA}/bytestash/data:/data      # SQLite database and snippet storage
+    ports:
+      - ${PORT_BYTESTASH}:5000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

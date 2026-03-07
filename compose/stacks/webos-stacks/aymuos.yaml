@@ -1,1 +1,33 @@
-https://github.com/IndGeek/aymu-OS
+# AymuOS
+# GitHub: https://github.com/IndGeek/aymu-OS
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/IndGeek/aymu-OS
+#
+# AymuOS is a browser-based web operating system / desktop environment.
+# It is a static web application with no official prebuilt Docker image.
+# Clone the repo, build, then mount the static output into nginx for serving.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/IndGeek/aymu-OS /tmp/aymuos-src
+#   cd /tmp/aymuos-src && npm install && npm run build
+#   cp -r /tmp/aymuos-src/dist/* ${BASE_DATA}/aymuos/html/
+
+services:
+  aymuos:
+    image: nginx:alpine
+    container_name: aymuos
+    hostname: aymuos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/aymuos/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/aymuos/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_AYMUOS:-8883}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

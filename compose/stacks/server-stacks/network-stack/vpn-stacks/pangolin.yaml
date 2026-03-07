@@ -1,0 +1,102 @@
+# PANGOLIN
+# GitHub: https://github.com/fosrl/pangolin
+# Image: fosrl/pangolin:latest
+# Docs: https://docs.fossorial.io/pangolin/
+#
+# Self-hosted tunneled reverse proxy with identity-aware access control.
+# Exposes private services to the internet without opening firewall ports
+# using persistent WireGuard tunnels from remote servers (via Newt agent).
+# Features OIDC/SSO integration, resource-level access control, automatic
+# TLS, and a web management dashboard. Similar to Cloudflare Tunnel but
+# fully self-hosted. Includes Traefik for proxying.
+
+services:
+  pangolin:
+    image: fosrl/pangolin:latest
+    container_name: pangolin
+    hostname: pangolin
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Base domain for your services
+      - DOMAIN=${DOMAIN}
+      # Admin account for the dashboard
+      - PANGOLIN_ADMIN_EMAIL=${PANGOLIN_ADMIN_EMAIL:-admin@${DOMAIN}}
+      - PANGOLIN_ADMIN_PASSWORD=${PANGOLIN_ADMIN_PASSWORD:-changeme}
+      # Database location
+      - PANGOLIN_DB_PATH=/data/db.sqlite
+      # App secret - generate with: openssl rand -hex 32
+      - PANGOLIN_APP_SECRET=${PANGOLIN_APP_SECRET}
+      # Email settings (optional, for invite/reset emails)
+      # - PANGOLIN_EMAIL_SMTP_HOST=smtp.${DOMAIN}
+      # - PANGOLIN_EMAIL_SMTP_PORT=587
+      # - PANGOLIN_EMAIL_SMTP_USER=${SMTP_USERNAME}
+      # - PANGOLIN_EMAIL_SMTP_PASS=${SMTP_PASSWORD}
+      # - PANGOLIN_EMAIL_NO_REPLY=noreply@${DOMAIN}
+      # Flags
+      - PANGOLIN_FLAGS_ALLOW_RAW_RESOURCES=false
+      - PANGOLIN_FLAGS_ALLOW_BASE_DOMAIN_RESOURCES=false
+    volumes:
+      - ${BASE_DATA}/pangolin/config:/app/config
+      - ${BASE_DATA}/pangolin/data:/data
+    ports:
+      # Dashboard and API
+      - ${PORT_PANGOLIN:-3001}:3001
+      # WireGuard tunnel port (Newt agents connect here)
+      - ${PORT_PANGOLIN_WG:-51820}:51820/udp
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # Traefik (bundled with Pangolin for proxying)
+  traefik:
+    image: traefik:v3.0
+    container_name: pangolin-traefik
+    hostname: pangolin-traefik
+    restart: unless-stopped
+    depends_on:
+      - pangolin
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@${DOMAIN}}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      # Pangolin plugin for tunnel routing
+      - --experimental.plugins.pangolin.modulename=github.com/fosrl/pangolin-traefik-plugin
+      - --experimental.plugins.pangolin.version=v0.1.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${BASE_DATA}/pangolin/traefik/letsencrypt:/letsencrypt
+      - ${BASE_DATA}/pangolin/traefik/config:/config
+    ports:
+      - 80:80
+      - 443:443
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Pangolin components:
+# - Pangolin: Control plane, dashboard, and tunnel management
+# - Traefik: Reverse proxy that routes tunneled traffic
+# - Newt: Lightweight agent installed on remote sites/servers
+#
+# First-time setup:
+# 1. Start Pangolin and Traefik
+# 2. Access dashboard at http://your-server:${PORT_PANGOLIN:-3001}
+# 3. Login with PANGOLIN_ADMIN_EMAIL / PANGOLIN_ADMIN_PASSWORD
+# 4. Create a "Site" in the dashboard
+# 5. Install Newt agent on the remote server:
+#    docker run -d \
+#      -e PANGOLIN_ENDPOINT=https://pangolin.${DOMAIN} \
+#      -e SITE_TOKEN=<token-from-dashboard> \
+#      fosrl/newt:latest
+# 6. Add resources (services) to the site - they'll be accessible
+#    via your domain without opening firewall ports
+# ============================================================

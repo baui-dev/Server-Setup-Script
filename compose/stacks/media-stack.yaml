@@ -1,1 +1,53 @@
-flaresolverr
+# FLARESOLVERR
+# GitHub: https://github.com/FlareSolverr/FlareSolverr
+# Image: ghcr.io/flaresolverr/flaresolverr:latest
+# Docs: https://github.com/FlareSolverr/FlareSolverr#readme
+#
+# FlareSolverr is a proxy server to bypass Cloudflare and DDoS-GUARD protection.
+# It uses Selenium and undetected-chromedriver to solve Cloudflare's JavaScript
+# challenges. Used by Prowlarr and other *arr apps to access Cloudflare-protected
+# torrent indexers. Exposes a simple HTTP API on port 8191.
+
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    hostname: flaresolverr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Log level: none, error, warn, info (default), debug, trace
+      - LOG_LEVEL=info
+      # Log full HTML responses (very verbose, debugging only)
+      - LOG_HTML=false
+      # Captcha solver backend: none (default), hcaptcha-solver, harvester
+      - CAPTCHA_SOLVER=none
+      # Headless browser: true (default) or false (shows UI - requires display)
+      # - HEADLESS=true
+      # Optional: proxy via Gluetun or another HTTP proxy
+      # - HTTP_PROXY=http://proxy:8888
+      # Optional: language for request headers
+      # - LANG=en_US
+    ports:
+      - ${PORT_FLARESOLVERR:-8191}:8191
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# FlareSolverr API usage:
+#   POST http://<host>:${PORT_FLARESOLVERR:-8191}/v1
+#   Body: {"cmd": "request.get", "url": "https://cloudflare-protected-site.com/", "maxTimeout": 60000}
+#
+# Configure in Prowlarr:
+#   Settings → Indexers → Add FlareSolverr
+#   Host: http://flaresolverr:8191   (if on same Docker network)
+#   Host: http://<host>:${PORT_FLARESOLVERR:-8191}  (if external)
+#
+# Note: The gluetun-download-stack.yaml also includes FlareSolverr
+# routed through the VPN — use this standalone file when you don't
+# need VPN tunneling for your indexers.
+# ============================================================

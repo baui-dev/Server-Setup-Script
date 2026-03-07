@@ -1,35 +1,44 @@
-version: '3.8'
+# ASTROLUMA
+# GitHub: https://github.com/sanjeet990/Astroluma
+# Image: sanjeet990/astroluma:latest
+# Docs: https://github.com/sanjeet990/Astroluma#readme
+#
+# Astroluma is a self-hosted server management dashboard for organizing
+# services, links, notes, and tasks. Uses MongoDB as its backend store.
 
 services:
-  app:
+  astroluma:
     image: sanjeet990/astroluma:latest
     container_name: astroluma
-    ##ports:
-    ##  - "8000:8000"
-    environment:
-      PORT: 8000
-      NODE_ENV: production
-      SECRET_KEY: a2c5f9a8b2d7e1a7f2c9c8d9b5f7a3d5
-      MONGODB_URI: mongodb://localhost:27017/astroluma
-    volumes:
-      - uploads_data:/app/storage/uploads
+    hostname: astroluma
+    restart: unless-stopped
     depends_on:
-      - mongodb
-    restart: always
-    network_mode: host
-
-  mongodb:
-    image: mongo:6.0
-    container_name: astroluma_mongodb
-    ports:
-      - "27017:27017"
+      - astroluma-mongodb
+    environment:
+      - TZ=${TZ}
+      - NODE_ENV=production
+      - PORT=8000
+      - SECRET_KEY=${SECRET_KEY}
+      - MONGODB_URI=mongodb://astroluma-mongodb:27017/astroluma
     volumes:
-      - mongo_data:/data/db
-    restart: always
+      - ${BASE_DATA}/astroluma/uploads:/app/storage/uploads
+    ports:
+      - ${PORT_ASTROLUMA}:8000
+    # networks:
+    #   - ${DOCKER_NETWORK}
 
+  astroluma-mongodb:
+    image: mongo:6.0
+    container_name: astroluma-mongodb
+    hostname: astroluma-mongodb
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/astroluma/mongodb:/data/db
+    # networks:
+    #   - ${DOCKER_NETWORK}
 
-volumes:
-  mongo_data:
-    driver: local
-  uploads_data:
-    driver: local
+# networks:
+#   proxy:
+#     external: true

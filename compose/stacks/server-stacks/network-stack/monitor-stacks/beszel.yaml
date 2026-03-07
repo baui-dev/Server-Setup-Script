@@ -1,0 +1,70 @@
+# BESZEL
+# GitHub: https://github.com/henrygd/beszel
+# Image: henrygd/beszel:latest
+# Docs: https://beszel.dev/guide/getting-started
+#
+# Lightweight and fast self-hosted server monitoring hub with historical
+# data, charts, and multi-server support. Features a hub (central UI/API)
+# and agents (lightweight processes on each monitored server). Tracks
+# CPU, memory, disk, network, swap, GPU, and Docker container stats.
+# Uses SSH for hub-agent communication (no open inbound ports on agents).
+
+services:
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    hostname: beszel
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Data directory
+      # - BESZEL_DATA_DIR=/beszel_data
+    volumes:
+      - ${BASE_DATA}/beszel/data:/beszel_data
+    ports:
+      - ${PORT_BESZEL:-8090}:8090
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # Beszel Agent - deploy this on each server you want to monitor
+  # The hub connects to agents via SSH, so no inbound port needed
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    hostname: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TZ=${TZ}
+      # Port the agent listens on (hub connects via SSH)
+      - PORT=45876
+      # SSH public key from the Beszel hub (copy from hub UI after adding system)
+      - KEY=${BESZEL_AGENT_KEY}
+    volumes:
+      # Required for container stats
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Required for disk/filesystem stats across all mount points
+      # - /:/host:ro
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Access the hub at http://your-server:${PORT_BESZEL:-8090}
+# 2. Create an admin account
+# 3. Go to "Add System" in the UI
+# 4. Copy the SSH public key shown in the dialog
+# 5. Set KEY env var on the agent to this public key
+# 6. Add the system with host: beszel-agent (or server IP) port: 45876
+#
+# Agent deployment on remote servers:
+#   docker run -d \
+#     -e PORT=45876 \
+#     -e KEY="ssh-ed25519 AAAA..." \
+#     -v /var/run/docker.sock:/var/run/docker.sock:ro \
+#     --network host \
+#     --restart unless-stopped \
+#     henrygd/beszel-agent:latest
+# ============================================================

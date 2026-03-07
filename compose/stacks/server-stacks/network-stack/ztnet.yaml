@@ -1,0 +1,94 @@
+# ZTNET (ZeroTier Network Manager)
+# GitHub: https://github.com/sinamics/ztnet
+# Image: sinamics/ztnet:latest
+# Docs: https://ztnet.network/installation/docker-compose
+#
+# Self-hosted web UI for managing ZeroTier networks and members.
+# Provides a modern dashboard to create/manage virtual networks,
+# authorize members, set routes, and monitor connected devices.
+# Requires a local ZeroTier One service running on the host.
+# Supports multi-user access with role-based permissions.
+
+services:
+  ztnet-postgres:
+    image: postgres:16-alpine
+    container_name: ztnet-postgres
+    hostname: ztnet-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=ztnet
+      - POSTGRES_USER=ztnet
+      - POSTGRES_PASSWORD=${ZTNET_POSTGRES_PASSWORD:-ztnet_pass}
+    volumes:
+      - ${BASE_DATA}/ztnet/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ztnet -d ztnet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  ztnet:
+    image: sinamics/ztnet:latest
+    container_name: ztnet
+    hostname: ztnet
+    restart: unless-stopped
+    depends_on:
+      ztnet-postgres:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Database connection
+      - DATABASE_URL=postgresql://ztnet:${ZTNET_POSTGRES_PASSWORD:-ztnet_pass}@ztnet-postgres:5432/ztnet
+      # Next-auth secret - generate with: openssl rand -base64 32
+      - NEXTAUTH_SECRET=${ZTNET_NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=https://ztnet.${DOMAIN}
+      # ZeroTier controller API (local or remote)
+      - ZT_ADDR=http://zerotier:9993
+      # ZeroTier auth token (found in /var/lib/zerotier-one/authtoken.secret)
+      - ZT_SECRET=${ZTNET_ZT_SECRET}
+      # Node environment
+      - NODE_ENV=production
+    volumes:
+      - ${BASE_DATA}/ztnet/config:/app/data
+      # Mount ZeroTier socket if running on host
+      # - /var/lib/zerotier-one:/var/lib/zerotier-one
+    ports:
+      - ${PORT_ZTNET:-3000}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # ZeroTier One (the actual VPN daemon)
+  # Required if not running ZeroTier on the host directly
+  zerotier:
+    image: zerotier/zerotier:latest
+    container_name: zerotier
+    hostname: zerotier
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ${BASE_DATA}/ztnet/zerotier:/var/lib/zerotier-one
+    # ZeroTier API port (internal, not exposed publicly)
+    # ports:
+    #   - 9993:9993/tcp
+    #   - 9993:9993/udp
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Start zerotier first, let it generate authtoken.secret
+# 2. Copy the token: cat ${BASE_DATA}/ztnet/zerotier/authtoken.secret
+# 3. Set ZT_SECRET to that token
+# 4. Access ztnet at http://your-server:${PORT_ZTNET:-3000}
+# 5. Create an admin account on first visit
+# 6. Create networks and authorize members from the dashboard
+# ============================================================

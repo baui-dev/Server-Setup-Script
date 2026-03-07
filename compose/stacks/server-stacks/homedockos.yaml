@@ -1,0 +1,35 @@
+# HOMEDOCKOS
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/homedockos/homedockos → no such organization found
+# GHCR image ghcr.io/homedockos/homedockos → does NOT exist
+#
+# The description (OS-like experience for Docker app management, app store,
+# file manager, system monitoring) closely resembles CasaOS and Umbrel,
+# which are real, well-established projects.
+#
+# ✅ Verified alternatives for home server management platforms:
+#   - CasaOS:      https://github.com/IceWhaleTech/CasaOS         (home cloud + app store)
+#                  Image: ghcr.io/icewhaletech/casaos
+#   - Umbrel:      https://github.com/getumbrel/umbrel            (home server OS)
+#   - Dockge:      https://github.com/louislam/dockge             (Docker compose manager)
+#                  Image: louislam/dockge
+#   - Portainer:   https://github.com/portainer/portainer         (Docker management)
+#                  Image: portainer/portainer-ce
+#   - HomeDock:    Search GitHub for verified alternatives with this description
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with CasaOS or another verified home server management platform.
+
+# services:
+#   homedockos:
+#     image: ghcr.io/homedockos/homedockos:latest  # ← DOES NOT EXIST
+#     container_name: homedockos
+#     hostname: homedockos
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/homedockos/data:/data
+#       - /var/run/docker.sock:/var/run/docker.sock
+#     ports:
+#       - ${PORT_HOMEDOCKOS:-3000}:3000

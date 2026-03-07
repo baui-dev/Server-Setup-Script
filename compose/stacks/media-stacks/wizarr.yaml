@@ -1,0 +1,30 @@
+# WIZARR
+# GitHub: https://github.com/wizarrrr/wizarr
+# Image: ghcr.io/wizarrrr/wizarr:latest
+# Docs: https://docs.wizarr.dev
+#
+# Wizarr is an automatic user invitation and onboarding system for Jellyfin, Plex,
+# and Emby. It generates shareable invitation links, guides new users through setup,
+# and automatically creates accounts. Supports multi-media-server setups,
+# invitation expiry, and customizable onboarding flows.
+
+services:
+  wizarr:
+    image: ghcr.io/wizarrrr/wizarr:latest
+    container_name: wizarr
+    hostname: wizarr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - APP_URL=${WIZARR_APP_URL:-http://localhost:5690}  # Public-facing URL (used in invitation links)
+      # - DISABLE_BUILTIN_AUTH=false             # Set to true if using an external SSO/auth proxy
+    volumes:
+      - ${BASE_DATA}/wizarr/database:/data/database  # SQLite database and application data
+    ports:
+      - ${PORT_WIZARR:-5690}:5690
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

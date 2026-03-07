@@ -1,0 +1,33 @@
+# Azu OS
+# GitHub: https://github.com/JakyeRU/Azu (community web desktop project)
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/JakyeRU/Azu
+#
+# Azu OS is a browser-based desktop environment / web operating system.
+# No official Docker image is published. Clone the repo, build the app,
+# then serve the static output via nginx.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/JakyeRU/Azu /tmp/azu-os-src
+#   cd /tmp/azu-os-src && npm install && npm run build
+#   cp -r /tmp/azu-os-src/dist/* ${BASE_DATA}/azu-os/html/
+
+services:
+  azu-os:
+    image: nginx:alpine
+    container_name: azu-os
+    hostname: azu-os
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/azu-os/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/azu-os/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_AZUOS:-8884}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

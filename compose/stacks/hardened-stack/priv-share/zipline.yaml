@@ -1,0 +1,74 @@
+# ZIPLINE
+# GitHub: https://github.com/ziplinedev/zipline
+# Image: ghcr.io/ziplineapp/zipline:latest
+# Docs: https://zipline.diced.sh/docs/
+#
+# Self-hosted file and image sharing platform with a ShareX-compatible upload
+# endpoint. Supports URL shortening, invite codes, admin dashboard, and per-user
+# quotas. Requires PostgreSQL for metadata storage.
+
+services:
+  zipline:
+    image: ghcr.io/ziplineapp/zipline:latest
+    container_name: zipline
+    hostname: zipline
+    restart: unless-stopped
+    depends_on:
+      zipline-postgres:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Application secret — used for signing session cookies (required)
+      - CORE_SECRET=${ZIPLINE_SECRET}
+      # Internal port (default 3000)
+      - CORE_PORT=3000
+      # PostgreSQL connection string (points to companion service)
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@zipline-postgres:5432/zipline
+      # Public URL of this instance (no trailing slash)
+      # - CORE_RETURN_HTTPS=true             # Set to true when behind HTTPS reverse proxy
+      # - CORE_HOST=0.0.0.0                  # Bind address inside container
+      # File size limit in megabytes
+      # - UPLOADER_MAX_SIZE=100mb
+      # Default expiry for uploads (0 = never)
+      # - UPLOADER_DEFAULT_EXPIRY=0
+      # Optional: base URL for uploaded file links
+      # - CORE_DOMAIN=https://files.${DOMAIN}
+      # Chunk size for resumable uploads
+      # - CHUNKS_SIZE=90mb
+      # OAuth providers (all optional)
+      # - OAUTH_DISCORD_CLIENT_ID=
+      # - OAUTH_DISCORD_CLIENT_SECRET=
+      # - OAUTH_GITHUB_CLIENT_ID=
+      # - OAUTH_GITHUB_CLIENT_SECRET=
+    volumes:
+      - ${BASE_DATA}/zipline/uploads:/app/uploads
+      - ${BASE_DATA}/zipline/public:/app/public
+    ports:
+      - ${PORT_ZIPLINE}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  zipline-postgres:
+    image: postgres:16-alpine
+    container_name: zipline-postgres
+    hostname: zipline-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=zipline
+    volumes:
+      - ${BASE_DATA}/zipline/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d zipline"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

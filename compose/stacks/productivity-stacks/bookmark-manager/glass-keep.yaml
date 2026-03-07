@@ -1,0 +1,29 @@
+# GLASS-KEEP
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/glass-keep/glass-keep → no such organization found
+# GHCR image ghcr.io/glass-keep/glass-keep → does NOT exist
+#
+# ✅ Verified alternatives for self-hosted bookmark managers:
+#   - Linkding:    https://github.com/sissbruecker/linkding        (simple bookmark service)
+#                  Image: sissbruecker/linkding
+#   - Linkwarden:  https://github.com/linkwarden/linkwarden        (collaborative bookmark manager)
+#                  Image: ghcr.io/linkwarden/linkwarden
+#   - Hoarder:     https://github.com/hoarder-app/hoarder          (bookmark + read-later with AI)
+#                  Image: ghcr.io/hoarder-app/hoarder
+#   - Karakeep:    https://github.com/karakeep-app/karakeep        (bookmark manager)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Linkding or another verified bookmark manager.
+
+# services:
+#   glass-keep:
+#     image: ghcr.io/glass-keep/glass-keep:latest  # ← DOES NOT EXIST
+#     container_name: glass-keep
+#     hostname: glass-keep
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/glass-keep/config:/config
+#     ports:
+#       - ${PORT_GLASSKEEP:-3000}:3000

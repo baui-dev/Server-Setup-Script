@@ -1,0 +1,80 @@
+# DOKPLOY
+# GitHub: https://github.com/Dokploy/dokploy
+# Image: dokploy/dokploy:latest
+# Docs: https://docs.dokploy.com
+#
+# Open-source self-hosted PaaS for deploying Docker, Kubernetes, and application
+# workloads. Features a built-in Traefik reverse proxy with automatic TLS via
+# Let's Encrypt, Git-triggered deployments (GitHub/GitLab/Gitea), multi-server
+# management, remote Docker hosts, database provisioning (Postgres, MySQL,
+# MongoDB, Redis, MariaDB), backup to S3-compatible storage, and a clean web UI.
+# Drop-in self-hosted alternative to Heroku, Railway, Render, or Vercel.
+
+services:
+  dokploy:
+    image: dokploy/dokploy:latest
+    container_name: dokploy
+    hostname: dokploy
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # --- Optional: SMTP for invitation / password reset emails ---
+      # - SMTP_HOST=${SMTP_HOST}
+      # - SMTP_PORT=${SMTP_PORT}
+      # - SMTP_USERNAME=${SMTP_USERNAME}
+      # - SMTP_PASSWORD=${SMTP_PASSWORD}
+      # - SMTP_FROM=${SMTP_FROM}
+      # --- Optional: S3-compatible storage for database backups ---
+      # - AWS_ACCESS_KEY_ID=your_s3_access_key
+      # - AWS_SECRET_ACCESS_KEY=your_s3_secret_key
+      # - AWS_REGION=us-east-1
+      # - AWS_BUCKET=dokploy-backups
+      # --- Optional: GitHub OAuth app for SSO login ---
+      # - GITHUB_CLIENT_ID=your_github_client_id
+      # - GITHUB_CLIENT_SECRET=your_github_client_secret
+      # --- Optional: GitLab OAuth ---
+      # - GITLAB_CLIENT_ID=your_gitlab_client_id
+      # - GITLAB_CLIENT_SECRET=your_gitlab_client_secret
+      # - GITLAB_URL=https://gitlab.com         # Self-hosted GitLab URL if applicable
+      # --- Optional: Bitbucket OAuth ---
+      # - BITBUCKET_CLIENT_ID=your_bitbucket_client_id
+      # - BITBUCKET_CLIENT_SECRET=your_bitbucket_client_secret
+    volumes:
+      # Dokploy state: database, config, deploy logs
+      - ${BASE_DATA}/dokploy/data:/etc/dokploy
+      # Docker socket required for container/stack management
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Traefik certificate storage (Dokploy manages its own Traefik instance)
+      - ${BASE_DATA}/dokploy/traefik:/etc/traefik
+      # Optional: mount host Docker configuration for registry auth
+      # - /root/.docker:/root/.docker:ro
+    ports:
+      # Dokploy web UI and API
+      - ${PORT_DOCK_DPLOY:-3000}:3000
+      # Traefik HTTP (managed by Dokploy — exposes deployed apps)
+      # Uncomment if you want Dokploy's Traefik to handle HTTP traffic
+      # - "80:80"
+      # - "443:443"
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Start: docker compose up -d
+# 2. Access: http://your-server:${PORT_DOCK_DPLOY:-3000}
+# 3. Register an admin account on first visit (first user becomes admin)
+# 4. Set your server domain in Settings → Server → Domain
+#    to enable automatic HTTPS for deployed apps via Let's Encrypt
+#
+# Notes:
+# - Dokploy manages its own Traefik internally — do NOT run a separate
+#   Traefik container on ports 80/443 alongside Dokploy unless you
+#   configure Dokploy to use an external proxy instead.
+# - /etc/dokploy contains the SQLite database and all state — back it up.
+# - /var/run/docker.sock is required; Dokploy needs Docker engine access.
+# - Multi-server: add remote Docker hosts under Settings → Servers.
+# ============================================================

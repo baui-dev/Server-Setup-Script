@@ -1,0 +1,36 @@
+# PairDrop
+# GitHub: https://github.com/schlagmichdoch/PairDrop
+# Image: lscr.io/linuxserver/pairdrop:latest
+# Docs: https://github.com/schlagmichdoch/PairDrop/blob/master/docs/host-your-own.md
+#
+# Local file sharing in your browser, inspired by Apple AirDrop. Works across
+# any device on the same network without accounts or installs. Files are sent
+# directly between browsers (WebRTC); no data passes through the server.
+# Supports pairing across networks via optional pair codes.
+
+services:
+  pairdrop:
+    image: lscr.io/linuxserver/pairdrop:latest
+    container_name: pairdrop
+    hostname: pairdrop
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Rate limit: max requests per minute (0 = disabled)
+      - RATE_LIMIT=false
+      # WebSocket fallback when WebRTC is unavailable (requires HTTPS in production)
+      - WS_FALLBACK=false
+      # RTC configuration — use TURN server for cross-network transfers
+      # - RTC_CONFIG={"iceServers":[{"urls":"stun:stun.l.google.com:19302"}]}
+      # Auto-pair on same network without user interaction
+      - DEBUG_MODE=false
+    ports:
+      - ${PORT_PAIRDROP}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

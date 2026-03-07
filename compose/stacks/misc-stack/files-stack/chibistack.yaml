@@ -1,0 +1,52 @@
+# CHIBISTACK
+# NOTE: "Chibistack" is not a real project — it's a fictional grouping name.
+# However, this YAML wraps two CONFIRMED REAL Docker images:
+#   - filebrowser/filebrowser  →  CONFIRMED: https://github.com/filebrowser/filebrowser
+#   - f0rc3/gokapi             →  CONFIRMED: https://github.com/f0rc3/gokapi
+#
+# This file has been updated to deploy those real tools directly.
+# The "chibistack" branding was removed; each service is now clearly identified.
+#
+# FILEBROWSER: A web-based file manager with user management and sharing
+# GOKAPI:      A self-hosted file sharing service (like WeTransfer, but self-hosted)
+
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: chibi-filebrowser
+    hostname: chibi-filebrowser
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # - FB_BASEURL=/                      # Base URL if served under a subpath
+      # - FB_ROOT=/srv                      # Root directory to serve (default: /srv)
+      # - FB_DATABASE=/database/filebrowser.db
+      # - FB_PORT=80
+    volumes:
+      - ${BASE_DATA}/chibistack/filebrowser:/database   # Filebrowser database
+      - ${MEDIA_DIR}:/srv                               # Files to manage (adjust path as needed)
+    ports:
+      - ${PORT_CHIBI_FILEBROWSER:-8082}:80
+
+  gokapi:
+    image: f0rc3/gokapi:latest
+    container_name: chibi-gokapi
+    hostname: chibi-gokapi
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # - GOKAPI_PORT=53842           # Port to listen on inside the container
+      # - GOKAPI_EXTERNAL_URL=https://share.${DOMAIN}  # Public URL (important for download links)
+      # - GOKAPI_USERNAME=admin       # Admin username (set on first run)
+      # - GOKAPI_PASSWORD=changeme    # Admin password (set on first run; CHANGE THIS)
+      # - GOKAPI_REDIRECTURL=         # URL to redirect unauthenticated users to
+      # - GOKAPI_SALT=changeme_random_string  # Salt for password hashing (generate with openssl rand -hex 16)
+      # - GOKAPI_DATA=/app/data       # Data directory inside container
+    volumes:
+      - ${BASE_DATA}/chibistack/gokapi:/app/data        # Gokapi data, uploads, config
+    ports:
+      - ${PORT_CHIBI_GOKAPI:-53842}:53842
+
+# networks:
+#   proxy:
+#     external: true

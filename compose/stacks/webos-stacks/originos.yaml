@@ -1,0 +1,37 @@
+# OriginOS
+# GitHub: https://github.com/origin-os/origin (community web OS project)
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/origin-os/origin
+#
+# OriginOS is a browser-based web desktop / OS environment. No official
+# prebuilt Docker image is available. Clone the repository, build the static
+# assets, and serve them via nginx.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/origin-os/origin /tmp/originos-src
+#   cd /tmp/originos-src && npm install && npm run build
+#   cp -r /tmp/originos-src/dist/* ${BASE_DATA}/originos/html/
+#
+# Note: Search GitHub for "OriginOS" to find the authoritative repository.
+
+services:
+  originos:
+    # No official Docker image available.
+    # Build from source and serve static files with nginx.
+    image: nginx:alpine
+    container_name: originos
+    hostname: originos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/originos/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/originos/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_ORIGINOS:-8891}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

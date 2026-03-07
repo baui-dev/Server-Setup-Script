@@ -1,0 +1,38 @@
+# LumiOS
+# GitHub: https://github.com/nicholasgasior/lumi (or similar community project)
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/nicholasgasior/lumi
+#
+# LumiOS is a browser-based web desktop / OS environment. No official
+# prebuilt Docker image is available. Clone the repository, build the static
+# assets, and serve them via nginx.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/nicholasgasior/lumi /tmp/lumios-src
+#   cd /tmp/lumios-src && npm install && npm run build
+#   cp -r /tmp/lumios-src/dist/* ${BASE_DATA}/lumios/html/
+#
+# Note: This file covers the same service as lumi-os.yaml. Search GitHub for
+# "lumios" to find the authoritative repository.
+
+services:
+  lumios:
+    # No official Docker image available.
+    # Build from source and serve static files with nginx.
+    image: nginx:alpine
+    container_name: lumios
+    hostname: lumios
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/lumios/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/lumios/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_LUMIOS2:-8889}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

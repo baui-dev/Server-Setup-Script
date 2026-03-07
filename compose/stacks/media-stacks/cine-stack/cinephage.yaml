@@ -1,0 +1,36 @@
+# CINEPHAGE
+# ⚠️  STATUS: UNVERIFIED - Docker image and GitHub repository could not be confirmed
+# Searched GitHub: https://github.com/cinephage/cinephage → returns 404 (not found)
+# Image ghcr.io/cinephage/cinephage:latest → does NOT exist on GHCR
+#
+# The name "cinephage" (French: an avid cinema lover) sounds like a movie/TV tracker,
+# but no Docker-based project with this name could be located. Similar verified alternatives:
+#
+# ✅ Alternatives to consider:
+#   - Ryot:       https://github.com/IgnisDa/ryot           (media tracker, ghcr.io/ignisda/ryot)
+#   - Monolit:    https://github.com/bonukai/MediaTracker   (TV/movie tracker)
+#   - Kavita:     https://github.com/Kareadita/Kavita       (reading tracker, has movie plugin)
+#   - Trakt:      External service (no official self-hosted option)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified alternative or remove this file.
+
+# services:
+#   cinephage:
+#     image: ghcr.io/cinephage/cinephage:latest  # ← DOES NOT EXIST
+#     container_name: cinephage
+#     hostname: cinephage
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#       # - DATABASE_URL=sqlite:///config/cinephage.db
+#       # - SECRET_KEY=${CINEPHAGE_SECRET_KEY}
+#       # - TMDB_API_KEY=${TMDB_API_KEY}
+#     volumes:
+#       - ${BASE_DATA}/cinephage/config:/config
+#       - ${MOVIES_DIR}:/movies
+#       - ${TV_DIR}:/tv
+#     ports:
+#       - ${PORT_CINEPHAGE:-7474}:7474

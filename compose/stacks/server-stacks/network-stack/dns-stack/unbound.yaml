@@ -1,0 +1,102 @@
+# UNBOUND (DNS Stack)
+# GitHub: https://github.com/NLnetLabs/unbound
+# Image: mvance/unbound:latest
+# Docs: https://unbound.docs.nlnetlabs.nl/en/latest/
+#
+# Validating, recursive, and caching DNS resolver. Used as the upstream
+# DNS resolver for Pi-hole or AdGuard Home to eliminate reliance on
+# third-party resolvers (Cloudflare, Google, etc.). Resolves DNS directly
+# from the authoritative root servers. Supports DNSSEC validation,
+# DNS-over-TLS (DoT), query minimization (qname-minimization), and caching.
+# This instance is dedicated to the DNS stack.
+
+services:
+  unbound:
+    image: mvance/unbound:latest
+    container_name: unbound-dns
+    hostname: unbound-dns
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/unbound-dns/config:/opt/unbound/etc/unbound
+    ports:
+      # Listen on a non-standard port to avoid conflicts with port 53
+      # Pi-hole/AdGuard point to this host:port as upstream
+      - ${PORT_UNBOUND:-5335}:53/udp
+      - ${PORT_UNBOUND:-5335}:53/tcp
+    cap_add:
+      - NET_ADMIN
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Create ${BASE_DATA}/unbound-dns/config/unbound.conf:
+# ============================================================
+# server:
+#   verbosity: 1
+#   interface: 0.0.0.0
+#   port: 53
+#   do-ip4: yes
+#   do-udp: yes
+#   do-tcp: yes
+#   do-ip6: no
+#   prefer-ip6: no
+#   # Root hints file - updated quarterly
+#   root-hints: /opt/unbound/etc/unbound/root.hints
+#
+#   # Security hardening
+#   harden-glue: yes
+#   harden-dnssec-stripped: yes
+#   harden-below-nxdomain: yes
+#   harden-referral-path: no
+#   use-caps-for-id: no
+#
+#   # Privacy / query minimization
+#   qname-minimisation: yes
+#   aggressive-nsec: yes
+#
+#   # Performance
+#   edns-buffer-size: 1472
+#   prefetch: yes
+#   prefetch-key: yes
+#   num-threads: 1
+#   so-rcvbuf: 1m
+#   msg-cache-size: 50m
+#   rrset-cache-size: 100m
+#   cache-min-ttl: 300
+#   cache-max-ttl: 86400
+#
+#   # Block private address space from being returned
+#   private-address: 192.168.0.0/16
+#   private-address: 169.254.0.0/16
+#   private-address: 172.16.0.0/12
+#   private-address: 10.0.0.0/8
+#   private-address: fd00::/8
+#   private-address: fe80::/10
+#
+#   # Access control
+#   access-control: 0.0.0.0/0 refuse
+#   access-control: 127.0.0.0/8 allow
+#   access-control: 172.16.0.0/12 allow
+#   access-control: 10.0.0.0/8 allow
+#   access-control: 192.168.0.0/16 allow
+#
+#   # Logging (set to 0 for production)
+#   log-queries: no
+#   log-replies: no
+#
+# remote-control:
+#   control-enable: no
+#
+# Download root hints (run periodically):
+#   wget -O ${BASE_DATA}/unbound-dns/config/root.hints \
+#     https://www.internic.net/domain/named.root
+#
+# Pi-hole upstream DNS (set in Pi-hole Web UI or env):
+#   Custom: 127.0.0.1#${PORT_UNBOUND:-5335}
+# ============================================================

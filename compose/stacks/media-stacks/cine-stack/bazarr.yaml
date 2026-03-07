@@ -1,0 +1,31 @@
+# BAZARR
+# GitHub: https://github.com/morpheus65535/bazarr
+# Image: lscr.io/linuxserver/bazarr:latest
+# Docs: https://wiki.bazarr.media
+#
+# Bazarr is a companion application to Radarr and Sonarr that manages and downloads
+# subtitles from providers like OpenSubtitles, Subscene, Addic7ed, and many others.
+# Subtitles are downloaded based on user-defined quality rules and language preferences.
+
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    hostname: bazarr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${BASE_DATA}/bazarr/config:/config       # Bazarr configuration and database
+      - ${MOVIES_DIR}:/movies                    # Movie library path (must match Radarr mapping)
+      - ${TV_DIR}:/tv                            # TV show library path (must match Sonarr mapping)
+    ports:
+      - ${PORT_BAZARR:-6767}:6767
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

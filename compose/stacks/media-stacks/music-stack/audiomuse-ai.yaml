@@ -1,0 +1,34 @@
+# AUDIOMUSE AI
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/audiomuse-ai/audiomuse → no such organization found
+# Docker Hub audiomuse/audiomuse → does NOT exist
+# Note: YAML had a namespace inconsistency — GitHub org "audiomuse-ai" vs Docker Hub "audiomuse"
+#
+# The concept (AI-powered music analysis: genre/mood/BPM/key detection, ID3 tag writing)
+# is real and useful. Tools like Beets and Essentia provide similar functionality.
+#
+# ✅ Verified alternatives for AI-powered music analysis and tagging:
+#   - Beets:          https://github.com/beetbox/beets             (music organizer with AcousticBrainz plugin)
+#                     Image: beetbox/beets
+#   - MusicBrainz Picard: https://github.com/metabrainz/picard    (tag editor, AcousticBrainz fingerprinting)
+#   - Essentia:       https://github.com/MTG/essentia              (audio analysis library by MTG)
+#   - AudioTag:       Various self-hosted tag tools — search GitHub for "music auto-tag docker"
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified audio analysis tool or remove this file.
+
+# services:
+#   audiomuse-ai:
+#     image: audiomuse/audiomuse:latest  # ← DOES NOT EXIST
+#     container_name: audiomuse-ai
+#     hostname: audiomuse-ai
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#     volumes:
+#       - ${BASE_DATA}/audiomuse-ai/config:/config
+#       - ${MUSIC_DIR}:/music
+#     ports:
+#       - ${PORT_AUDIOMUSE:-8000}:8000

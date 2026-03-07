@@ -1,0 +1,101 @@
+# STACK AUTH
+# GitHub: https://github.com/stack-auth/stack
+# Image: stackauth/backend:latest
+# Docs: https://docs.stack-auth.com/self-hosting/overview
+#
+# Open-source alternative to Clerk and Auth0. Provides user management,
+# authentication, and session management with pre-built UI components.
+# Designed for modern web apps (Next.js, React). Offers email/password,
+# OAuth (Google, GitHub, etc.), magic links, and passkeys.
+# Self-hosted deployment requires a backend API, dashboard, and Postgres.
+
+services:
+  stackauth-postgres:
+    image: postgres:16-alpine
+    container_name: stackauth-postgres
+    hostname: stackauth-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=stackauth
+      - POSTGRES_USER=stackauth
+      - POSTGRES_PASSWORD=${STACKAUTH_POSTGRES_PASSWORD:-stackauth_pass}
+    volumes:
+      - ${BASE_DATA}/stackauth/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stackauth -d stackauth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  stackauth-backend:
+    image: stackauth/backend:latest
+    container_name: stackauth-backend
+    hostname: stackauth-backend
+    restart: unless-stopped
+    depends_on:
+      stackauth-postgres:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Database
+      - STACK_DATABASE_CONNECTION_STRING=postgresql://stackauth:${STACKAUTH_POSTGRES_PASSWORD:-stackauth_pass}@stackauth-postgres:5432/stackauth
+      # Secret key for signing tokens - generate with: openssl rand -hex 32
+      - STACK_SECRET_SERVER_KEY=${STACKAUTH_SECRET_SERVER_KEY}
+      # Public URL of the backend (used for redirect URIs)
+      - NEXT_PUBLIC_STACK_API_URL=https://auth.${DOMAIN}
+      # Superuser API key (for dashboard access)
+      - STACK_SUPERUSER_USERNAME=${STACKAUTH_ADMIN_EMAIL:-admin@${DOMAIN}}
+      - STACK_SUPERUSER_PASSWORD=${STACKAUTH_ADMIN_PASSWORD:-changeme}
+      # Email (optional, for magic links and notifications)
+      # - STACK_EMAIL_HOST=smtp.${DOMAIN}
+      # - STACK_EMAIL_PORT=587
+      # - STACK_EMAIL_USERNAME=${SMTP_USERNAME}
+      # - STACK_EMAIL_PASSWORD=${SMTP_PASSWORD}
+      # - STACK_EMAIL_FROM=auth@${DOMAIN}
+      # OAuth providers (configure in dashboard or via env)
+      # - STACK_OAUTH_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      # - STACK_OAUTH_GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      # - STACK_OAUTH_GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      # - STACK_OAUTH_GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+    volumes:
+      - ${BASE_DATA}/stackauth/backend:/app/data
+    ports:
+      - ${PORT_STACKAUTH:-8101}:8101
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  stackauth-dashboard:
+    image: stackauth/dashboard:latest
+    container_name: stackauth-dashboard
+    hostname: stackauth-dashboard
+    restart: unless-stopped
+    depends_on:
+      - stackauth-backend
+    environment:
+      - TZ=${TZ}
+      # Points to the backend API
+      - NEXT_PUBLIC_STACK_API_URL=https://auth.${DOMAIN}
+      - STACK_API_URL=http://stackauth-backend:8101
+    ports:
+      - ${PORT_STACKAUTH_DASHBOARD:-8102}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Access the dashboard at http://your-server:${PORT_STACKAUTH_DASHBOARD:-8102}
+# 2. Login with STACKAUTH_ADMIN_EMAIL / STACKAUTH_ADMIN_PASSWORD
+# 3. Create your first project and configure auth methods
+# 4. Copy the Project API keys into your application
+#
+# SDK integration (Next.js example):
+#   npm install @stackframe/stack
+#   Configure NEXT_PUBLIC_STACK_PROJECT_ID and NEXT_PUBLIC_STACK_API_URL
+# ============================================================

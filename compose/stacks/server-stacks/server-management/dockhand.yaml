@@ -1,0 +1,35 @@
+# DOCKHAND
+# ⚠️  STATUS: WRONG PROJECT - The real Dockhand is NOT a Docker management web UI
+# GitHub github.com/nicholaswilde/dockhand → no such repository found
+# GHCR image ghcr.io/nicholaswilde/dockhand → does NOT exist
+#
+# The REAL Dockhand project:
+#   - github.com/boxboat/dockhand (by BoxBoat/IBM)
+#   - It is a KUBERNETES SECRETS MANAGEMENT OPERATOR — NOT a Docker management web UI
+#   - It is not applicable as a general Docker container manager
+#
+# ✅ Verified alternatives for Docker management web interfaces:
+#   - Portainer:   https://github.com/portainer/portainer         (standard Docker UI)
+#                  Image: portainer/portainer-ce
+#   - Dockge:      https://github.com/louislam/dockge             (docker compose manager)
+#                  Image: louislam/dockge
+#   - Yacht:       https://github.com/SelfhostedPro/Yacht         (Docker UI with templates)
+#                  Image: selfhostedpro/yacht
+#   - Lazydocker:  https://github.com/jesseduffield/lazydocker    (terminal Docker UI)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Portainer, Dockge, or another verified Docker management tool.
+
+# services:
+#   dockhand:
+#     image: ghcr.io/nicholaswilde/dockhand:latest  # ← DOES NOT EXIST
+#     container_name: dockhand
+#     hostname: dockhand
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/dockhand/config:/config
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#     ports:
+#       - ${PORT_DOCKHAND:-3000}:3000

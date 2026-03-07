@@ -1,0 +1,78 @@
+# AUTHELIA (Network Stack - Middleware Instance)
+# GitHub: https://github.com/authelia/authelia
+# Image: authelia/authelia:latest
+# Docs: https://www.authelia.com/integration/proxies/introduction/
+#
+# This is a lightweight, single-instance Authelia deployment intended
+# to act as a forward-auth middleware within the network stack (e.g.,
+# alongside Traefik or Caddy). For a full standalone auth stack with
+# PostgreSQL and Redis, see auth-stack/authelia.yaml.
+# This instance uses in-memory session storage and SQLite for simplicity.
+
+services:
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    hostname: authelia
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Core secrets - generate with: openssl rand -hex 32
+      - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT_SECRET}
+      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
+      # Session domain
+      - AUTHELIA_SESSION_DOMAIN=${DOMAIN}
+      # Use SQLite for simple single-node deployments
+      - AUTHELIA_STORAGE_LOCAL_PATH=/config/db.sqlite3
+      # Use in-memory Redis-compatible session (no external Redis needed)
+      # Comment out if using external Redis:
+      - AUTHELIA_SESSION_REDIS_HOST=authelia-redis
+      - AUTHELIA_SESSION_REDIS_PORT=6379
+      # Log level
+      - AUTHELIA_LOG_LEVEL=${AUTHELIA_LOG_LEVEL:-info}
+    volumes:
+      - ${BASE_DATA}/authelia/config:/config
+    ports:
+      - ${PORT_AUTHELIA:-9091}:9091
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  authelia-redis:
+    image: redis:7-alpine
+    container_name: authelia-redis
+    hostname: authelia-redis
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/authelia/redis:/data
+    command: --save 60 1 --loglevel warning
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Traefik forward-auth labels (add to any protected service):
+#   labels:
+#     - traefik.http.routers.myapp.middlewares=authelia@docker
+#     - traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://auth.${DOMAIN}
+#     - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
+#     - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email
+#
+# Nginx auth_request config:
+#   location /authelia {
+#     internal;
+#     set $upstream_authelia http://authelia:9091/api/verify;
+#     proxy_pass $upstream_authelia;
+#     proxy_pass_request_body off;
+#     proxy_set_header Content-Length "";
+#     proxy_set_header X-Forwarded-Method $request_method;
+#     proxy_set_header X-Forwarded-Proto $scheme;
+#     proxy_set_header X-Forwarded-Host $http_host;
+#     proxy_set_header X-Forwarded-Uri $request_uri;
+#   }
+# ============================================================

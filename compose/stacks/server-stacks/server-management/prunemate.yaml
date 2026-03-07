@@ -1,0 +1,31 @@
+# PRUNEMATE
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/prunemate/prunemate → no such organization found
+# GHCR image ghcr.io/prunemate/prunemate → does NOT exist
+#
+# ✅ Verified alternatives for Docker image/container cleanup:
+#   - Docker's built-in prune: `docker system prune -a` (no extra container needed)
+#   - Watchtower:    https://github.com/containrrr/watchtower      (auto-update + cleanup)
+#                    Image: containrrr/watchtower
+#   - Dockge:        https://github.com/louislam/dockge            (compose manager with cleanup UI)
+#                    Image: louislam/dockge
+#   - Portainer:     https://github.com/portainer/portainer        (includes image/volume cleanup)
+#                    Image: portainer/portainer-ce
+#   - docker-slim:   https://github.com/slimtoolkit/slim           (image size optimization)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Use `docker system prune` or Portainer for container/image cleanup.
+
+# services:
+#   prunemate:
+#     image: ghcr.io/prunemate/prunemate:latest  # ← DOES NOT EXIST
+#     container_name: prunemate
+#     hostname: prunemate
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#       - ${BASE_DATA}/prunemate/config:/config
+#     ports:
+#       - ${PORT_PRUNEMATE:-8080}:8080

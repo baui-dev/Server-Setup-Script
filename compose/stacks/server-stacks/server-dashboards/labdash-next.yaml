@@ -1,0 +1,29 @@
+# LABDASH-NEXT
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/labdash/labdash-next → no "labdash" organization exists on GitHub
+# GHCR image ghcr.io/labdash/labdash-next → does NOT exist
+# This is the same hallucinated organization as lab-dash above
+#
+# ✅ Verified alternatives for homelab dashboards:
+#   - Homepage:    https://github.com/gethomepage/homepage         (highly configurable dashboard)
+#                  Image: ghcr.io/gethomepage/homepage
+#   - Homarr:      https://github.com/ajnart/homarr               (homelab dashboard)
+#                  Image: ghcr.io/ajnart/homarr
+#   - Dashdot:     https://github.com/MauriceNino/dashdot          (server info/stats dashboard)
+#                  Image: mauricenino/dashdot
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Homepage or another verified dashboard or remove this file.
+
+# services:
+#   labdash-next:
+#     image: ghcr.io/labdash/labdash-next:latest  # ← DOES NOT EXIST
+#     container_name: labdash-next
+#     hostname: labdash-next
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/labdash-next/config:/config
+#     ports:
+#       - ${PORT_LABDASH_NEXT:-3000}:3000

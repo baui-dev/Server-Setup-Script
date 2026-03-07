@@ -1,0 +1,33 @@
+# CRONMASTER
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/cronmaster-app/cronmaster → no such organization found
+# GHCR image ghcr.io/cronmaster-app/cronmaster → does NOT exist
+# Note: "CronMaster" is a real macOS desktop app for managing cron jobs,
+#   but it is NOT a self-hosted Docker application
+#
+# ✅ Verified alternatives for self-hosted cron job management:
+#   - Ofelia:      https://github.com/mcuadros/ofelia             (Docker-based cron job scheduler)
+#                  Image: mcuadros/ofelia
+#   - Chadburn:    https://github.com/PremoWeb/Chadburn           (modern replacement for Ofelia)
+#                  Image: premoweb/chadburn
+#   - Supercronic: https://github.com/aptible/supercronic         (cron for containers, no daemon)
+#   - Cronicle:    https://github.com/jhuckaby/Cronicle           (web-based task scheduler)
+#                  Image: bluet/cronicle-docker or nicholaswilde/cronicle
+#   - Dagu:        https://github.com/dagu-dev/dagu               (DAG-based workflow scheduler)
+#                  Image: ghcr.io/dagu-dev/dagu
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified cron/scheduler tool or remove this file.
+
+# services:
+#   cronmaster:
+#     image: ghcr.io/cronmaster-app/cronmaster:latest  # ← DOES NOT EXIST
+#     container_name: cronmaster
+#     hostname: cronmaster
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/cronmaster/data:/data
+#     ports:
+#       - ${PORT_CRONMASTER:-8080}:8080

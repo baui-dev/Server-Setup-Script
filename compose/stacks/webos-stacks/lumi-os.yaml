@@ -1,0 +1,37 @@
+# Lumi OS
+# GitHub: https://github.com/nicholasgasior/lumi (or similar community project)
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/nicholasgasior/lumi
+#
+# Lumi OS is a browser-based web desktop / OS environment. No official
+# prebuilt Docker image is available. Clone the repository, build the static
+# assets, and serve them via nginx.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/nicholasgasior/lumi /tmp/lumi-os-src
+#   cd /tmp/lumi-os-src && npm install && npm run build
+#   cp -r /tmp/lumi-os-src/dist/* ${BASE_DATA}/lumi-os/html/
+#
+# Note: Search GitHub for "lumi-os" or "lumios" to find the authoritative repo.
+
+services:
+  lumi-os:
+    # No official Docker image available.
+    # Build from source and serve static files with nginx.
+    image: nginx:alpine
+    container_name: lumi-os
+    hostname: lumi-os
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/lumi-os/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/lumi-os/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_LUMIOS:-8888}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

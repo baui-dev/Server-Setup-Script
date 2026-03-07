@@ -1,0 +1,58 @@
+# ALGVPN (Trail of Bits Algo)
+# GitHub: https://github.com/trailofbits/algo
+# Image: trailofbits/algo:latest
+# Docs: https://github.com/trailofbits/algo/blob/master/docs/docker.md
+#
+# Algo VPN is a set of Ansible scripts (by Trail of Bits) that configure
+# a personal WireGuard and IKEv2 VPN server. It emphasizes security and
+# simplicity, with no GUI - configuration is done via command-line.
+# Designed to provision VPN servers on cloud providers (DigitalOcean, AWS,
+# Azure, GCP, Vultr) or on-premises. Not a persistent Docker service -
+# it runs once to provision a VPN server and then exits.
+
+services:
+  algo:
+    image: trailofbits/algo:latest
+    container_name: algo
+    hostname: algo
+    # Algo runs as a one-shot provisioning task, not a persistent service
+    restart: "no"
+    environment:
+      - TZ=${TZ}
+      # Cloud provider (local = on this host/VM)
+      # - PROVIDER=local
+      # Server configuration (see config/config.cfg)
+    volumes:
+      # Config file with user list and server settings
+      - ${BASE_DATA}/algo/config:/algo/config
+      # Output directory for client configs and keys
+      - ${BASE_DATA}/algo/output:/algo/configs
+      # SSH keys for server access (if provisioning remote)
+      # - ~/.ssh:/root/.ssh:ro
+    # Interactive run command - see below for usage
+    command: algo
+
+# ============================================================
+# Algo VPN is primarily an Ansible-based provisioning tool.
+# Usage via Docker (interactive):
+#
+#   docker run --rm -it \
+#     -v ${BASE_DATA}/algo/config:/algo/config \
+#     -v ${BASE_DATA}/algo/output:/algo/configs \
+#     trailofbits/algo:latest
+#
+# For LOCAL server deployment (on this host):
+#   1. Edit ${BASE_DATA}/algo/config/config.cfg to add user names
+#   2. Run: docker run --rm -it --net=host --cap-add=NET_ADMIN \
+#        -v ${BASE_DATA}/algo/config:/algo/config \
+#        trailofbits/algo:latest bash -c "cd /algo && ansible-playbook main.yml -e 'provider=local'"
+#
+# Output (client configs) will be at:
+#   ${BASE_DATA}/algo/output/<server-ip>/
+#   - configs/wireguard/*.conf  (WireGuard client configs)
+#   - configs/ipsec/manual/*.mobileconfig  (iOS/macOS IKEv2)
+#
+# Alternative: Use WireGuard directly (simpler for Docker):
+#   See: https://github.com/linuxserver/docker-wireguard
+#   Image: lscr.io/linuxserver/wireguard:latest
+# ============================================================

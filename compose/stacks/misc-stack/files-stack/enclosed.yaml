@@ -1,0 +1,40 @@
+# Enclosed
+# GitHub: https://github.com/CorentinTh/enclosed
+# Image: ghcr.io/corentinth/enclosed:latest
+# Docs: https://enclosed.cc / https://github.com/CorentinTh/enclosed#configuration
+#
+# Minimal, self-hosted web application for sending private, end-to-end encrypted
+# notes and files. Notes are encrypted in the browser before transmission; the
+# server never sees plaintext. Supports expiry TTL, view limits, password
+# protection, and one-time viewing. No database required (stateless by default).
+
+services:
+  enclosed:
+    image: ghcr.io/corentinth/enclosed:latest
+    container_name: enclosed
+    hostname: enclosed
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Storage type: 'fs' (filesystem) or 's3'
+      - STORAGE_DRIVER=fs
+      - STORAGE_FS_FOLDER_PATH=/app/data/storage
+      # Set to 'true' to enable authentication (requires login to create notes)
+      - AUTH_IS_AUTH_REQUIRED=false
+      # Authentication credentials when AUTH_IS_AUTH_REQUIRED is true
+      # - AUTH_ADMIN_USERNAME=admin
+      # - AUTH_ADMIN_PASSWORD=changeme
+      # Maximum note size in bytes (default: 5 MB)
+      # - NOTE_MAX_ENCRYPTED_PAYLOAD_LENGTH=5242880
+      # Public-facing URL
+      # - PUBLIC_BASE_URL=https://enclosed.${DOMAIN}
+    volumes:
+      - ${BASE_DATA}/enclosed/data:/app/data
+    ports:
+      - ${PORT_ENCLOSED}:8787
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,36 @@
+# HARBOUR GUARD
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/harbour-guard/harbour-guard → no such organization found
+# GHCR image ghcr.io/harbour-guard/harbour-guard → does NOT exist
+#
+# The described functionality (container security monitoring, policy violations,
+# vulnerability alerts for running containers) is covered by real, well-known tools.
+#
+# ✅ Verified alternatives for container security monitoring:
+#   - Trivy:       https://github.com/aquasecurity/trivy          (vulnerability scanner)
+#                  Image: aquasec/trivy
+#   - Falco:       https://github.com/falcosecurity/falco         (runtime security monitoring)
+#                  Image: falcosecurity/falco
+#   - Wazuh:       https://github.com/wazuh/wazuh-docker          (SIEM + container monitoring)
+#                  Image: wazuh/wazuh-manager
+#   - Anchore:     https://github.com/anchore/grype               (vulnerability scanner)
+#                  Image: anchore/grype
+#   - Docker Bench: https://github.com/docker/docker-bench-security
+#                  Image: docker/docker-bench-security
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified container security tool or remove this file.
+
+# services:
+#   harbour-guard:
+#     image: ghcr.io/harbour-guard/harbour-guard:latest  # ← DOES NOT EXIST
+#     container_name: harbour-guard
+#     hostname: harbour-guard
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/harbour-guard/config:/config
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#     ports:
+#       - ${PORT_HARBOUR_GUARD:-8080}:8080

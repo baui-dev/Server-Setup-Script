@@ -1,0 +1,34 @@
+# PULSE
+# ⚠️  STATUS: NOT FOUND at claimed location - image and GitHub repository could not be confirmed
+# GitHub github.com/nicholasgasior/pulse → no such repository known for this user
+# GHCR image ghcr.io/nicholasgasior/pulse → does NOT exist
+# Note: the original YAML file listed multiple alternative guesses, signaling deep uncertainty
+#
+# ✅ Verified alternatives for server monitoring dashboards:
+#   - Uptime Kuma: https://github.com/louislam/uptime-kuma        (uptime/service monitor)
+#                  Image: louislam/uptime-kuma
+#   - Netdata:     https://github.com/netdata/netdata             (real-time server metrics)
+#                  Image: netdata/netdata
+#   - Grafana:     https://github.com/grafana/grafana             (metrics visualization)
+#                  Image: grafana/grafana (+ Prometheus for data collection)
+#   - Beszel:      https://github.com/henrygd/beszel              (lightweight server monitor)
+#                  Image: henrygd/beszel
+#   - Glances:     https://github.com/nicolargo/glances           (system overview)
+#                  Image: nicolargo/glances
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified monitoring tool or remove this file.
+
+# services:
+#   pulse:
+#     image: ghcr.io/nicholasgasior/pulse:latest  # ← DOES NOT EXIST
+#     container_name: pulse
+#     hostname: pulse
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/pulse/config:/config
+#       - ${BASE_DATA}/pulse/data:/data
+#     ports:
+#       - ${PORT_PULSE:-7655}:7655

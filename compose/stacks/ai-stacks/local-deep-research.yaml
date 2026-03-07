@@ -1,0 +1,106 @@
+# LOCAL DEEP RESEARCH
+# GitHub: https://github.com/LearningCircuit/local-deep-research
+# Image: ghcr.io/learningcircuit/local-deep-research:latest
+# Docs: https://github.com/LearningCircuit/local-deep-research#docker
+#
+# Local Deep Research is a fully local AI web research agent that performs iterative,
+# multi-step research on any topic using local LLMs (via Ollama) or cloud APIs.
+# It searches the web, reads pages, synthesizes findings, and generates comprehensive
+# research reports — entirely on your own hardware.
+# Exposes a Gradio web interface on port 7860.
+#
+# === QUICK START ===
+# 1. Ensure Ollama is running and has a capable model pulled (e.g.: ollama pull llama3.1:8b)
+# 2. Copy config.env to .env and adjust LLM/search settings as needed
+# 3. docker compose -f local-deep-research.yaml up -d
+# 4. Navigate to http://localhost:${PORT_LOCAL_DEEP_RESEARCH}
+#
+# === SEARCH PROVIDERS ===
+# By default uses DuckDuckGo (no API key needed).
+# SearXNG, Serper, Tavily, and Bing can be used for richer results.
+
+services:
+  local-deep-research:
+    image: ghcr.io/learningcircuit/local-deep-research:latest
+    container_name: local-deep-research
+    hostname: local-deep-research
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+
+      # --- Gradio Server ---
+      - GRADIO_SERVER_NAME=0.0.0.0          # Bind to all interfaces (required for Docker)
+      - GRADIO_SERVER_PORT=7860             # Gradio listen port
+
+      # --- LLM Provider ---
+      # Options: ollama | openai | anthropic | google | mistral | together
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434  # Ollama endpoint
+      - LLM_MODEL=llama3.1:8b               # Model to use (must be pulled in Ollama)
+      # - LLM_TEMPERATURE=0.7               # Sampling temperature (0.0 = deterministic)
+      # - LLM_MAX_TOKENS=4096               # Max tokens per LLM response
+      # - LLM_CONTEXT_LENGTH=8192           # Context window size
+
+      # Uncomment if using cloud providers:
+      # - OPENAI_API_KEY=                   # OpenAI API key
+      # - ANTHROPIC_API_KEY=                # Anthropic API key
+      # - GOOGLE_API_KEY=                   # Google Gemini API key
+      # - MISTRAL_API_KEY=                  # Mistral AI API key
+      # - TOGETHER_API_KEY=                 # Together AI API key
+
+      # --- Search Provider ---
+      # Options: duckduckgo (default, no key) | searxng | serper | tavily | bing | google
+      - SEARCH_PROVIDER=duckduckgo
+      # SearXNG (recommended for production - privacy-respecting, self-hosted)
+      # - SEARCH_PROVIDER=searxng
+      # - SEARXNG_URL=http://searxng:8080   # SearXNG instance URL
+      # Serper (Google Search API - high quality results)
+      # - SEARCH_PROVIDER=serper
+      # - SERPER_API_KEY=                   # Serper.dev API key
+      # Tavily (purpose-built search API for AI agents)
+      # - SEARCH_PROVIDER=tavily
+      # - TAVILY_API_KEY=                   # Tavily API key
+      # Bing Search
+      # - SEARCH_PROVIDER=bing
+      # - BING_SEARCH_API_KEY=              # Azure Bing Search API key
+
+      # --- Research Parameters ---
+      # - MAX_SEARCH_RESULTS=5              # Number of search results to fetch per query
+      # - MAX_FILTERED_RESULTS=3            # Results to keep after relevance filtering
+      # - MAX_ITERATIONS=3                  # Maximum research iteration cycles
+      # - MAX_FOLLOW_UP_QUESTIONS=3         # Follow-up questions generated per iteration
+      # - RESEARCH_TIMEOUT=300             # Max seconds for a single research task
+
+      # --- Content Extraction ---
+      # - ENABLE_WEB_SCRAPING=true          # Fetch and read full page content (vs. snippets only)
+      # - SCRAPING_TIMEOUT=30               # Timeout in seconds per page fetch
+      # - MAX_PAGE_CONTENT_LENGTH=10000     # Max characters to extract per page
+
+      # --- Output ---
+      # - REPORT_FORMAT=markdown            # Report format: markdown or html
+      # - SAVE_REPORTS=true                 # Save generated reports to disk
+      # - REPORTS_DIR=/app/reports          # Directory to save reports
+
+    volumes:
+      - ${BASE_DATA}/local-deep-research/config:/app/config    # Configuration and settings
+      - ${BASE_DATA}/local-deep-research/reports:/app/reports  # Saved research reports
+
+    ports:
+      - ${PORT_LOCAL_DEEP_RESEARCH}:7860   # Gradio WebUI
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Allow container to reach host services (Ollama)
+
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.local-deep-research.rule=Host(`research.${DOMAIN}`)"
+    #   - "traefik.http.routers.local-deep-research.entrypoints=websecure"
+    #   - "traefik.http.routers.local-deep-research.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.local-deep-research.loadbalancer.server.port=7860"
+
+# networks:
+#   proxy:
+#     external: true

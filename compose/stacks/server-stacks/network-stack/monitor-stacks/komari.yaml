@@ -1,0 +1,60 @@
+# KOMARI
+# GitHub: https://github.com/komari-monitor/komari
+# Image: komari/komari:latest
+# Docs: https://github.com/komari-monitor/komari
+#
+# Lightweight, self-hosted server monitoring system with an agent-server
+# architecture. The server provides a web dashboard showing real-time
+# metrics from connected agents. Agents run on each monitored host and
+# report CPU, memory, disk, network, and process statistics back to
+# the Komari server. Designed for simplicity and low resource usage.
+
+services:
+  komari:
+    image: ghcr.io/komari-monitor/komari:latest
+    container_name: komari
+    hostname: komari
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Admin credentials (set on first run)
+      # - ADMIN_USERNAME=${KOMARI_USERNAME:-admin}
+      # - ADMIN_PASSWORD=${KOMARI_PASSWORD:-changeme}
+      # Database (SQLite by default)
+      # - DATABASE_URL=sqlite:///data/komari.db
+    volumes:
+      - ${BASE_DATA}/komari/data:/data
+    ports:
+      - ${PORT_KOMARI:-8080}:8080
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # Komari Agent - deploy on each server to monitor
+  # komari-agent:
+  #   image: ghcr.io/komari-monitor/komari-agent:latest
+  #   container_name: komari-agent
+  #   hostname: komari-agent
+  #   restart: unless-stopped
+  #   network_mode: host
+  #   environment:
+  #     - TZ=${TZ}
+  #     # Server URL and auth token (get from Komari dashboard)
+  #     - KOMARI_SERVER=https://komari.${DOMAIN}
+  #     - KOMARI_TOKEN=${KOMARI_AGENT_TOKEN}
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Access http://your-server:${PORT_KOMARI:-8080}
+# 2. Create admin credentials on first visit
+# 3. Navigate to Settings -> Agents to get an agent token
+# 4. Deploy the komari-agent on each server to monitor
+# 5. Agents will appear in the dashboard once connected
+# ============================================================

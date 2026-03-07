@@ -1,1 +1,43 @@
-# https://github.com/ridhwaans/homehost
+# HOMEHOST (ridhwaans)
+# GitHub: https://github.com/ridhwaans/homehost
+# Image: ridhwaans/homehost (Docker Hub — verify availability)
+# Docs: https://github.com/ridhwaans/homehost#readme
+#
+# HomeHost is a self-hosted Node.js streaming server for locally stored videos.
+# Supports local media libraries and serves a simple web interface for browsing
+# and streaming video content directly in the browser.
+#
+# NOTE: This project was last active circa 2021 and may not have an up-to-date
+# Docker image. Verify the image exists on Docker Hub before deploying.
+# See cine-stack/homehost.yaml for a similar, actively maintained alternative:
+#   https://github.com/home-host/homehost (ghcr.io/home-host/homehost)
+#
+# If a Docker image is unavailable, build from source:
+#   git clone https://github.com/ridhwaans/homehost
+#   docker build -t ridhwaans/homehost .
+
+# services:
+#   homehost:
+#     image: ridhwaans/homehost:latest
+#     container_name: homehost
+#     hostname: homehost
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#       # Port the application listens on inside the container
+#       # - PORT=3000
+#       # Directory to scan for media files (maps to the volume mount below)
+#       # - MEDIA_PATH=/media
+#     volumes:
+#       - ${BASE_DATA}/homehost/config:/config   # App config and database
+#       - ${MEDIA_DIR}:/media:ro                 # Media library (read-only)
+#     ports:
+#       - ${PORT_HOMEHOST}:3000
+#     # networks:
+#     #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

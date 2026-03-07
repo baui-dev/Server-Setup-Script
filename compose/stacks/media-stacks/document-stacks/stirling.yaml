@@ -1,0 +1,39 @@
+# Stirling PDF
+# GitHub: https://github.com/Stirling-Tools/Stirling-PDF
+# Image: frooodle/s-pdf:latest
+# Docs: https://github.com/Stirling-Tools/Stirling-PDF/blob/main/README.md
+#
+# Locally hosted web-based PDF manipulation toolbox. All processing happens on
+# your server - no files are sent to third parties. Features include: merge,
+# split, compress, convert, rotate, watermark, add/remove pages, OCR, sign,
+# redact, compare, form fill, and many more PDF operations. Optional security
+# features (login, API keys) can be enabled via DOCKER_ENABLE_SECURITY.
+
+services:
+  stirling-pdf:
+    image: frooodle/s-pdf:latest
+    container_name: stirling-pdf
+    hostname: stirling-pdf
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Set to true and configure settings.yml to enable authentication
+      - DOCKER_ENABLE_SECURITY=${STIRLING_ENABLE_SECURITY:-false}
+      # Set to true to install Calibre for ebook conversion (larger image)
+      - INSTALL_BOOK_AND_ADVANCED_HTML_OPS=${STIRLING_INSTALL_CALIBRE:-false}
+      # Comma-separated locale codes for OCR language packs to install
+      - LANGS=${STIRLING_LANGS:-en_GB}
+    volumes:
+      - ${BASE_DATA}/stirling-pdf/configs:/configs
+      - ${BASE_DATA}/stirling-pdf/customFiles:/customFiles
+      - ${BASE_DATA}/stirling-pdf/logs:/logs
+      - ${BASE_DATA}/stirling-pdf/pipeline/watchedFolders:/pipeline/watchedFolders
+      - ${BASE_DATA}/stirling-pdf/pipeline/finishedFolders:/pipeline/finishedFolders
+    ports:
+      - ${PORT_STIRLING}:8080
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,42 @@
+# Todometer
+# GitHub: https://github.com/rawnly/todometer
+# Image: ghcr.io/rawnly/todometer:latest
+# Docs: https://github.com/rawnly/todometer#readme
+#
+# Minimalist to-do list with a meter/progress visualization. Tasks are displayed
+# with a visual completion meter, making it easy to see progress at a glance.
+# Simple single-user or team to-do management with a clean, focused UI.
+#
+# NOTE: Todometer may be primarily a CLI or desktop tool. Verify whether a Docker
+#       server image exists at github.com/rawnly/todometer before deploying.
+#       The image name and configuration shown here are best-effort estimates.
+#       An alternative web-based Todometer may be available at a different repo.
+
+services:
+  todometer:
+    image: ghcr.io/rawnly/todometer:latest
+    container_name: todometer
+    hostname: todometer
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - NODE_ENV=production
+      - PORT=3000
+      # Security / session secret
+      - SECRET=${TODOMETER_SECRET:-changeme_generate_a_real_secret}
+      # Database (SQLite by default)
+      # - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@todometer-postgres:5432/todometer
+      # Optional: public base URL
+      - BASE_URL=https://${DOMAIN}
+    volumes:
+      - ${BASE_DATA}/todometer/data:/app/data
+    ports:
+      - ${PORT_TODOMETER:-3000}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

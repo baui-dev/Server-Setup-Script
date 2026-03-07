@@ -1,0 +1,30 @@
+# TUGTAINER
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/tugtainer/tugtainer → no such organization found
+# Docker Hub image tugtainer/tugtainer → does NOT exist
+#
+# ✅ Verified alternatives for Docker container management:
+#   - Portainer:   https://github.com/portainer/portainer         (standard Docker/K8s UI)
+#                  Image: portainer/portainer-ce
+#   - Dockge:      https://github.com/louislam/dockge             (Docker compose manager)
+#                  Image: louislam/dockge
+#   - Yacht:       https://github.com/SelfhostedPro/Yacht         (Docker management + templates)
+#                  Image: selfhostedpro/yacht
+#   - Lazydocker:  https://github.com/jesseduffield/lazydocker    (terminal Docker UI)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Portainer or another verified container management tool.
+
+# services:
+#   tugtainer:
+#     image: tugtainer/tugtainer:latest  # ← DOES NOT EXIST
+#     container_name: tugtainer
+#     hostname: tugtainer
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#       - ${BASE_DATA}/tugtainer/config:/config
+#     ports:
+#       - ${PORT_TUGTAINER:-9090}:9090

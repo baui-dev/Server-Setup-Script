@@ -1,0 +1,104 @@
+# BITMAGNET
+# GitHub: https://github.com/bitmagnet-io/bitmagnet
+# Image: bitmagnetio/bitmagnet:latest
+# Docs: https://bitmagnet.io/setup/installation.html
+#
+# Self-hosted BitTorrent DHT crawler, indexer, and search engine.
+# Crawls the BitTorrent DHT network, indexes metadata (titles, sizes,
+# file lists) from magnet links, and provides a searchable web interface.
+# Includes a torrent search API, GraphQL endpoint, and can integrate
+# with Radarr/Sonarr via Torznab or Prowlarr. Requires PostgreSQL.
+
+services:
+  bitmagnet-postgres:
+    image: postgres:16-alpine
+    container_name: bitmagnet-postgres
+    hostname: bitmagnet-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=bitmagnet
+      - POSTGRES_USER=bitmagnet
+      - POSTGRES_PASSWORD=${BITMAGNET_POSTGRES_PASSWORD:-bitmagnet_pass}
+      # Tuning for DHT indexer workload
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --data-checksums
+    volumes:
+      - ${BASE_DATA}/bitmagnet/postgres:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c max_connections=100
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c maintenance_work_mem=128MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bitmagnet -d bitmagnet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  bitmagnet:
+    image: bitmagnetio/bitmagnet:latest
+    container_name: bitmagnet
+    hostname: bitmagnet
+    restart: unless-stopped
+    depends_on:
+      bitmagnet-postgres:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Database
+      - POSTGRES_HOST=bitmagnet-postgres
+      - POSTGRES_NAME=bitmagnet
+      - POSTGRES_USER=bitmagnet
+      - POSTGRES_PASSWORD=${BITMAGNET_POSTGRES_PASSWORD:-bitmagnet_pass}
+      # DHT crawler settings
+      # Number of DHT nodes to crawl simultaneously
+      - DHT_CRAWLER_MAX_OPEN_CONNECTIONS=4096
+      # Disable classification to reduce resource usage (comment out to enable)
+      # - CLASSIFIER_DISABLED=true
+      # tmdb API key for media metadata enrichment (optional)
+      # - TMDB_API_KEY=${TMDB_API_KEY}
+      # Log level: debug, info, warn, error
+      - LOG_LEVEL=${BITMAGNET_LOG_LEVEL:-info}
+    volumes:
+      - ${BASE_DATA}/bitmagnet/config:/root/.config/bitmagnet
+    ports:
+      # Web UI and API
+      - ${PORT_BITMAGNET:-3333}:3333
+      # DHT crawler port (BitTorrent DHT protocol)
+      - ${PORT_BITMAGNET_TORRENT:-3334}:3334/tcp
+      - ${PORT_BITMAGNET_TORRENT:-3334}:3334/udp
+    command:
+      - worker
+      - run
+      - --all
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Access:
+#   Web UI:    http://your-server:${PORT_BITMAGNET:-3333}
+#   GraphQL:   http://your-server:${PORT_BITMAGNET:-3333}/graphql
+#   Torznab:   http://your-server:${PORT_BITMAGNET:-3333}/torznab (for Prowlarr/Sonarr)
+#
+# Prowlarr integration:
+#   Add as Torznab indexer with URL: http://bitmagnet:3333/torznab
+#
+# Resource requirements:
+#   The DHT crawler is network and DB intensive. Expect:
+#   - High network traffic (DHT crawling)
+#   - Large PostgreSQL database (grows continuously)
+#   - Significant CPU for content classification
+#   Reduce --max-open-connections to lower resource usage.
+# ============================================================

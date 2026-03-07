@@ -1,0 +1,33 @@
+# EXPLO
+# ⚠️  STATUS: UNVERIFIED - Docker image and GitHub repository could not be confirmed
+# Searched GitHub: https://github.com/explo-music/explo → returns 404 (not found)
+# No GitHub org "explo-music" found; Docker Hub image explo/explo → does NOT exist
+#
+# The concept (music exploration via artist relationship graphs, acoustic similarity) is
+# interesting, but no Docker-deployable project with this name/image could be located.
+#
+# ✅ Verified alternatives for music discovery and exploration:
+#   - Beets:      https://github.com/beetbox/beets           (music library organizer with plugins)
+#   - ListenBrainz: https://github.com/metabrainz/listenbrainz-server (scrobbling + discovery)
+#   - Maloja:     https://github.com/krateng/maloja          (self-hosted scrobbling server)
+#   - Navidrome:  https://github.com/navidrome/navidrome     (music streaming with smart playlists)
+#   - Feishin:    https://github.com/jeffvli/feishin         (Subsonic/Navidrome client with discover)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified alternative or remove this file.
+
+# services:
+#   explo:
+#     image: explo/explo:latest  # ← DOES NOT EXIST
+#     container_name: explo
+#     hostname: explo
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#     volumes:
+#       - ${BASE_DATA}/explo/config:/config
+#       - ${MUSIC_DIR}:/music:ro
+#     ports:
+#       - ${PORT_EXPLO:-3000}:3000

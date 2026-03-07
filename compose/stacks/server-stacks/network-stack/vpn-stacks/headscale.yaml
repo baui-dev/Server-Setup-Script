@@ -1,0 +1,98 @@
+# HEADSCALE
+# GitHub: https://github.com/juanfont/headscale
+# Image: headscale/headscale:latest
+# Docs: https://headscale.net/running-headscale-container/
+#
+# Open-source, self-hosted implementation of the Tailscale control server.
+# Manages a WireGuard-based mesh VPN network where devices (nodes) connect
+# to each other peer-to-peer with automatic key exchange. Compatible with
+# the official Tailscale client apps (Windows, macOS, Linux, Android, iOS).
+# Supports multiple users/namespaces, ACLs, MagicDNS, exit nodes, and subnets.
+
+services:
+  headscale:
+    image: headscale/headscale:latest
+    container_name: headscale
+    hostname: headscale
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/headscale/config:/etc/headscale
+      - ${BASE_DATA}/headscale/data:/var/lib/headscale
+    ports:
+      # Main Tailscale/gRPC API port (clients connect here)
+      - ${PORT_HEADSCALE:-8080}:8080
+      # gRPC TLS port (for headscale CLI and clients)
+      - ${PORT_HEADSCALE_GRPC:-50443}:50443
+    command: serve
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # Headscale UI - optional web management interface
+  headscale-ui:
+    image: ghcr.io/gurucomputing/headscale-ui:latest
+    container_name: headscale-ui
+    hostname: headscale-ui
+    restart: unless-stopped
+    depends_on:
+      - headscale
+    environment:
+      - TZ=${TZ}
+    ports:
+      - ${PORT_HEADSCALE_UI:-8081}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# REQUIRED: Create ${BASE_DATA}/headscale/config/config.yaml
+# ============================================================
+# server_url: ${HEADSCALE_SERVER_URL}   # Public URL clients use to reach headscale
+# listen_addr: 0.0.0.0:8080
+# metrics_listen_addr: 127.0.0.1:9090
+# grpc_listen_addr: 0.0.0.0:50443
+# grpc_allow_insecure: false
+#
+# ip_prefixes:
+#   - 100.64.0.0/10
+#
+# dns_config:
+#   magic_dns: true
+#   base_domain: ${DOMAIN}
+#   nameservers:
+#     - 1.1.1.1
+#
+# db_type: sqlite3
+# db_path: /var/lib/headscale/db.sqlite
+#
+# tls_cert_path: ""      # Leave empty if behind a reverse proxy
+# tls_key_path: ""
+#
+# noise:
+#   private_key_path: /var/lib/headscale/noise_private.key
+#
+# private_key_path: /var/lib/headscale/private.key
+#
+# acl_policy_path: /etc/headscale/acls.yaml
+#
+# log:
+#   level: info
+#
+# ============================================================
+# First-time setup:
+# 1. Start headscale
+# 2. Create a user: docker exec headscale headscale users create myuser
+# 3. Generate a pre-auth key: docker exec headscale headscale preauthkeys create --user myuser --reusable --expiration 24h
+# 4. On client: tailscale up --login-server=${HEADSCALE_SERVER_URL} --authkey=<key>
+# 5. Approve node: docker exec headscale headscale nodes list
+#
+# List all nodes:
+#   docker exec headscale headscale nodes list
+#
+# Create routes (subnet router):
+#   docker exec headscale headscale routes enable -r <route-id>
+# ============================================================

@@ -1,0 +1,35 @@
+# SHIPSHIPSHIP
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# Claimed image: ghcr.io/withfatpanda/ship-ship-ship:latest
+# "withfatpanda" is not a recognized Docker image publisher
+# The GHCR image ghcr.io/withfatpanda/ship-ship-ship → could not be confirmed to exist
+# Original YAML itself stated: "The exact project behind this filename could not be verified"
+#
+# ✅ Verified alternatives for webhook-triggered container deployment:
+#   - Watchtower:    https://github.com/containrrr/watchtower      (auto-pull and restart updated images)
+#                    Image: containrrr/watchtower
+#   - Diun:          https://github.com/crazy-max/diun             (Docker image update notifier)
+#                    Image: crazymax/diun
+#   - Portainer:     https://github.com/portainer/portainer        (includes webhook-triggered deploy)
+#                    Image: portainer/portainer-ce
+#   - Woodpecker CI: https://github.com/woodpecker-ci/woodpecker  (lightweight CI/CD pipeline)
+#                    Image: woodpeckerci/woodpecker-server
+#   - Coolify:       https://github.com/coollabsio/coolify         (self-hosted PaaS with deploy webhooks)
+#                    Image: ghcr.io/coollabsio/coolify
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image could not be verified.
+# Replace with Watchtower or another verified deployment automation tool.
+
+# services:
+#   shipshipship:
+#     image: ghcr.io/withfatpanda/ship-ship-ship:latest  # ← COULD NOT BE VERIFIED
+#     container_name: shipshipship
+#     hostname: shipshipship
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#       - ${BASE_DATA}/shipshipship/config:/config
+#     ports:
+#       - ${PORT_SHIPSHIPSHIP:-3000}:3000

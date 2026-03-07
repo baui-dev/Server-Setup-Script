@@ -1,0 +1,61 @@
+# SIMPLEX CHAT — SMP SERVER
+# GitHub: https://github.com/simplex-chat/simplexmq
+# Image: simplexchat/smp-server:latest
+# Docs: https://simplex.chat/docs/server.html
+#
+# SimpleX Chat is a privacy-focused, decentralized messaging platform with no
+# user identifiers — not even a username or phone number. This compose file
+# runs the SMP (SimpleX Messaging Protocol) server, which relays messages
+# between clients. Users connect their SimpleX Chat apps to this server.
+#
+# Setup steps:
+#   1. Start the stack: docker compose up -d simplex
+#   2. The server will generate its fingerprint and keys on first run.
+#   3. Retrieve the server address to share with users:
+#        docker exec -it simplex cat /var/opt/simplex/smp-server-store.log | head
+#      Or check the logs: docker logs simplex
+#      The connection address format is: smp://<fingerprint>@<host>:5225
+#   4. Share this address with users to add in their SimpleX Chat app settings.
+#      Go to: App Settings -> Network & Servers -> SMP Servers -> Add server
+#
+# Optional XFTP server for file transfers:
+#   Uncomment the simplex-xftp service below to also host file transfers.
+#   The XFTP connection address format is: xftp://<fingerprint>@<host>:443
+
+services:
+  simplex:
+    image: simplexchat/smp-server:latest
+    container_name: simplex
+    hostname: simplex
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # SMP server is configured via /etc/opt/simplex/smp-server.ini
+      # Most options can also be passed as CLI flags via the 'command' field.
+      # - ADDR=                                          # Public hostname or IP for this server
+      # - PASS=                                          # Optional: password for client registration
+    volumes:
+      - ${BASE_DATA}/simplex/config:/etc/opt/simplex    # Server config (smp-server.ini, TLS certs)
+      - ${BASE_DATA}/simplex/data:/var/opt/simplex      # Server store log and queue data
+    ports:
+      - "${PORT_SIMPLEX}:5225"                           # SMP protocol port (TCP) — used by clients
+      # - "443:443"                                      # HTTPS/TLS port (optional, for TLS termination)
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # simplex-xftp:
+  #   image: simplexchat/xftp-server:latest
+  #   container_name: simplex-xftp
+  #   hostname: simplex-xftp
+  #   restart: unless-stopped
+  #   environment:
+  #     - TZ=${TZ}
+  #   volumes:
+  #     - ${BASE_DATA}/simplex-xftp/config:/etc/opt/simplex-xftp  # XFTP server config and certs
+  #     - ${BASE_DATA}/simplex-xftp/data:/var/opt/simplex-xftp    # File chunk storage
+  #   ports:
+  #     - "443:443"                                      # XFTP protocol port (TCP)
+
+# networks:
+#   proxy:
+#     external: true

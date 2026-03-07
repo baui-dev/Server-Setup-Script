@@ -1,0 +1,34 @@
+# NETGOAT (Reverse Proxy)
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/netgoat/netgoat → no such organization or project found
+# Docker Hub image netgoat/netgoat → does NOT exist
+#
+# ✅ Verified alternatives for self-hosted reverse proxies:
+#   - Nginx Proxy Manager: https://github.com/NginxProxyManager/nginx-proxy-manager
+#                  Image: jc21/nginx-proxy-manager
+#   - Traefik:     https://github.com/traefik/traefik             (cloud-native reverse proxy)
+#                  Image: traefik
+#   - Caddy:       https://github.com/caddyserver/caddy           (auto-HTTPS reverse proxy)
+#                  Image: caddy
+#   - Zoraxy:      https://github.com/tobychui/zoraxy             (homelab reverse proxy)
+#                  Image: zoraxydocker/zoraxy
+#   - Pangolin:    https://github.com/fosrl/pangolin              (tunneled reverse proxy)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified reverse proxy or remove this file.
+
+# services:
+#   netgoat:
+#     image: netgoat/netgoat:latest  # ← DOES NOT EXIST
+#     container_name: netgoat-proxy
+#     hostname: netgoat-proxy
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/netgoat-proxy/config:/config
+#       - ${BASE_DATA}/netgoat-proxy/ssl:/ssl
+#     ports:
+#       - 80:80
+#       - 443:443
+#       - ${PORT_NETGOAT_ADMIN:-8080}:8080

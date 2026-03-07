@@ -1,0 +1,54 @@
+# TIANJI
+# GitHub: https://github.com/msgbyte/tianji
+# Image: moonrailgun/tianji:latest
+# Docs: https://tianji.msgbyte.com/docs/self-hosted/docker
+#
+# Tianji is an all-in-one observability tool combining website analytics,
+# uptime monitoring, and server status reporting in a single platform.
+# Uses PostgreSQL as its database backend.
+
+services:
+  tianji:
+    image: moonrailgun/tianji:latest
+    container_name: tianji
+    hostname: tianji
+    restart: unless-stopped
+    depends_on:
+      tianji-postgres:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      - DATABASE_URL=postgresql://tianji:${POSTGRES_PASSWORD}@tianji-postgres:5432/tianji
+      - JWT_SECRET=${SECRET_KEY}
+      - ALLOW_REGISTER=false
+      # - WEBSITE_DOMAIN=${DOMAIN}
+    volumes:
+      - ${BASE_DATA}/tianji/data:/app/data
+    ports:
+      - ${PORT_TIANJI}:12345
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  tianji-postgres:
+    image: postgres:15-alpine
+    container_name: tianji-postgres
+    hostname: tianji-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=tianji
+      - POSTGRES_USER=tianji
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/tianji/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tianji -d tianji"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

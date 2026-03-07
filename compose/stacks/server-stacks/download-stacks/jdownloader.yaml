@@ -1,0 +1,68 @@
+# JDOWNLOADER 2
+# GitHub: https://github.com/jlesage/docker-jdownloader-2
+# Image: jlesage/jdownloader-2:latest
+# Docs: https://github.com/jlesage/docker-jdownloader-2#readme
+#
+# JDownloader 2 is a feature-rich download manager that supports hundreds
+# of file hosting sites (Mega, uploaded.net, 1fichier, etc.), direct HTTP
+# downloads, YouTube/media downloads, automatic captcha solving, and more.
+# This Docker image runs JDownloader 2 with a web-based VNC GUI (noVNC)
+# accessible via browser on port 5800. Also exposes a remote API port.
+
+services:
+  jdownloader:
+    image: jlesage/jdownloader-2:latest
+    container_name: jdownloader
+    hostname: jdownloader
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # User/group ID for file permissions
+      - USER_ID=${PUID:-1000}
+      - GROUP_ID=${PGID:-1000}
+      # Web UI display resolution
+      - DISPLAY_WIDTH=1280
+      - DISPLAY_HEIGHT=768
+      # VNC password (optional, secures the web UI)
+      # - VNC_PASSWORD=${JDOWNLOADER_VNC_PASSWORD}
+      # JDownloader MyJDownloader credentials (optional, for remote access app)
+      # - MYJDOWNLOADER_EMAIL=${JDOWNLOADER_EMAIL}
+      # - MYJDOWNLOADER_PASSWORD=${JDOWNLOADER_PASSWORD}
+      # - MYJDOWNLOADER_DEVICE_NAME=${HOSTNAME:-homeserver}
+      # Dark mode
+      # - DARK_MODE=1
+    volumes:
+      # Application config and state
+      - ${BASE_DATA}/jdownloader/config:/config
+      # Download destination
+      - ${DOWNLOADS_DIR:-/downloads}/jdownloader:/output
+    ports:
+      # Web UI (noVNC browser interface)
+      - ${PORT_JDOWNLOADER:-5800}:5800
+      # VNC port (optional, for VNC client connections)
+      # - ${PORT_JDOWNLOADER_VNC:-5900}:5900
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Access:
+#   Web UI: http://your-server:${PORT_JDOWNLOADER:-5800}
+#   The full JDownloader 2 GUI opens in your browser via noVNC.
+#
+# MyJDownloader (optional remote control):
+#   1. Create account at my.jdownloader.org
+#   2. Set MYJDOWNLOADER_EMAIL and MYJDOWNLOADER_PASSWORD
+#   3. Control JD2 from the web or mobile app
+#
+# Download directory:
+#   Files are saved to ${DOWNLOADS_DIR}/jdownloader inside the container.
+#   Adjust the volume mapping to change the destination.
+#
+# Plugins and captcha solving:
+#   JD2 includes built-in support for 9kw.eu and anti-captcha.com
+#   Configure in Settings -> Captcha Solver inside the GUI.
+# ============================================================

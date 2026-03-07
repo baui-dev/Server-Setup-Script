@@ -1,0 +1,33 @@
+# STREAMSUMMER
+# ⚠️  STATUS: UNVERIFIED - Docker image and GitHub repository could not be confirmed
+# Searched GitHub: no "streamsummer" organization or repository found
+# Docker Hub image streamsummer/streamsummer → does NOT exist
+#
+# No Docker-deployable music streaming aggregator with this name could be located.
+#
+# ✅ Verified alternatives for online radio and streaming aggregation:
+#   - Mopidy:     https://github.com/mopidy/mopidy           (extensible music server, MPD protocol)
+#                 Mopidy-TuneIn, Mopidy-Podcast plugins for internet radio
+#   - Icecast2:   https://github.com/karlheyes/icecast-kh    (streaming media server)
+#   - Navidrome:  https://github.com/navidrome/navidrome     (with internet radio stations)
+#   - Ampache:    https://github.com/ampache/ampache         (supports radio streams)
+#   - Funkwhale:  https://dev.funkwhale.audio/funkwhale/funkwhale (federated music platform)
+#   - OwnTone:    https://github.com/owntone/owntone-server  (DAAP/AirPlay with radio)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified alternative or remove this file.
+
+# services:
+#   streamsummer:
+#     image: streamsummer/streamsummer:latest  # ← DOES NOT EXIST
+#     container_name: streamsummer
+#     hostname: streamsummer
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#     volumes:
+#       - ${BASE_DATA}/streamsummer/config:/config
+#     ports:
+#       - ${PORT_STREAMSUMMER:-3000}:3000
