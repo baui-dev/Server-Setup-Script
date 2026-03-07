@@ -1,0 +1,39 @@
+# WebOS
+# GitHub: https://github.com/webosose (LG WebOS Open Source Edition)
+# Alternative: https://github.com/nolanlawson/webos (community web OS)
+# Image: nginx:alpine (static site - no official self-hosted Docker image)
+# Docs: https://www.webosose.org/
+#
+# WebOS is a Linux-based smart TV / IoT operating system developed by LG.
+# The open source edition (webOS OSE) is available for Raspberry Pi.
+# For browser-based self-hosting, this compose file serves a static web app
+# via nginx. Community web OS projects may be used as an alternative.
+#
+# For a community browser-based WebOS alternative, see:
+#   https://github.com/nicholasgasior/webos or similar projects.
+#
+# Build steps (run once before starting):
+#   # Clone and build the web app source
+#   cp -r /path/to/webos/build/* ${BASE_DATA}/webos/html/
+
+services:
+  webos:
+    # No official self-hosted Docker image available for browser-based WebOS.
+    # Serve a static build via nginx, or substitute a community image.
+    image: nginx:alpine
+    container_name: webos
+    hostname: webos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/webos/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/webos/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_WEBOS:-8895}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

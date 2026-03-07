@@ -1,0 +1,103 @@
+# SEMAPHORE
+# GitHub: https://github.com/semaphoreui/semaphore
+# Image: semaphoreui/semaphore:latest
+# Docs: https://docs.semaphoreui.com/administration-guide/installation/docker/
+#
+# Modern UI for running Ansible playbooks, Terraform/OpenTofu plans, Bash
+# and PowerShell scripts. Provides a clean web dashboard for scheduling,
+# audit logs, RBAC, and notifications. Requires a relational database
+# (PostgreSQL used here; MySQL and BoltDB are also supported).
+#
+# IMPORTANT: Generate SEMAPHORE_ACCESS_KEY_ENCRYPTION with:
+#   openssl rand -base64 32
+
+services:
+  semaphore:
+    image: semaphoreui/semaphore:latest
+    container_name: semaphore
+    hostname: semaphore
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # --- Database connection ---
+      - SEMAPHORE_DB_DIALECT=postgres             # Database driver: postgres | mysql | bolt
+      - SEMAPHORE_DB_HOST=semaphore-db
+      - SEMAPHORE_DB_PORT=5432
+      - SEMAPHORE_DB_USER=semaphore
+      - SEMAPHORE_DB_PASS=semaphore_db_pass       # CHANGE THIS — must match POSTGRES_PASSWORD below
+      - SEMAPHORE_DB=semaphore
+      # --- Paths ---
+      - SEMAPHORE_PLAYBOOK_PATH=/tmp/semaphore/   # Working directory for playbook execution
+      # --- Admin account (created on first run) ---
+      - SEMAPHORE_ADMIN=admin                     # Admin username
+      - SEMAPHORE_ADMIN_NAME=Admin                # Admin display name
+      - SEMAPHORE_ADMIN_EMAIL=admin@example.com   # Admin email address
+      - SEMAPHORE_ADMIN_PASSWORD=changeme         # CHANGE THIS — admin login password
+      # --- Encryption ---
+      - SEMAPHORE_ACCESS_KEY_ENCRYPTION=CHANGE_ME_BASE64_32_CHARS  # CHANGE THIS — generate: openssl rand -base64 32
+      # --- Web ---
+      # - SEMAPHORE_PORT=3000                     # Internal HTTP listen port (default: 3000)
+      # - SEMAPHORE_WEB_ROOT=                     # Custom web root path prefix (e.g., /semaphore)
+      # --- LDAP (optional) ---
+      # - SEMAPHORE_LDAP_ACTIVATED=no             # Set "yes" to enable LDAP authentication
+      # - SEMAPHORE_LDAP_HOST=ldap.example.com    # LDAP server hostname
+      # - SEMAPHORE_LDAP_PORT=389                 # LDAP server port (389=plain, 636=TLS)
+      # - SEMAPHORE_LDAP_DN_BIND=                 # Bind DN for LDAP queries
+      # - SEMAPHORE_LDAP_PASSWORD=                # Bind password for LDAP
+      # - SEMAPHORE_LDAP_DN_SEARCH=               # Base DN for user search
+      # - SEMAPHORE_LDAP_SEARCH_FILTER=           # LDAP user search filter
+      # --- Email notifications (optional) ---
+      # - SEMAPHORE_EMAIL_ALERT=no                # Set "yes" to enable email alerts
+      # - SEMAPHORE_EMAIL_HOST=smtp.example.com   # SMTP server hostname
+      # - SEMAPHORE_EMAIL_PORT=587                # SMTP port
+      # - SEMAPHORE_EMAIL_USERNAME=               # SMTP username
+      # - SEMAPHORE_EMAIL_PASSWORD=               # SMTP password
+      # - SEMAPHORE_EMAIL_SENDER=                 # From address for alert emails
+      # --- Telegram notifications (optional) ---
+      # - SEMAPHORE_TELEGRAM_ALERT=no             # Set "yes" to enable Telegram alerts
+      # - SEMAPHORE_TELEGRAM_TOKEN=               # Telegram Bot API token
+      # - SEMAPHORE_TELEGRAM_CHAT=                # Telegram chat/channel ID
+      # --- Slack notifications (optional) ---
+      # - SEMAPHORE_SLACK_ALERT=no                # Set "yes" to enable Slack alerts
+      # - SEMAPHORE_SLACK_URL=                    # Slack incoming webhook URL
+      # --- Runner mode (optional — for distributed execution) ---
+      # - SEMAPHORE_RUNNER=no                     # Set "yes" to run in runner-only mode
+      # - SEMAPHORE_RUNNER_REGISTRATION_TOKEN=    # Registration token from Semaphore server
+    volumes:
+      - ${BASE_DATA}/semaphore/config:/etc/semaphore  # Config and SSH keys
+      - ${BASE_DATA}/semaphore/tmp:/tmp/semaphore     # Playbook working directory
+    ports:
+      - ${PORT_SEMAPHORE}:3000
+    depends_on:
+      semaphore-db:
+        condition: service_healthy
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # ------------------------------------------------------------------ #
+  # PostgreSQL — Semaphore primary database
+  # ------------------------------------------------------------------ #
+  semaphore-db:
+    image: postgres:16-alpine
+    container_name: semaphore-db
+    hostname: semaphore-db
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=semaphore
+      - POSTGRES_PASSWORD=semaphore_db_pass      # CHANGE THIS — must match SEMAPHORE_DB_PASS
+      - POSTGRES_DB=semaphore
+    volumes:
+      - ${BASE_DATA}/semaphore/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U semaphore -d semaphore"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+# networks:
+#   proxy:
+#     external: true

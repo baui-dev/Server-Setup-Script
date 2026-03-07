@@ -1,0 +1,47 @@
+# LUCKY
+# GitHub: https://github.com/gdy666/lucky
+# Image: gdy666/lucky:latest
+# Docs: https://github.com/gdy666/lucky/wiki
+#
+# Multi-function network tool for self-hosted environments. Provides:
+# dynamic DNS (DDNS) for 30+ providers, port forwarding/NAT traversal,
+# reverse proxy with SSL, WOL (Wake-on-LAN), IPv6 support, and a
+# web-based management interface. Designed for home servers behind NAT.
+
+services:
+  lucky:
+    image: gdy666/lucky:latest
+    container_name: lucky
+    hostname: lucky
+    restart: unless-stopped
+    # Lucky needs host network for full port forwarding capabilities
+    # Alternatively, use bridge network and map specific ports
+    network_mode: host
+    environment:
+      - TZ=${TZ}
+      # Web UI port (default 16601)
+      # - LUCKY_PORT=16601
+    volumes:
+      - ${BASE_DATA}/lucky/config:/goodluck
+    # When not using host network mode, uncomment ports:
+    # ports:
+    #   - ${PORT_LUCKY:-16601}:16601
+
+# ============================================================
+# Lucky features:
+# - DDNS: Supports Cloudflare, DNSPOD, Aliyun, HE.net, and 30+ others
+# - Port forwarding: Map external ports to internal services
+# - Reverse proxy: Built-in HTTP/HTTPS proxy with Let's Encrypt SSL
+# - WOL: Wake computers on your LAN remotely
+# - STun: NAT traversal for P2P connections
+#
+# First-time setup:
+# 1. Access http://your-server:16601
+# 2. Set admin credentials on first visit
+# 3. Configure DDNS providers with your API keys
+# 4. Add port forwarding rules for your services
+#
+# Note: Host network mode is required for full functionality.
+# When using in Docker with bridge networking, some port forwarding
+# features may not work as expected.
+# ============================================================

@@ -1,0 +1,40 @@
+# Memos
+# GitHub: https://github.com/usememos/memos
+# Image: neosmemo/memos:stable
+# Docs: https://www.usememos.com/docs
+#
+# Lightweight, self-hosted note-taking and microblogging service. Write memos
+# (short notes) with Markdown, tag them, and share publicly or privately.
+# Features a clean timeline UI, REST API, and Telegram/Slack bot integrations.
+# Stores data in SQLite by default (no external database required).
+
+services:
+  memos:
+    image: neosmemo/memos:stable
+    container_name: memos
+    hostname: memos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Run mode (prod = production, dev = development with debug logs)
+      - MEMOS_MODE=prod
+      # Port the server listens on inside the container
+      - MEMOS_PORT=5230
+      # Driver: sqlite or mysql (SQLite is default and recommended)
+      - MEMOS_DRIVER=sqlite
+      # SQLite data file path (inside container)
+      - MEMOS_DSN=/var/opt/memos/memos.db
+      # Optional: use MySQL/MariaDB instead of SQLite
+      # - MEMOS_DRIVER=mysql
+      # - MEMOS_DSN=${POSTGRES_USER}:${POSTGRES_PASSWORD}@tcp(memos-mysql:3306)/memos
+    volumes:
+      # Persists the SQLite database file
+      - ${BASE_DATA}/memos/data:/var/opt/memos
+    ports:
+      - ${PORT_MEMOS:-5230}:5230
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

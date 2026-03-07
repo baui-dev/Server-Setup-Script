@@ -1,0 +1,30 @@
+# DEYWEAVER
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/deyweaver/deyweaver → no such organization found
+# GHCR image ghcr.io/deyweaver/deyweaver → does NOT exist
+# Note: the original YAML already flagged this with "(verify on GitHub)" in the comment
+#
+# ✅ Verified alternatives for self-hosted task/todo management:
+#   - Vikunja:     https://github.com/go-vikunja/vikunja           (full-featured task manager)
+#                  Image: vikunja/vikunja
+#   - Donetick:    https://github.com/donetick/donetick            (simple task/chore tracker)
+#                  Image: donetick/donetick
+#   - Todoist-style: https://github.com/nicholaswilde/helm-charts (search for verified alternatives)
+#   - Planka:      https://github.com/plankanban/planka            (Kanban board)
+#                  Image: ghcr.io/plankanban/planka
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Vikunja or another verified task management tool.
+
+# services:
+#   deyweaver:
+#     image: ghcr.io/deyweaver/deyweaver:latest  # ← DOES NOT EXIST
+#     container_name: deyweaver
+#     hostname: deyweaver
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/deyweaver/config:/config
+#     ports:
+#       - ${PORT_DEYWEAVER:-3000}:3000

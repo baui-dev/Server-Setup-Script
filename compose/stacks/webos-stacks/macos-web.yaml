@@ -1,0 +1,39 @@
+# macOS Web
+# GitHub: https://github.com/PuruVJ/macos-web
+# Image: nginx:alpine (static Svelte app - no official Docker image)
+# Docs: https://github.com/PuruVJ/macos-web#readme
+#
+# macOS Web is a browser-based macOS UI simulation built with Svelte. It
+# faithfully recreates the macOS desktop experience in the browser including
+# the Dock, Menu Bar, Finder, and various system applications.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/PuruVJ/macos-web /tmp/macos-web-src
+#   cd /tmp/macos-web-src && pnpm install && pnpm run build
+#   cp -r /tmp/macos-web-src/build/* ${BASE_DATA}/macos-web/html/
+#
+# Alternative: check for community Docker images on Docker Hub by searching
+# "macos-web" or "puruvj/macos-web".
+
+services:
+  macos-web:
+    # No official Docker image available.
+    # Build from source: git clone https://github.com/PuruVJ/macos-web
+    # then pnpm install && pnpm run build, copy build/ output to html volume.
+    image: nginx:alpine
+    container_name: macos-web
+    hostname: macos-web
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/macos-web/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/macos-web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_MACOSWEB:-8890}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

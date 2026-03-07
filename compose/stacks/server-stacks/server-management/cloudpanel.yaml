@@ -1,0 +1,36 @@
+# CLOUDPANEL
+# GitHub: https://github.com/cloudpanel-io/cloudpanel-ce
+# Image: cloudpanel/cloudpanel:latest
+# Docs: https://www.cloudpanel.io/docs
+#
+# CloudPanel is a free web hosting control panel for managing websites,
+# databases, SSL certificates, FTP accounts, SSH keys, and cronjobs.
+# Supports NGINX and Apache, with built-in Varnish cache and ModSecurity.
+# NOTE: CloudPanel is typically installed natively. Docker deployment requires
+# a privileged container with host networking for full functionality.
+
+services:
+  cloudpanel:
+    image: cloudpanel/cloudpanel:latest
+    container_name: cloudpanel
+    hostname: cloudpanel
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/cloudpanel/data:/home
+      - ${BASE_DATA}/cloudpanel/clp:/etc/clp
+      - ${BASE_DATA}/cloudpanel/mysql:/var/lib/mysql
+      - ${BASE_DATA}/cloudpanel/nginx:/etc/nginx
+      - ${BASE_DATA}/cloudpanel/letsencrypt:/etc/letsencrypt
+    # Ports exposed via host networking:
+    # 80   HTTP
+    # 443  HTTPS
+    # 8443 CloudPanel admin UI (HTTPS)
+    # 22   SSH
+
+# networks:
+#   proxy:
+#     external: true

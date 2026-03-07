@@ -1,0 +1,35 @@
+# Mopidy
+# GitHub: https://github.com/mopidy/mopidy
+# Image: ghcr.io/mopidy/mopidy:latest
+# Docs: https://docs.mopidy.com
+#
+# Extensible music server written in Python. Plays music from your local disk,
+# Spotify, SoundCloud, TuneIn radio, and many more sources via its extension
+# system. Provides an MPD-compatible server (port 6600) and an HTTP frontend
+# (port 6680) compatible with web clients like Iris. Works with ncmpcpp, MPDroid,
+# and any MPD client.
+#
+# Config file: Place your mopidy.conf in ${BASE_DATA}/mopidy/config/mopidy.conf
+# See https://docs.mopidy.com/en/latest/config/ for configuration reference.
+
+services:
+  mopidy:
+    image: ghcr.io/mopidy/mopidy:latest
+    container_name: mopidy
+    hostname: mopidy
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/mopidy/config:/etc/mopidy
+      - ${BASE_DATA}/mopidy/data:/var/lib/mopidy
+      - ${MUSIC_DIR}:/music:ro
+    ports:
+      - ${PORT_MOPIDY}:6680        # HTTP frontend / Iris web UI
+      - ${PORT_MOPIDY_MPD:-6600}:6600  # MPD protocol port
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

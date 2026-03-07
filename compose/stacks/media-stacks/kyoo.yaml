@@ -1,0 +1,150 @@
+# KYOO
+# GitHub: https://github.com/zoriya/Kyoo
+# Image: ghcr.io/zoriya/kyoo_back:edge / ghcr.io/zoriya/kyoo_front:edge
+# Docs: https://github.com/zoriya/Kyoo/wiki
+#
+# Kyoo is a self-hosted media server similar to Jellyfin/Plex. It provides streaming,
+# metadata management, and a polished web interface for movies and TV shows.
+# Kyoo uses a microservices architecture with a Go backend, Next.js frontend,
+# PostgreSQL database, Meilisearch for full-text search, and RabbitMQ for messaging.
+
+services:
+  kyoo-back:
+    image: ghcr.io/zoriya/kyoo_back:edge
+    container_name: kyoo-back
+    hostname: kyoo-back
+    restart: unless-stopped
+    depends_on:
+      kyoo-db:
+        condition: service_healthy
+      kyoo-search:
+        condition: service_healthy
+      kyoo-rabbit:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - KYOO_APIKEYS=${KYOO_APIKEYS:-changeme-apikey}            # Comma-separated API keys for internal service communication
+      - POSTGRES_HOST=kyoo-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=kyoo
+      - POSTGRES_USER=kyoo
+      - POSTGRES_PASSWORD=${KYOO_DB_PASSWORD:-kyoo_secure_pass}
+      - MEILI_HOST=http://kyoo-search:7700
+      - MEILI_MASTER_KEY=${KYOO_MEILI_KEY:-kyoo_meili_key}
+      - RABBITMQ_HOST=kyoo-rabbit
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=kyoo
+      - RABBITMQ_PASSWORD=${KYOO_RABBIT_PASSWORD:-kyoo_rabbit_pass}
+    volumes:
+      - ${MEDIA_DIR}:/media:ro                   # Full media directory (read-only)
+      - ${MOVIES_DIR}:/movies:ro                 # Movie library (read-only)
+      - ${TV_DIR}:/tv:ro                         # TV show library (read-only)
+      - ${BASE_DATA}/kyoo/back:/metadata         # Kyoo backend metadata cache
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  kyoo-front:
+    image: ghcr.io/zoriya/kyoo_front:edge
+    container_name: kyoo-front
+    hostname: kyoo-front
+    restart: unless-stopped
+    depends_on:
+      - kyoo-back
+    environment:
+      - TZ=${TZ}
+      - KYOO_URL=http://kyoo-back:5000           # Internal backend API URL
+    ports:
+      - ${PORT_KYOO:-5000}:8901
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  kyoo-transcoder:
+    image: ghcr.io/zoriya/kyoo_transcoder:edge
+    container_name: kyoo-transcoder
+    hostname: kyoo-transcoder
+    restart: unless-stopped
+    depends_on:
+      - kyoo-back
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_HOST=kyoo-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=kyoo
+      - POSTGRES_USER=kyoo
+      - POSTGRES_PASSWORD=${KYOO_DB_PASSWORD:-kyoo_secure_pass}
+      - GOCODER_PREFIX=/video
+      - GOCODER_SAFE_PATH=/media                 # Must match the /media volume mount
+    volumes:
+      - ${MEDIA_DIR}:/media:ro                   # Full media directory (read-only)
+      - ${MOVIES_DIR}:/movies:ro                 # Movie library (read-only)
+      - ${TV_DIR}:/tv:ro                         # TV show library (read-only)
+      - ${BASE_DATA}/kyoo/transcoder:/cache      # Transcoding cache directory
+    # Optional: GPU passthrough for hardware transcoding
+    # devices:
+    #   - /dev/dri:/dev/dri                      # Intel/AMD VA-API GPU
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  kyoo-db:
+    image: postgres:16-alpine
+    container_name: kyoo-db
+    hostname: kyoo-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=kyoo
+      - POSTGRES_USER=kyoo
+      - POSTGRES_PASSWORD=${KYOO_DB_PASSWORD:-kyoo_secure_pass}
+    volumes:
+      - ${BASE_DATA}/kyoo/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kyoo -d kyoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  kyoo-search:
+    image: getmeili/meilisearch:v1.7
+    container_name: kyoo-search
+    hostname: kyoo-search
+    restart: unless-stopped
+    environment:
+      - MEILI_MASTER_KEY=${KYOO_MEILI_KEY:-kyoo_meili_key}
+      - MEILI_ENV=production
+    volumes:
+      - ${BASE_DATA}/kyoo/search:/meili_data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7700/health | grep -q 'available'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  kyoo-rabbit:
+    image: rabbitmq:3-alpine
+    container_name: kyoo-rabbit
+    hostname: kyoo-rabbit
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=kyoo
+      - RABBITMQ_DEFAULT_PASS=${KYOO_RABBIT_PASSWORD:-kyoo_rabbit_pass}
+    volumes:
+      - ${BASE_DATA}/kyoo/rabbit:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

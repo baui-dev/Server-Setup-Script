@@ -1,0 +1,63 @@
+# PORTMASTER
+# GitHub: https://github.com/safing/portmaster
+# Image: safing/portmaster:latest
+# Docs: https://docs.safing.io/portmaster/install/linux
+#
+# Open-source application firewall and privacy tool by Safing.
+# Monitors and controls all network connections on the host, blocks
+# trackers and ads at the OS level, enforces DNS-over-TLS, and provides
+# per-application network rules. Normally runs as a system service.
+# Docker deployment has significant limitations - Portmaster works
+# best installed natively on the host OS, not in a container.
+# This compose file provides the closest viable containerized equivalent.
+#
+# WARNING: Portmaster requires kernel-level access (nfqueue, /proc, /sys).
+# Full functionality is only available when installed directly on the host.
+# See: https://docs.safing.io/portmaster/install/linux
+
+services:
+  portmaster:
+    image: safing/portmaster:latest
+    container_name: portmaster
+    hostname: portmaster
+    restart: unless-stopped
+    # Portmaster requires privileged mode and host network for full functionality
+    privileged: true
+    network_mode: host
+    pid: host
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/portmaster/data:/var/lib/portmaster
+      - ${BASE_DATA}/portmaster/config:/etc/portmaster
+      - /proc:/proc:ro
+      - /sys:/sys:ro
+      # Required for netfilter queue integration
+      - /dev:/dev
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_ADMIN
+      - SYS_PTRACE
+
+# ============================================================
+# IMPORTANT: Portmaster is primarily designed as a host-level service.
+# For the best experience, install it directly on the host:
+#
+# Ubuntu/Debian:
+#   wget https://updates.safing.io/latest/linux_amd64/packages/portmaster-installer.deb
+#   sudo apt install ./portmaster-installer.deb
+#   sudo systemctl start portmaster
+#
+# Arch Linux (AUR):
+#   yay -S portmaster
+#
+# Features:
+# - Per-application network firewall rules
+# - DNS-over-TLS enforcement
+# - Ad and tracker blocking
+# - Privacy filters and connection monitoring
+# - Spn (Safing Privacy Network) - optional paid feature
+#
+# The web UI is accessible at http://localhost:817 after host installation.
+# ============================================================

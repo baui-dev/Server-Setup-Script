@@ -1,0 +1,37 @@
+# OwnTone
+# GitHub: https://github.com/owntone/owntone-server
+# Image: owntone/owntone:latest
+# Docs: https://owntone.github.io/owntone-server
+#
+# Open-source iTunes/DAAP and RSP music and video server. Streams your music
+# library to iTunes, Roku Soundbridge, and other DAAP/RSP compatible clients.
+# Also supports AirPlay 1/2, Chromecast, and PulseAudio output. Includes a
+# built-in web UI for library browsing and playback control.
+#
+# This variant uses bridge networking with explicit port mappings, trading
+# full Bonjour/mDNS discovery for easier Docker network integration. For full
+# iTunes pairing via mDNS, use the owntone-server.yaml (host networking) variant.
+
+services:
+  owntone:
+    image: owntone/owntone:latest
+    container_name: owntone
+    hostname: owntone
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${BASE_DATA}/owntone/config:/etc/owntone
+      - ${BASE_DATA}/owntone/data:/var/cache/owntone
+      - ${MUSIC_DIR}:/music:ro
+    ports:
+      - ${PORT_OWNTONE}:3689      # DAAP / web UI
+      - ${PORT_OWNTONE_MPD:-6600}:6600  # MPD protocol (enable in owntone.conf)
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

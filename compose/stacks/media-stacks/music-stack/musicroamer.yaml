@@ -1,0 +1,35 @@
+# MUSIC ROAMER
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/KrauseFx/music-roamer → Felix Krause (KrauseFx) is a real developer
+#   (creator of Fastlane) but this repo is a personal script project, not a Docker service
+# Docker Hub musicroamer/music-roamer → does NOT exist
+# No web-deployable Docker container for music exploration by this name was found
+#
+# ✅ Verified alternatives for music discovery and exploration:
+#   - Beets:          https://github.com/beetbox/beets             (music library organizer + discovery)
+#                     Image: beetbox/beets
+#   - ListenBrainz:   https://github.com/metabrainz/listenbrainz-server (scrobbling + discovery)
+#   - Maloja:         https://github.com/krateng/maloja            (self-hosted scrobbling server)
+#                     Image: krateng/maloja
+#   - Navidrome:      https://github.com/navidrome/navidrome       (music streaming with smart playlists)
+#                     Image: deluan/navidrome
+#   - Feishin:        https://github.com/jeffvli/feishin           (Subsonic/Navidrome client)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified alternative or remove this file.
+
+# services:
+#   musicroamer:
+#     image: musicroamer/music-roamer:latest  # ← DOES NOT EXIST
+#     container_name: musicroamer
+#     hostname: musicroamer
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#     volumes:
+#       - ${BASE_DATA}/musicroamer/config:/config
+#       - ${MUSIC_DIR}:/music:ro
+#     ports:
+#       - ${PORT_MUSICROAMER:-3000}:3000

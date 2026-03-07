@@ -1,0 +1,65 @@
+# Blinko
+# GitHub: https://github.com/blinko-space/blinko
+# Image: blinkospace/blinko:latest
+# Docs: https://blinko-doc.vercel.app
+#
+# AI-powered note-taking and personal assistant. Capture quick notes, todos,
+# and ideas; ask questions about your notes using built-in AI (OpenAI or Ollama).
+# Features a daily review, tags, search, and a REST API. Requires PostgreSQL.
+
+services:
+  blinko:
+    image: blinkospace/blinko:latest
+    container_name: blinko
+    hostname: blinko
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - NODE_ENV=production
+      # Database connection (PostgreSQL required)
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@blinko-postgres:5432/blinko
+      # NextAuth secret - generate with: openssl rand -hex 32
+      - NEXTAUTH_SECRET=${BLINKO_NEXTAUTH_SECRET:-changeme_generate_a_real_secret}
+      - NEXTAUTH_URL=https://${DOMAIN}
+      # Application port inside the container
+      - PORT=1111
+      # -- AI provider (optional but recommended) --
+      # OpenAI:
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - OPENAI_MODEL=gpt-4o-mini
+      # - OPENAI_BASE_URL=https://api.openai.com/v1
+      # Ollama (self-hosted):
+      # - OLLAMA_BASE_URL=http://ollama:11434
+      # - OLLAMA_MODEL=llama3.1
+    volumes:
+      - ${BASE_DATA}/blinko/data:/app/.blinko
+    ports:
+      - ${PORT_BLINKO:-1111}:1111
+    depends_on:
+      blinko-postgres:
+        condition: service_healthy
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  blinko-postgres:
+    image: postgres:16-alpine
+    container_name: blinko-postgres
+    hostname: blinko-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=blinko
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/blinko/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d blinko"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

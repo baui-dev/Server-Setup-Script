@@ -1,0 +1,56 @@
+# STALWART MAIL SERVER
+# GitHub: https://github.com/stalwartlabs/mail-server
+# Image: stalwartlabs/mail-server:latest
+# Docs: https://stalw.art/docs/get-started
+#
+# Stalwart is a modern, all-in-one mail server written in Rust.
+# It supports SMTP, IMAP, JMAP, and ManageSieve protocols with built-in
+# spam filtering, DMARC/DKIM/SPF enforcement, and a web-based admin UI.
+# No external database is required — uses RocksDB embedded storage by default.
+# Optionally supports PostgreSQL, MySQL, SQLite, S3, and Redis backends.
+#
+# First-run setup:
+#   The admin UI is accessible at http://<host>:${PORT_STALWART_HTTP}/
+#   On first start, Stalwart will create an admin account. Set STALWART_ADMIN_PASSWORD
+#   or retrieve the auto-generated password from the container logs:
+#     docker logs stalwart | grep -i "admin"
+#   Change the password immediately after first login.
+#
+# Required DNS records:
+#   MX:    mail.example.com  ->  your server IP
+#   A:     mail.example.com  ->  your server IP
+#   SPF:   "v=spf1 mx -all"
+#   DKIM:  generate key pair in admin UI, publish TXT record
+#   DMARC: "_dmarc" TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com"
+#   PTR:   your server IP   ->  mail.example.com  (set with your ISP/VPS provider)
+
+services:
+  stalwart:
+    image: stalwartlabs/mail-server:latest
+    container_name: stalwart
+    hostname: stalwart
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Stalwart uses /opt/stalwart-mail/etc/config.toml for configuration.
+      # Most settings are managed via the web UI after initial setup.
+      # - STALWART_ADMIN_PASSWORD=${STALWART_ADMIN_PASSWORD}  # Initial admin password; auto-generated if omitted
+    volumes:
+      - ${BASE_DATA}/stalwart/data:/opt/stalwart-mail    # Config, mail data, certs, and RocksDB
+    ports:
+      - "${PORT_STALWART_SMTP}:25"          # SMTP (inbound mail from remote MTAs)
+      - "587:587"                            # SMTP Submission (outbound from mail clients, STARTTLS)
+      - "465:465"                            # SMTPS Submission (outbound, implicit TLS)
+      - "${PORT_STALWART_IMAP}:143"         # IMAP4 (plaintext + STARTTLS)
+      - "993:993"                            # IMAPS (implicit TLS)
+      - "4190:4190"                          # ManageSieve (server-side filtering scripts)
+      - "${PORT_STALWART_HTTP}:8080"        # HTTP — admin UI and JMAP API
+      # - "443:443"                          # HTTPS — admin UI/JMAP with TLS (requires TLS cert in /opt/stalwart-mail/etc/certs)
+      # - "110:110"                          # POP3 (enable POP3 in config.toml if needed)
+      # - "995:995"                          # POP3S (implicit TLS)
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

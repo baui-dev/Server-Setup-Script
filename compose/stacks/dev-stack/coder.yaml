@@ -1,0 +1,90 @@
+# CODER
+# GitHub: https://github.com/coder/coder
+# Image: ghcr.io/coder/coder:latest
+# Docs: https://coder.com/docs/install/docker
+#
+# Self-hosted cloud development environments (CDEs). Coder provisions
+# remote workspaces (via Terraform templates) in Docker, Kubernetes, or
+# cloud VMs so developers get fast, consistent dev environments in the browser.
+# Requires PostgreSQL and access to the Docker socket (for Docker-based workspaces).
+#
+# First-time setup: visit http://localhost:<PORT> and create the admin user,
+# OR set CODER_FIRST_USER_* vars to bootstrap non-interactively.
+
+services:
+  coder:
+    image: ghcr.io/coder/coder:latest
+    container_name: coder
+    hostname: coder
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # --- Core networking (REQUIRED) ---
+      - CODER_HTTP_ADDRESS=0.0.0.0:3000          # Bind address inside the container
+      - CODER_ACCESS_URL=http://coder.${DOMAIN:-localhost}:${PORT_CODER}  # Public URL agents use to reach Coder
+      # - CODER_WILDCARD_ACCESS_URL=             # Wildcard domain for port-forwarding (e.g., *.coder.example.com)
+      # --- Database ---
+      - CODER_PG_CONNECTION_URL=postgresql://coder:coder_db_pass@coder-db/coder?sslmode=disable  # CHANGE PASSWORD
+      # --- TLS (if not terminating TLS upstream) ---
+      # - CODER_TLS_ENABLE=false                 # Enable built-in TLS
+      # - CODER_TLS_CERT_FILE=/certs/tls.crt     # Path to TLS certificate
+      # - CODER_TLS_KEY_FILE=/certs/tls.key      # Path to TLS private key
+      # --- OIDC / SSO ---
+      # - CODER_OIDC_ISSUER_URL=                 # OIDC provider URL (e.g., https://accounts.google.com)
+      # - CODER_OIDC_CLIENT_ID=                  # OIDC client ID
+      # - CODER_OIDC_CLIENT_SECRET=              # OIDC client secret
+      # - CODER_OIDC_EMAIL_DOMAIN=               # Allowed email domain for OIDC login
+      # --- Email (SMTP) ---
+      # - CODER_EMAIL_FROM=coder@example.com     # Sender address for Coder system emails
+      # - CODER_EMAIL_SMARTHOST=smtp.example.com:587  # SMTP server (host:port)
+      # - CODER_EMAIL_HELLO=localhost            # SMTP EHLO hostname
+      # - CODER_EMAIL_USERNAME=                  # SMTP username
+      # - CODER_EMAIL_PASSWORD=                  # SMTP password
+      # --- Telemetry ---
+      # - CODER_TELEMETRY=true                   # Set false to disable anonymous usage telemetry
+      # --- Logging ---
+      # - CODER_LOG_HUMAN_TIME=true              # Prefix log lines with human-readable timestamps
+      # - CODER_VERBOSE=false                    # Enable verbose/debug logging
+      # --- Non-interactive first-user bootstrap (optional) ---
+      # - CODER_FIRST_USER_USERNAME=admin        # Admin username created on first run
+      # - CODER_FIRST_USER_EMAIL=admin@example.com  # Admin email
+      # - CODER_FIRST_USER_PASSWORD=changeme     # Admin password (min 8 chars)
+      # - CODER_FIRST_USER_TRIAL=false           # Enable Coder trial license on first run
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Required: Coder uses Docker for workspace provisioning
+      - ${BASE_DATA}/coder/config:/home/coder/.config
+    ports:
+      - ${PORT_CODER}:3000
+    group_add:
+      - "999"                                    # Add coder user to the docker group (adjust GID if needed)
+    depends_on:
+      coder-db:
+        condition: service_healthy
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # ------------------------------------------------------------------ #
+  # PostgreSQL — Coder's primary database
+  # ------------------------------------------------------------------ #
+  coder-db:
+    image: postgres:16-alpine
+    container_name: coder-db
+    hostname: coder-db
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=coder
+      - POSTGRES_PASSWORD=coder_db_pass          # CHANGE THIS — must match CODER_PG_CONNECTION_URL
+      - POSTGRES_DB=coder
+    volumes:
+      - ${BASE_DATA}/coder/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coder -d coder"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+# networks:
+#   proxy:
+#     external: true

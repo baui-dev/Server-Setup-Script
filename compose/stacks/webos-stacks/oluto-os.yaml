@@ -1,1 +1,35 @@
-https://pluto-app.zeon.dev/
+# OLUTO OS (Pluto App)
+# Site: https://pluto-app.zeon.dev/
+# Image: nginx:alpine (static web app - no official Docker image)
+#
+# Oluto OS / Pluto App is a browser-based web operating system with a
+# desktop environment. It is a static frontend app with no official Docker
+# image — serve the built files via nginx after cloning from source.
+#
+# Build steps (run once before starting):
+#   # Check the repository at https://pluto-app.zeon.dev/ for the source link
+#   git clone <repository-url> /tmp/oluto-src
+#   cd /tmp/oluto-src && npm install && npm run build
+#   mkdir -p ${BASE_DATA}/oluto-os/html
+#   cp -r /tmp/oluto-src/dist/* ${BASE_DATA}/oluto-os/html/
+
+services:
+  oluto-os:
+    # No official Docker image — serves the pre-built static files via nginx.
+    image: nginx:alpine
+    container_name: oluto-os
+    hostname: oluto-os
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/oluto-os/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/oluto-os/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_OLUTO:-8899}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

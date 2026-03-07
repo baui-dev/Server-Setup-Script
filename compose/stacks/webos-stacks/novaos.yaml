@@ -1,1 +1,36 @@
-https://github.com/runnova/NovaOS
+# NOVAOS
+# GitHub: https://github.com/runnova/NovaOS
+# Image: nginx:alpine (static web app - no official Docker image)
+# Docs: https://github.com/runnova/NovaOS
+#
+# NovaOS is a browser-based web operating system with a desktop environment,
+# window manager, and built-in applications. It is a static frontend app
+# with no official Docker image — serve the built dist folder via nginx.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/runnova/NovaOS /tmp/novaos-src
+#   cd /tmp/novaos-src && npm install && npm run build
+#   mkdir -p ${BASE_DATA}/novaos/html
+#   cp -r /tmp/novaos-src/dist/* ${BASE_DATA}/novaos/html/
+
+services:
+  novaos:
+    # No official Docker image — serves the pre-built static dist via nginx.
+    # Build from source: https://github.com/runnova/NovaOS
+    image: nginx:alpine
+    container_name: novaos
+    hostname: novaos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/novaos/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/novaos/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_NOVAOS:-8898}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

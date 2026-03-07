@@ -1,0 +1,36 @@
+# PRIVATEBIN
+# GitHub: https://github.com/PrivateBin/PrivateBin
+# Image: privatebin/nginx-fpm-alpine:latest
+# Docs: https://github.com/PrivateBin/PrivateBin/wiki/Docker
+#
+# Zero-knowledge, encrypted pastebin. The server never sees the plaintext — all
+# encryption and decryption happens in the browser using AES-256. Pastes are
+# optionally time-limited and password-protected. No database required; pastes
+# are stored as JSON files on disk.
+
+services:
+  privatebin:
+    image: privatebin/nginx-fpm-alpine:latest
+    container_name: privatebin
+    hostname: privatebin
+    restart: unless-stopped
+    # Run as non-root (uid/gid 65534 = nobody in Alpine)
+    user: "65534:65534"
+    environment:
+      - TZ=${TZ}
+      # PHP-FPM pool size (optional — defaults suit most installs)
+      # - PHP_POOL_PM=dynamic
+      # - PHP_POOL_MAX_CHILDREN=5
+    volumes:
+      # Encrypted paste files are stored here
+      - ${BASE_DATA}/privatebin/data:/srv/data
+      # Mount a custom cfg/conf.php to override defaults (burn after reading, expiry, etc.)
+      # - ${BASE_DATA}/privatebin/config/conf.php:/srv/cfg/conf.php:ro
+    ports:
+      - ${PORT_PRIVATE_BIN}:8080
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

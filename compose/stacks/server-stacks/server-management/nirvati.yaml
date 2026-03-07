@@ -1,0 +1,30 @@
+# NIRVATI
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/nirvati/nirvati → no such organization or project found
+# Docker Hub image nirvati/nirvati → does NOT exist
+#
+# ✅ Verified alternatives for self-hosted server management platforms:
+#   - CasaOS:      https://github.com/IceWhaleTech/CasaOS         (home cloud + app store)
+#                  Image: ghcr.io/icewhaletech/casaos
+#   - Umbrel:      https://github.com/getumbrel/umbrel            (home server OS)
+#   - Coolify:     https://github.com/coollabsio/coolify          (self-hosted PaaS)
+#                  Image: ghcr.io/coollabsio/coolify
+#   - 1Panel:      https://github.com/1Panel-dev/1Panel           (server management panel)
+#                  Image: 1panel-dev/1panel
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified server management platform or remove this file.
+
+# services:
+#   nirvati:
+#     image: nirvati/nirvati:latest  # ← DOES NOT EXIST
+#     container_name: nirvati
+#     hostname: nirvati
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/nirvati/data:/data
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#     ports:
+#       - ${PORT_NIRVATI:-3000}:3000

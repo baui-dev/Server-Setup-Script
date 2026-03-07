@@ -1,0 +1,38 @@
+# CORECONTROL
+# ⚠️  STATUS: UNVERIFIED - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/corecontrol/corecontrol → could not be verified (may not exist, or may
+#   postdate the January 2025 knowledge cutoff)
+# GHCR image ghcr.io/corecontrol/corecontrol → could not be verified
+#
+# If you intend to deploy this, verify the GitHub repo and image exist before running.
+# If CoreControl does not exist, consider these alternatives:
+#
+# ✅ Verified alternatives for multi-server management dashboards:
+#   - Portainer:   https://github.com/portainer/portainer         (Docker/K8s management)
+#                  Image: portainer/portainer-ce
+#   - Dockge:      https://github.com/louislam/dockge             (Docker compose manager)
+#                  Image: louislam/dockge
+#   - Checkmk:     https://github.com/Checkmk/checkmk            (server + infrastructure monitoring)
+#                  Image: checkmk/check-mk-raw
+#   - Netdata:     https://github.com/netdata/netdata             (real-time server metrics, multi-host)
+#                  Image: netdata/netdata
+#   - Squirrel Servers Manager: https://github.com/SquirrelCorporation/SquirrelServersManager
+#
+# This file is kept as a placeholder. Verify before deploying.
+
+# services:
+#   corecontrol:
+#     image: ghcr.io/corecontrol/corecontrol:latest  # ← UNVERIFIED — check before use
+#     container_name: corecontrol
+#     hostname: corecontrol
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#       - SECRET_KEY=${SECRET_KEY}
+#     volumes:
+#       - ${BASE_DATA}/corecontrol/config:/config
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#     ports:
+#       - ${PORT_CORECONTROL:-3000}:3000

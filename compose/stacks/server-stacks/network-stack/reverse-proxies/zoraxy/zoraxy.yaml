@@ -1,17 +1,68 @@
+# ZORAXY
+# GitHub: https://github.com/tobychui/zoraxy
+# Image: zoraxydocker/zoraxy:latest
+# Docs: https://zoraxy.aroz.org/
+#
+# General-purpose HTTP reverse proxy and forwarding tool with a user-friendly
+# web management interface. Features automatic SSL/TLS with Let's Encrypt,
+# virtual host (subdomain/path) routing, TCP/UDP proxy, zero-config WebSocket
+# support, GeoIP blocking, uptime monitoring, and basic authentication.
+# Single binary with no database dependency. Successor to the ArOZ Online proxy.
+
 services:
   zoraxy:
     image: zoraxydocker/zoraxy:latest
     container_name: zoraxy
+    hostname: zoraxy
     restart: unless-stopped
-
-    ports:
-      - 80:80
-      - 443:443
-      - 8000:8123
-    volumes:
-      - zoraxy/:/opt/zoraxy/config/
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /etc/localtime:/etc/localtime
     environment:
-      FASTGEOIP: "true"
-      PORT: "8123"
+      - TZ=${TZ}
+      # Web management interface port (internal)
+      - PORT=8123
+      # Enable fast GeoIP lookup (downloads MaxMind GeoLite2 DB)
+      - FASTGEOIP=true
+      # Disable authentication (NOT recommended for production)
+      # - NOAUTH=false
+      # ZeroTier network ID (if using ZeroTier for SDN)
+      # - ZTNETWORK=${ZEROTIER_NETWORK_ID}
+    volumes:
+      # Persistent configuration (proxy rules, SSL certs, settings)
+      - ${BASE_DATA}/zoraxy/config:/opt/zoraxy/config
+      # Docker socket for container auto-discovery (optional)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Sync localtime
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      # HTTP (reverse proxy entrypoint)
+      - 80:80
+      # HTTPS (reverse proxy entrypoint with TLS)
+      - 443:443
+      # Web management UI
+      - ${PORT_ZORAXY:-8000}:8123
+      # Optional: additional TCP proxy ports (configure in UI)
+      # - 8022:22  # SSH proxy example
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Access http://your-server:${PORT_ZORAXY:-8000} for the management UI
+# 2. Create admin credentials on first visit
+# 3. Navigate to "HTTP Proxy" to add reverse proxy rules:
+#    - Subdomain: myapp.${DOMAIN} -> http://container-name:port
+# 4. Navigate to "TLS/SSL" to enable Let's Encrypt:
+#    - Enter your email address
+#    - Add domains to certificate requests
+# 5. Set your default site under "Default Site"
+#
+# GeoIP blocking:
+#   Requires FASTGEOIP=true (downloads ~50MB database on first start)
+#   Configure blocked/allowed countries under "GeoBlock"
+#
+# Basic authentication:
+#   Add per-proxy-rule authentication under proxy rule settings
+# ============================================================

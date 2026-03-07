@@ -1,43 +1,62 @@
----
+# Piwigo
+# GitHub: https://github.com/Piwigo/Piwigo
+# Image: lscr.io/linuxserver/piwigo:latest
+# Docs: https://piwigo.org/doc
+#
+# Open-source photo gallery software for the web. Manage, browse, and share
+# your photo collection via a feature-rich web interface. Supports plugins,
+# themes, albums, multi-user management, batch operations, and metadata editing.
+# Requires MariaDB or MySQL as the database backend.
+#
+# First-run setup: Navigate to http://<host>:${PORT_PIWIGO} to complete the
+# web-based installation wizard. Use the database credentials below when
+# prompted for the database connection settings.
+
 services:
   piwigo:
     image: lscr.io/linuxserver/piwigo:latest
     container_name: piwigo
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - /path/to/piwigo/config:/config
-      - /path/to/appdata/gallery:/gallery
-    ports:
-      - 80:80
+    hostname: piwigo
     restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/piwigo/config:/config
+      - ${PHOTOS_DIR}:/gallery
+    ports:
+      - ${PORT_PIWIGO}:80
+    depends_on:
+      piwigo-db:
+        condition: service_healthy
+    # networks:
+    #   - ${DOCKER_NETWORK}
 
-  db:
-     
+  piwigo-db:
     image: lscr.io/linuxserver/mariadb:latest
-    container_name: mariadb
-    environment:
-      - PUID=1001 #uid have to match permission of the piwigo folder
-      - PGID=1001 #gid have to match permission of the piwigo folder
-      - MYSQL_ROOT_PASSWORD=Derkom1soldat
-      - TZ=Europe/Copenhagen #change timezone if needed
-      - MYSQL_DATABASE=piwigo #optional
-      - MYSQL_USER=piwigo_user #optional
-      - MYSQL_PASSWORD=Derkom1soldat #optional
-    volumes:
-      - /<path to>/piwigo/piwigo_config/db:/config
-    ports:
-      - 3306:3306 #change port if needed
+    container_name: piwigo-db
+    hostname: piwigo-db
     restart: unless-stopped
+    environment:
+      # PUID/PGID must match the permissions of the Piwigo config folder
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=${PIWIGO_DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${PIWIGO_DB_NAME:-piwigo}
+      - MYSQL_USER=${PIWIGO_DB_USER:-piwigo_user}
+      - MYSQL_PASSWORD=${PIWIGO_DB_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/piwigo/db:/config
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${PIWIGO_DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
 
-
-
-
-
-
-
-
-
-    # http-request set-header X-Forwarded-Proto https if { ssl_fc } 
+# networks:
+#   proxy:
+#     external: true

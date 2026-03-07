@@ -1,1 +1,90 @@
-https://github.com/StuffAnThings/qbit_manage
+# QBIT-MANAGE
+# GitHub: https://github.com/StuffAnThings/qbit_manage
+# Image: bobokun/qbit_manage:latest
+# Docs: https://github.com/StuffAnThings/qbit_manage/wiki
+#
+# Automated management tool for qBittorrent. Adds, updates, and removes
+# category labels, applies tags based on trackers, manages unregistered
+# torrents, removes orphaned files, checks and pauses/resumes stalled
+# torrents, sets share limits, and integrates with cross-seeding.
+# Designed to run on a schedule (e.g., every 15-30 minutes via cron).
+
+services:
+  qbit-manage:
+    image: bobokun/qbit_manage:latest
+    container_name: qbit-manage
+    hostname: qbit-manage
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Run schedule (cron format, or integer for minutes between runs)
+      - QBT_RUN=false           # Set to true to run once and exit
+      - QBT_SCHEDULE=1440       # Run every 1440 minutes (24h). Use cron: "0 */6 * * *"
+      - QBT_CONFIG=/config/config.yml
+      # Logging verbosity (DEBUG, INFO, WARNING, ERROR)
+      - QBT_LOG_LEVEL=${QBITMANAGE_LOG_LEVEL:-INFO}
+      # Maximum log files to keep
+      - QBT_MAX_LOG_FILES=10
+    volumes:
+      - ${BASE_DATA}/qbit-manage/config:/config
+      # Must match the download paths used inside qBittorrent
+      - ${DOWNLOADS_DIR:-/downloads}:/downloads
+      # If qBittorrent runs on the same host, can map its config for reading
+      # - ${BASE_DATA}/qbittorrent/config:/qbittorrent-config:ro
+    # qbit-manage connects to qBittorrent API over the network, no ports needed
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# REQUIRED: Create ${BASE_DATA}/qbit-manage/config/config.yml
+# Full config reference: https://github.com/StuffAnThings/qbit_manage/wiki/Config-Setup
+# ============================================================
+# qbt:
+#   host: qbittorrent             # qBittorrent hostname or IP
+#   port: 8085
+#   user: ${QBITTORRENT_USERNAME:-admin}
+#   pass: ${QBITTORRENT_PASSWORD}
+#
+# settings:
+#   force_auto_tmm: false         # Auto-assign category based on save path
+#   tracker_error_tag: issue      # Tag for torrents with tracker errors
+#   nohardlinks_tag: noHL         # Tag for torrents with no hardlinks
+#   share_limits_tag: QL          # Tag prefix for share limit groups
+#   # Remove orphaned files not linked to any torrent
+#   orphaned_exclude_patterns:
+#     - "**/.DS_Store"
+#     - "**/Thumbs.db"
+#
+# directory:
+#   root_dir: /downloads/         # Root download directory
+#   # Category-specific subdirectories
+#
+# cat:                            # Category definitions
+#   movies:
+#     save_path: /downloads/movies
+#   tv:
+#     save_path: /downloads/tv
+#   music:
+#     save_path: /downloads/music
+#
+# tracker:                        # Tracker-based tagging
+#   # nyaa.si:
+#   #   tag: Nyaa
+#   # tracker.alpharatio.club:
+#   #   tag: AlphaRatio
+#
+# share_limits:
+#   # Remove/tag torrents after reaching share limits
+#   noHL:
+#     priority: 1
+#     min_seeding_time: 0
+#     max_ratio: 2.0
+#     max_seeding_time: 129600
+#     cleanup: false
+# ============================================================

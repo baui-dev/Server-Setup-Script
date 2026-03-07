@@ -1,0 +1,32 @@
+# Dockge (Compose Toolbox)
+# GitHub: https://github.com/louislam/dockge
+# Image: louislam/dockge:1
+# Docs: https://dockge.kuma.pet
+#
+# A self-hosted, reactive Docker Compose stack manager with a modern web UI.
+# Manage, edit, and control all Docker Compose stacks from a single interface.
+# Features live terminal output, interactive editing, and stack status monitoring.
+
+services:
+  compose-toolbox:
+    image: louislam/dockge:1
+    container_name: compose-toolbox
+    hostname: compose-toolbox
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # The URL used to access the Dockge web UI
+      - DOCKGE_STACKS_DIR=/opt/stacks
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${BASE_DATA}/compose-toolbox/data:/app/data
+      # Mount the directory where your compose stacks live so Dockge can manage them
+      - ${BASE_DATA}/compose-toolbox/stacks:/opt/stacks
+    ports:
+      - ${PORT_COMPOSE_TOOLBOX:-5001}:5001
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

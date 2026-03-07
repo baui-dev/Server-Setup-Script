@@ -1,0 +1,119 @@
+# FIREFLY III
+# GitHub: https://github.com/firefly-iii/firefly-iii
+# Image: fireflyiii/core:latest
+# Docs: https://docs.firefly-iii.org/how-to/firefly-iii/installation/docker/
+#
+# Free and open-source personal finance manager ("money manager").
+# Tracks income, expenses, budgets, bills, and financial goals.
+# Provides detailed reports and charts. Supports multi-currency,
+# CSV import, and has a companion Data Importer tool. RESTful API available.
+# Note: Placed in network-stack for organizational reasons; it is a finance tool.
+
+services:
+  firefly-postgres:
+    image: postgres:16-alpine
+    container_name: firefly-postgres
+    hostname: firefly-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=firefly
+      - POSTGRES_USER=firefly
+      - POSTGRES_PASSWORD=${FIREFLY_POSTGRES_PASSWORD:-firefly_pass}
+    volumes:
+      - ${BASE_DATA}/firefly/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U firefly -d firefly"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  firefly:
+    image: fireflyiii/core:latest
+    container_name: firefly
+    hostname: firefly
+    restart: unless-stopped
+    depends_on:
+      firefly-postgres:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # App settings
+      - APP_ENV=production
+      - APP_DEBUG=false
+      # Generate with: php artisan key:generate --show
+      - APP_KEY=${FIREFLY_APP_KEY}
+      - APP_URL=https://firefly.${DOMAIN}
+      # Trusted proxies (use * for all, or specific IP)
+      - TRUSTED_PROXIES=**
+      # Database
+      - DB_CONNECTION=pgsql
+      - DB_HOST=firefly-postgres
+      - DB_PORT=5432
+      - DB_DATABASE=firefly
+      - DB_USERNAME=firefly
+      - DB_PASSWORD=${FIREFLY_POSTGRES_PASSWORD:-firefly_pass}
+      # Default language and locale
+      - DEFAULT_LANGUAGE=en_US
+      - DEFAULT_LOCALE=equal
+      # MAIL settings (optional)
+      # - MAIL_MAILER=smtp
+      # - MAIL_HOST=smtp.${DOMAIN}
+      # - MAIL_PORT=587
+      # - MAIL_FROM=firefly@${DOMAIN}
+      # - MAIL_USERNAME=${SMTP_USERNAME}
+      # - MAIL_PASSWORD=${SMTP_PASSWORD}
+      # - MAIL_ENCRYPTION=tls
+      # Authentication (optional LDAP/SSO)
+      # - AUTHENTICATION_GUARD=remote_user_guard
+      # - AUTHENTICATION_GUARD_HEADER=REMOTE_USER
+      # Disable registration (set to false to allow new signups)
+      - ALLOW_WEBHOOKS=false
+      # Session driver (database recommended for production)
+      - SESSION_DRIVER=database
+      - CACHE_DRIVER=database
+    volumes:
+      - ${BASE_DATA}/firefly/upload:/var/www/html/storage/upload
+      - ${BASE_DATA}/firefly/export:/var/www/html/storage/export
+    ports:
+      - ${PORT_FIREFLY:-8080}:8080
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # Firefly III Data Importer - optional companion tool
+  # firefly-importer:
+  #   image: fireflyiii/data-importer:latest
+  #   container_name: firefly-importer
+  #   hostname: firefly-importer
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - firefly
+  #   environment:
+  #     - TZ=${TZ}
+  #     - FIREFLY_III_URL=http://firefly:8080
+  #     - VANITY_URL=https://firefly.${DOMAIN}
+  #     - FIREFLY_III_ACCESS_TOKEN=${FIREFLY_ACCESS_TOKEN}
+  #   ports:
+  #     - ${PORT_FIREFLY_IMPORTER:-8081}:8080
+
+  # Firefly III Cron (automated recurring transactions)
+  firefly-cron:
+    image: alpine:latest
+    container_name: firefly-cron
+    hostname: firefly-cron
+    restart: unless-stopped
+    depends_on:
+      - firefly
+    environment:
+      - TZ=${TZ}
+    command: >
+      sh -c "while true; do
+        wget -qO- http://firefly:8080/api/v1/cron/${FIREFLY_CRON_TOKEN:-changeme};
+        sleep 86400;
+      done"
+
+# networks:
+#   proxy:
+#     external: true

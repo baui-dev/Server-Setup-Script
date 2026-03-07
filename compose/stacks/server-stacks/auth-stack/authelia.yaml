@@ -1,0 +1,165 @@
+# AUTHELIA
+# GitHub: https://github.com/authelia/authelia
+# Image: authelia/authelia:latest
+# Docs: https://www.authelia.com/integration/prologue/get-started/
+#
+# Open-source authentication and authorization server providing
+# single sign-on (SSO) with multi-factor authentication (MFA/2FA)
+# via a web portal. Acts as a forward-auth middleware for reverse proxies
+# (Traefik, Nginx, Caddy). Supports LDAP, file-based user backends,
+# TOTP, WebAuthn, push notifications, and OAuth2/OIDC.
+
+services:
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    hostname: authelia
+    restart: unless-stopped
+    depends_on:
+      authelia-redis:
+        condition: service_started
+      authelia-postgres:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Core secrets - generate with: openssl rand -hex 32
+      - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT_SECRET}
+      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
+      # Session domain (must match your root domain)
+      - AUTHELIA_SESSION_DOMAIN=${DOMAIN}
+      # Redis session storage
+      - AUTHELIA_SESSION_REDIS_HOST=authelia-redis
+      - AUTHELIA_SESSION_REDIS_PORT=6379
+      # Postgres storage backend
+      - AUTHELIA_STORAGE_POSTGRES_HOST=authelia-postgres
+      - AUTHELIA_STORAGE_POSTGRES_PORT=5432
+      - AUTHELIA_STORAGE_POSTGRES_DATABASE=authelia
+      - AUTHELIA_STORAGE_POSTGRES_USERNAME=authelia
+      - AUTHELIA_STORAGE_POSTGRES_PASSWORD=${AUTHELIA_POSTGRES_PASSWORD:-authelia_pass}
+      # SMTP notifier - comment out to use filesystem notifier instead
+      # - AUTHELIA_NOTIFIER_SMTP_HOST=smtp.${DOMAIN}
+      # - AUTHELIA_NOTIFIER_SMTP_PORT=587
+      # - AUTHELIA_NOTIFIER_SMTP_USERNAME=${SMTP_USERNAME}
+      # - AUTHELIA_NOTIFIER_SMTP_PASSWORD=${SMTP_PASSWORD}
+      # - AUTHELIA_NOTIFIER_SMTP_SENDER=authelia@${DOMAIN}
+      # - AUTHELIA_NOTIFIER_SMTP_SUBJECT=[Authelia] {title}
+      # OIDC - enable to expose Authelia as an OIDC provider
+      # - AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET=${AUTHELIA_OIDC_HMAC_SECRET}
+      # Log level: trace, debug, info, warn, error
+      - AUTHELIA_LOG_LEVEL=${AUTHELIA_LOG_LEVEL:-info}
+    volumes:
+      - ${BASE_DATA}/authelia/config:/config
+    ports:
+      - ${PORT_AUTHELIA:-9091}:9091
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  authelia-redis:
+    image: redis:7-alpine
+    container_name: authelia-redis
+    hostname: authelia-redis
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/authelia/redis:/data
+    command: --save 60 1 --loglevel warning
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  authelia-postgres:
+    image: postgres:16-alpine
+    container_name: authelia-postgres
+    hostname: authelia-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=authelia
+      - POSTGRES_USER=authelia
+      - POSTGRES_PASSWORD=${AUTHELIA_POSTGRES_PASSWORD:-authelia_pass}
+    volumes:
+      - ${BASE_DATA}/authelia/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authelia -d authelia"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# REQUIRED: Create ${BASE_DATA}/authelia/config/configuration.yml
+# ============================================================
+# theme: light
+# default_redirection_url: https://home.${DOMAIN}
+#
+# server:
+#   host: 0.0.0.0
+#   port: 9091
+#
+# log:
+#   level: info
+#
+# totp:
+#   issuer: ${DOMAIN}
+#   period: 30
+#   skew: 1
+#
+# webauthn:
+#   display_name: Authelia
+#   attestation_conveyance_preference: indirect
+#   user_verification: preferred
+#
+# authentication_backend:
+#   password_reset:
+#     disable: false
+#   file:
+#     path: /config/users_database.yml
+#     password:
+#       algorithm: argon2id
+#       iterations: 3
+#       memory: 65536
+#       parallelism: 4
+#       key_length: 32
+#       salt_length: 16
+#
+# access_control:
+#   default_policy: deny
+#   rules:
+#     - domain: "auth.${DOMAIN}"
+#       policy: bypass
+#     - domain: "*.${DOMAIN}"
+#       policy: two_factor
+#
+# session:
+#   name: authelia_session
+#   expiration: 3600
+#   inactivity: 300
+#   remember_me_duration: 1M
+#
+# regulation:
+#   max_retries: 3
+#   find_time: 2m
+#   ban_time: 5m
+#
+# notifier:
+#   disable_startup_check: false
+#   filesystem:
+#     filename: /config/notification.txt
+# ============================================================
+# REQUIRED: Create ${BASE_DATA}/authelia/config/users_database.yml
+# Generate password hash: authelia hash-password 'yourpassword'
+# ============================================================
+# users:
+#   admin:
+#     displayname: Administrator
+#     password: '$argon2id$v=19$m=65536,t=3,p=4$...'
+#     email: admin@${DOMAIN}
+#     groups:
+#       - admins
+#       - users

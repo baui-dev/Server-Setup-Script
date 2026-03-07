@@ -1,0 +1,59 @@
+# NTOPNG
+# GitHub: https://github.com/ntop/ntopng
+# Image: ntop/ntopng:stable
+# Docs: https://www.ntop.org/guides/ntopng/docker.html
+#
+# High-speed network traffic monitoring and analysis tool. Provides real-time
+# views of network flows, bandwidth usage, top talkers, protocol distribution,
+# geolocation, and active connections. Based on nProbe/PF_RING for performance.
+# Requires access to a network interface for packet capture.
+# Note: Full features (flow export, alerts, historical data) require a license.
+
+services:
+  ntopng:
+    image: ntop/ntopng:stable
+    container_name: ntopng
+    hostname: ntopng
+    restart: unless-stopped
+    # Host network mode required for direct interface access
+    network_mode: host
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/ntopng/config:/etc/ntopng
+      - ${BASE_DATA}/ntopng/data:/var/lib/ntopng
+    # When NOT using host network (limited capture via SPAN/port mirroring):
+    # ports:
+    #   - ${PORT_NTOPNG:-3000}:3000
+    command: >
+      --community
+      --interface=any
+      --http-port=3000
+      --data-dir=/var/lib/ntopng
+      --config=/etc/ntopng/ntopng.conf
+      --no-promisc
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_ADMIN
+
+# ============================================================
+# ntopng.conf example (place at ${BASE_DATA}/ntopng/config/ntopng.conf):
+# ============================================================
+# --interface=eth0       # Network interface to monitor (use 'any' for all)
+# --http-port=3000       # Web UI port
+# --community            # Community edition (no license required for basic features)
+# --disable-login=1      # Disable login (NOT for production use)
+# --local-networks=192.168.1.0/24  # Your local subnet(s)
+# --data-dir=/var/lib/ntopng
+#
+# Access web UI:
+#   http://your-server:3000 (host network) or http://your-server:${PORT_NTOPNG:-3000}
+#   Default login: admin / admin (change immediately)
+#
+# For production use with non-host networking, use a network TAP or
+# configure your switch/router for port mirroring to the Docker host.
+#
+# Enterprise features (flow export, historical analysis, alerts) require
+# a commercial license from ntop.org.
+# ============================================================

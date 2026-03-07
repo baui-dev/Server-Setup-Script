@@ -1,0 +1,35 @@
+# LARANODE
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/laranode/laranode → no such organization found
+# Docker Hub image laranode/laranode → does NOT exist
+#
+# The name blends "Laravel" and "Node.js" in a way that sounds constructed.
+# The described functionality (server management panel for Node.js and PHP, inspired by
+# Ploi and Laravel Forge) maps to real tools already in this stack.
+#
+# ✅ Verified alternatives for server/app management panels:
+#   - Coolify:     https://github.com/coollabsio/coolify          (self-hosted PaaS + server management)
+#                  Image: ghcr.io/coollabsio/coolify
+#   - Dokploy:     https://github.com/Dokploy/dokploy             (deployment platform)
+#                  Image: dokploy/dokploy
+#   - Caprover:    https://github.com/caprover/caprover           (Docker-based PaaS)
+#                  Image: caprover/caprover
+#   - 1Panel:      https://github.com/1Panel-dev/1Panel           (Linux server management)
+#                  Image: 1panel-dev/1panel
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Coolify or another verified server management tool.
+
+# services:
+#   laranode:
+#     image: laranode/laranode:latest  # ← DOES NOT EXIST
+#     container_name: laranode
+#     hostname: laranode
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/laranode/config:/config
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#     ports:
+#       - ${PORT_LARANODE:-8080}:8080

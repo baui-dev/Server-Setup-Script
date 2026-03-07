@@ -1,0 +1,31 @@
+# TAAABS
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/taaabs/taaabs → no such organization found
+# GHCR image ghcr.io/taaabs/taaabs → does NOT exist
+# The claimed name "TAAABS" (The All Around Awesome Bookmark System) reads as artificially constructed
+#
+# ✅ Verified alternatives for self-hosted bookmark managers:
+#   - Linkding:    https://github.com/sissbruecker/linkding        (simple bookmark service)
+#                  Image: sissbruecker/linkding
+#   - Linkwarden:  https://github.com/linkwarden/linkwarden        (collaborative bookmark manager)
+#                  Image: ghcr.io/linkwarden/linkwarden
+#   - Hoarder:     https://github.com/hoarder-app/hoarder          (bookmark + read-later with AI)
+#                  Image: ghcr.io/hoarder-app/hoarder
+#   - Karakeep:    https://github.com/karakeep-app/karakeep        (bookmark manager)
+#   - Omnivore:    https://github.com/omnivore-app/omnivore        (read-later + bookmarks)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Linkding or another verified bookmark manager.
+
+# services:
+#   taaabs:
+#     image: ghcr.io/taaabs/taaabs:latest  # ← DOES NOT EXIST
+#     container_name: taaabs
+#     hostname: taaabs
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/taaabs/config:/config
+#     ports:
+#       - ${PORT_TAAABS:-3000}:3000

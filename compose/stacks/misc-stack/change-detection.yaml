@@ -1,0 +1,61 @@
+# ChangeDetection.io
+# GitHub: https://github.com/dgtlmoon/changedetection.io
+# Image: ghcr.io/dgtlmoon/changedetection.io:latest
+# Docs: https://changedetection.io / https://github.com/dgtlmoon/changedetection.io/wiki
+#
+# Website change monitoring and notification service. Watches web pages for
+# content changes and dispatches alerts via email, Slack, Discord, and 80+
+# other channels. Optional Playwright/Chrome sidecar enables monitoring of
+# JavaScript-rendered pages behind logins or dynamic content.
+
+services:
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io:latest
+    container_name: changedetection
+    hostname: changedetection
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - BASE_URL=https://changedetection.${DOMAIN}
+      # Connect to Playwright sidecar for JS-heavy page support
+      - PLAYWRIGHT_DRIVER_URL=ws://playwright-chrome:3000/?stealth=1&--disable-web-security=true
+      # Optionally set a password for the web UI
+      # - PASSWORD=changeme
+      # Proxy support (uncomment if needed)
+      # - HTTP_PROXY=
+      # - HTTPS_PROXY=
+      # - NO_PROXY=
+      - HIDE_REFERER=false
+    volumes:
+      - ${BASE_DATA}/changedetection/datastore:/datastore
+    ports:
+      - ${PORT_CHANGE_DETECTION}:5000
+    depends_on:
+      - playwright-chrome
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  # Playwright/Chrome browser sidecar for JavaScript-rendered pages.
+  # Remove this service and the PLAYWRIGHT_DRIVER_URL env above if not needed.
+  playwright-chrome:
+    image: browserless/chrome:latest
+    container_name: changedetection-playwright
+    hostname: changedetection-playwright
+    restart: unless-stopped
+    environment:
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1024
+      - SCREEN_DEPTH=16
+      - ENABLE_DEBUGGER=false
+      - PREBOOT_CHROME=true
+      - CONNECTION_TIMEOUT=300000
+      - MAX_CONCURRENT_SESSIONS=10
+      - CHROME_REFRESH_TIME=600000
+      - DEFAULT_BLOCK_ADS=true
+      - DEFAULT_STEALTH=true
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

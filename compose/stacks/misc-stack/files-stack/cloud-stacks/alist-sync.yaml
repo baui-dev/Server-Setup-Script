@@ -1,0 +1,39 @@
+# AList Sync
+# GitHub: https://github.com/alist-org/alist-sync
+# Image: ghcr.io/alist-org/alist-sync:latest
+# Docs: https://github.com/alist-org/alist-sync#readme
+#
+# Companion synchronisation tool for AList. Copies or mirrors files between
+# any two AList-registered storage paths, enabling scheduled sync between
+# cloud providers, network shares, or local directories managed by AList.
+# Supports one-way copy, two-way sync, and incremental transfers.
+# NOTE: Verify the upstream image tag against the GitHub releases page.
+
+services:
+  alist-sync:
+    image: ghcr.io/alist-org/alist-sync:latest
+    container_name: alist-sync
+    hostname: alist-sync
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # AList base URL and admin token
+      - ALIST_BASE_URL=http://alist:5244
+      - ALIST_TOKEN=${ALIST_ADMIN_TOKEN:-changeme}
+      # Sync schedule (cron format)
+      - SYNC_CRON=0 3 * * *
+      # Source and destination paths within AList (e.g. /local/backup -> /onedrive/backup)
+      - SYNC_SRC=/local/source
+      - SYNC_DST=/remote/destination
+      # Sync mode: copy | sync | move
+      - SYNC_MODE=copy
+      # Delete destination files not present in source (sync mode only)
+      - SYNC_DELETE=false
+    volumes:
+      - ${BASE_DATA}/alist-sync/config:/app/config
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

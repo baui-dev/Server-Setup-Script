@@ -1,0 +1,73 @@
+# NETDATA
+# GitHub: https://github.com/netdata/netdata
+# Image: netdata/netdata:latest
+# Docs: https://learn.netdata.cloud/docs/netdata-agent/installation/docker
+#
+# Real-time, distributed performance and health monitoring for servers,
+# containers, VMs, and IoT devices. Collects thousands of metrics per second
+# with per-second granularity. Features ML-based anomaly detection, built-in
+# dashboards, alerting, and optional cloud integration (Netdata Cloud).
+# Note: Placed in vpn-stacks directory; it is a monitoring tool that can
+# monitor VPN/networking metrics alongside other system stats.
+
+services:
+  netdata:
+    image: netdata/netdata:latest
+    container_name: netdata
+    hostname: ${NETDATA_HOSTNAME:-netdata-server}
+    restart: unless-stopped
+    pid: host
+    network_mode: host
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - TZ=${TZ}
+      # Netdata Cloud claim token (optional, for cloud integration)
+      # Get from: https://app.netdata.cloud
+      # - NETDATA_CLAIM_TOKEN=${NETDATA_CLAIM_TOKEN}
+      # - NETDATA_CLAIM_URL=https://app.netdata.cloud
+      # - NETDATA_CLAIM_ROOMS=${NETDATA_CLAIM_ROOMS}
+      # Custom hostname for this node in Netdata Cloud
+      # - NETDATA_HOSTNAME=${HOSTNAME:-homeserver}
+    volumes:
+      - ${BASE_DATA}/netdata/config:/etc/netdata
+      - ${BASE_DATA}/netdata/lib:/var/lib/netdata
+      - ${BASE_DATA}/netdata/cache:/var/cache/netdata
+      # Required for full system metrics
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /etc/localtime:/host/etc/localtime:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      # Docker container metrics
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    # When not using host network:
+    # ports:
+    #   - ${PORT_NETDATA:-19999}:19999
+
+# ============================================================
+# Netdata features:
+# - Real-time metrics: CPU, memory, disk, network, processes
+# - Docker container monitoring
+# - Application monitoring: Nginx, Apache, MySQL, Redis, etc.
+# - ML anomaly detection
+# - Built-in alerting system
+# - Optional Netdata Cloud integration for centralized monitoring
+#
+# Access:
+#   http://your-server:19999 (when using host network)
+#   http://your-server:${PORT_NETDATA:-19999} (when using bridge network)
+#
+# Custom configuration:
+#   ${BASE_DATA}/netdata/config/netdata.conf
+#   ${BASE_DATA}/netdata/config/health_alarm_notify.conf
+#   ${BASE_DATA}/netdata/config/health.d/*.conf (alert rules)
+#
+# Netdata CLI:
+#   docker exec netdata netdatacli reload-health
+#   docker exec netdata netdatacli ping
+# ============================================================

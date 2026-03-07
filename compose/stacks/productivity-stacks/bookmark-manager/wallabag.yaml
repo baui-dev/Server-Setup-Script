@@ -1,0 +1,100 @@
+# Wallabag
+# GitHub: https://github.com/wallabag/wallabag
+# Image: wallabag/wallabag:latest
+# Docs: https://doc.wallabag.org/en/admin/installation/installation.html
+#
+# Self-hosted read-it-later / web archiving service. Save articles, annotate,
+# highlight, and read offline. Supports browser extensions, mobile apps (iOS
+# and Android), RSS feeds, and a comprehensive REST API.
+# Requires a database backend (PostgreSQL shown here) and optional Redis cache.
+#
+# Required env vars: POSTGRES_USER, POSTGRES_PASSWORD
+# On first run set POPULATE_DATABASE=true, then set to false for subsequent starts.
+
+services:
+  wallabag:
+    image: wallabag/wallabag:latest
+    container_name: wallabag
+    hostname: wallabag
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Database backend (pdo_pgsql for PostgreSQL, pdo_mysql for MySQL/MariaDB)
+      - SYMFONY__ENV__DATABASE_DRIVER=pdo_pgsql
+      - SYMFONY__ENV__DATABASE_HOST=wallabag-postgres
+      - SYMFONY__ENV__DATABASE_PORT=5432
+      - SYMFONY__ENV__DATABASE_NAME=wallabag
+      - SYMFONY__ENV__DATABASE_USER=${POSTGRES_USER}
+      - SYMFONY__ENV__DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+      - SYMFONY__ENV__DATABASE_TABLE_PREFIX=wallabag_
+      # Application secret (any random string)
+      - SYMFONY__ENV__SECRET=${WALLABAG_SECRET:-changeme_make_this_random}
+      # Public domain name (must match your actual domain)
+      - SYMFONY__ENV__DOMAIN_NAME=https://${DOMAIN}
+      - SYMFONY__ENV__SERVER_NAME="Wallabag"
+      # Redis cache (optional but recommended for performance)
+      - SYMFONY__ENV__REDIS_SCHEME=tcp
+      - SYMFONY__ENV__REDIS_HOST=wallabag-redis
+      - SYMFONY__ENV__REDIS_PORT=6379
+      - SYMFONY__ENV__REDIS_PASSWORD=${REDIS_PASSWORD}
+      # Disable public user registration
+      - SYMFONY__ENV__FOSUSER_REGISTRATION=false
+      - SYMFONY__ENV__FOSUSER_CONFIRMATION=false
+      # Email configuration (for password reset, etc.)
+      # - SYMFONY__ENV__MAILER_HOST=smtp.${DOMAIN}
+      # - SYMFONY__ENV__MAILER_USER=${WALLABAG_SMTP_USER}
+      # - SYMFONY__ENV__MAILER_PASSWORD=${WALLABAG_SMTP_PASSWORD}
+      # - SYMFONY__ENV__FROM_EMAIL=wallabag@${DOMAIN}
+      # Initial database population: set true on FIRST RUN ONLY, then set false
+      - POPULATE_DATABASE=false
+    volumes:
+      - ${BASE_DATA}/wallabag/data:/var/www/wallabag/data
+      - ${BASE_DATA}/wallabag/images:/var/www/wallabag/web/assets/images
+    ports:
+      - ${PORT_WALLABAG:-80}:80
+    depends_on:
+      wallabag-postgres:
+        condition: service_healthy
+      wallabag-redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  wallabag-postgres:
+    image: postgres:16-alpine
+    container_name: wallabag-postgres
+    hostname: wallabag-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=wallabag
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/wallabag/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d wallabag"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  wallabag-redis:
+    image: redis:7-alpine
+    container_name: wallabag-redis
+    hostname: wallabag-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/wallabag/redis:/data
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

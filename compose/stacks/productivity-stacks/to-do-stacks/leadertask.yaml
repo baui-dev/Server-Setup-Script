@@ -1,0 +1,74 @@
+# LeaderTask
+# GitHub: https://github.com/leadertask/leadertask (verify on GitHub)
+# Image: leadertask/server:latest
+# Docs: https://help.leadertask.com
+#
+# Task and project management system with team collaboration features, Kanban
+# boards, Gantt charts, time tracking, and role-based access control.
+# Available as SaaS at leadertask.com with an optional self-hosted server edition.
+#
+# NOTE: LeaderTask's self-hosted Docker setup may require a license key or
+#       enterprise account. Verify the Docker image name, required environment
+#       variables, and licensing requirements at leadertask.com/self-hosted
+#       before deploying. Configuration shown here is a best-effort estimate.
+
+services:
+  leadertask:
+    image: leadertask/server:latest
+    container_name: leadertask
+    hostname: leadertask
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - NODE_ENV=production
+      # License key (required for self-hosted edition)
+      - LICENSE_KEY=${LEADERTASK_LICENSE_KEY}
+      # Database connection
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@leadertask-postgres:5432/leadertask
+      # Redis for sessions and queuing
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@leadertask-redis:6379
+      # Security
+      - JWT_SECRET=${LEADERTASK_JWT_SECRET:-changeme_generate_a_real_secret}
+      # Application URL
+      - APP_URL=https://${DOMAIN}
+      - PORT=3000
+    volumes:
+      - ${BASE_DATA}/leadertask/data:/app/data
+    ports:
+      - ${PORT_LEADERTASK:-3000}:3000
+    depends_on:
+      - leadertask-postgres
+      - leadertask-redis
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  leadertask-postgres:
+    image: postgres:16-alpine
+    container_name: leadertask-postgres
+    hostname: leadertask-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=leadertask
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/leadertask/postgres:/var/lib/postgresql/data
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  leadertask-redis:
+    image: redis:7-alpine
+    container_name: leadertask-redis
+    hostname: leadertask-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/leadertask/redis:/data
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

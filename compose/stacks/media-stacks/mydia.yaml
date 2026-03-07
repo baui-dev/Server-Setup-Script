@@ -1,0 +1,35 @@
+# MYDIA
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# CRITICAL: Namespace mismatch — GHCR image listed as ghcr.io/mydia/mydia but
+# GitHub URL listed as github.com/seifrajhi/mydia. These cannot both be correct.
+# For a GHCR image at ghcr.io/mydia/mydia, the GitHub owner must be "mydia", not "seifrajhi".
+# Docker image ghcr.io/mydia/mydia → does NOT exist
+# GitHub github.com/seifrajhi/mydia → seifrajhi is a DevOps engineer, not a media app developer
+# Note: "mydia.com" is a video-downloading website, not a self-hosted media tracker
+#
+# ✅ Verified alternatives for personal media tracking:
+#   - Ryot:          https://github.com/IgnisDa/ryot               (media tracker for movies/TV/books)
+#                    Image: ghcr.io/ignisda/ryot
+#   - MediaTracker:  https://github.com/bonukai/MediaTracker       (TV/movie/game tracker)
+#                    Image: bonukai/mediatracker
+#   - Trakt:         External service — no official self-hosted option
+#   - Jellyfin:      https://github.com/jellyfin/jellyfin          (with watch history)
+#                    Image: jellyfin/jellyfin
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified media tracking tool or remove this file.
+
+# services:
+#   mydia:
+#     image: ghcr.io/mydia/mydia:latest  # ← DOES NOT EXIST
+#     container_name: mydia
+#     hostname: mydia
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#     volumes:
+#       - ${BASE_DATA}/mydia/config:/config
+#     ports:
+#       - ${PORT_MYDIA:-6868}:6868

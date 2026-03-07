@@ -1,0 +1,32 @@
+# AList
+# GitHub: https://github.com/alist-org/alist
+# Image: xhofe/alist:latest
+# Docs: https://alist.nn.ci/guide/
+#
+# Self-hosted file list and WebDAV server supporting 40+ storage backends:
+# local disk, Alibaba Cloud Drive, OneDrive, Google Drive, Quark, 115, BaiduPan,
+# S3-compatible stores, FTP, SFTP, SMB, and many more. Unified web UI with
+# previews for images, video, audio, documents, and code.
+
+services:
+  alist:
+    image: xhofe/alist:latest
+    container_name: alist
+    hostname: alist
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Set to true to force a password reset on next start
+      - ALIST_FORCE_RESET_PASSWORD=false
+    volumes:
+      - ${BASE_DATA}/alist/data:/opt/alist/data
+    ports:
+      - ${PORT_ALIST}:5244
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,33 @@
+# BHOS (Browser-Hosted OS)
+# GitHub: https://github.com/bhargav1997/BHOS (community web OS project)
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/bhargav1997/BHOS
+#
+# BHOS is a browser-hosted operating system / web desktop environment.
+# No official Docker image is available. Clone the repo, build the static
+# assets, and serve them via nginx.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/bhargav1997/BHOS /tmp/bhos-src
+#   cd /tmp/bhos-src && npm install && npm run build
+#   cp -r /tmp/bhos-src/dist/* ${BASE_DATA}/bhos/html/
+
+services:
+  bhos:
+    image: nginx:alpine
+    container_name: bhos
+    hostname: bhos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/bhos/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/bhos/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_BHOS:-8885}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

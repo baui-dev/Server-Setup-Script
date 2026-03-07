@@ -1,0 +1,39 @@
+# ProzillaOS
+# GitHub: https://github.com/prozilla-os/ProzillaOS
+# Boilerplate: https://github.com/prozilla-os/ProzillaOS-boilerplate
+# Image: nginx:alpine (static React app - no official Docker image)
+# Docs: https://prozilla.dev/docs
+#
+# ProzillaOS is a web-based operating system built with React that runs
+# entirely in the browser. It features a desktop environment with a taskbar,
+# window management, file system, and bundled applications.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/prozilla-os/ProzillaOS /tmp/prozillaos-src
+#   cd /tmp/prozillaos-src && npm install && npm run build
+#   cp -r /tmp/prozillaos-src/dist/* ${BASE_DATA}/prozillaos/html/
+#
+# Or use the boilerplate for a custom build:
+#   git clone https://github.com/prozilla-os/ProzillaOS-boilerplate
+
+services:
+  prozillaos:
+    # No official Docker image available.
+    # Build from source: git clone https://github.com/prozilla-os/ProzillaOS
+    image: nginx:alpine
+    container_name: prozillaos
+    hostname: prozillaos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/prozillaos/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/prozillaos/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_PROZILLAOS:-8892}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

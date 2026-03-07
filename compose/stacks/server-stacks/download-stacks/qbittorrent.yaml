@@ -1,0 +1,67 @@
+# QBITTORRENT
+# GitHub: https://github.com/qbittorrent/qBittorrent
+# Image: lscr.io/linuxserver/qbittorrent:latest
+# Docs: https://docs.linuxserver.io/images/docker-qbittorrent/
+#
+# Full-featured, open-source BitTorrent client with a web UI.
+# Supports magnet links, sequential downloading, RSS feeds with
+# automatic downloading, IP filtering, encryption, and UPnP.
+# The linuxserver.io image includes the qBittorrent web interface
+# (replacing the desktop GUI) and runs with configurable PUID/PGID.
+
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    hostname: qbittorrent
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Web UI port (inside container, keep at 8085 or match PORT_QBITTORRENT)
+      - WEBUI_PORT=${PORT_QBITTORRENT:-8085}
+      # BitTorrent port (TCP+UDP, inside container)
+      - TORRENTING_PORT=${PORT_QBITTORRENT_TORRENT:-6881}
+    volumes:
+      # Application config (saves settings, torrents state, resume data)
+      - ${BASE_DATA}/qbittorrent/config:/config
+      # Download directory - must match paths set in qBittorrent settings
+      - ${DOWNLOADS_DIR:-/downloads}:/downloads
+      # Optional: separate incomplete downloads location
+      # - ${DOWNLOADS_DIR:-/downloads}/incomplete:/incomplete
+    ports:
+      # Web UI
+      - ${PORT_QBITTORRENT:-8085}:8085
+      # BitTorrent (TCP + UDP)
+      - ${PORT_QBITTORRENT_TORRENT:-6881}:6881/tcp
+      - ${PORT_QBITTORRENT_TORRENT:-6881}:6881/udp
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Access:
+#   http://your-server:${PORT_QBITTORRENT:-8085}
+#   Default password: printed in container logs on first start
+#   (docker logs qbittorrent | grep password)
+#
+# Initial configuration via Web UI:
+# 1. Change password under Settings -> Web UI -> Authentication
+# 2. Set download path: Settings -> Downloads -> Default save path -> /downloads
+# 3. Configure listen port: Settings -> Connection -> Listening port -> ${PORT_QBITTORRENT_TORRENT:-6881}
+# 4. Enable UPnP: Settings -> Connection -> Use UPnP/NAT-PMP
+#
+# Performance tuning:
+#   Settings -> Speed: set upload/download limits
+#   Settings -> Connection: max connections, max active torrents
+#   Settings -> BitTorrent: seeding goals (ratio, time)
+#
+# VPN integration (optional - route torrent traffic via VPN):
+#   Use gluetun or similar as a network proxy container
+#   Set network_mode: container:gluetun on this service
+#   Remove the ports section (gluetun handles port mapping)
+# ============================================================

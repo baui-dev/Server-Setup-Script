@@ -1,0 +1,33 @@
+# AaronOS
+# GitHub: https://github.com/MineAndCraft12/AaronOS
+# Image: php:8-apache (no official Docker image - served from source)
+# Docs: https://github.com/MineAndCraft12/AaronOS
+#
+# AaronOS is a browser-based web desktop environment built with PHP and
+# JavaScript that simulates a full OS experience in the browser. There is no
+# official Docker image, so the PHP source is served directly via php:apache.
+#
+# Setup: Clone the repo into ${BASE_DATA}/aaronos/html before starting:
+#   git clone https://github.com/MineAndCraft12/AaronOS ${BASE_DATA}/aaronos/html
+
+services:
+  aaronos:
+    image: php:8-apache
+    container_name: aaronos
+    hostname: aaronos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      # Clone source before starting:
+      #   git clone https://github.com/MineAndCraft12/AaronOS \
+      #     ${BASE_DATA}/aaronos/html
+      - ${BASE_DATA}/aaronos/html:/var/www/html
+    ports:
+      - ${PORT_AARONOS:-8881}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,31 @@
+# LEAVEPAD
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/leavepad/leavepad → no such organization found
+# GHCR image ghcr.io/leavepad/leavepad → does NOT exist
+#
+# ✅ Verified alternatives for self-hosted note taking:
+#   - Memos:       https://github.com/usememos/memos              (lightweight note app)
+#                  Image: neosmemo/memos
+#   - Joplin:      https://github.com/laurent22/joplin            (markdown notes with sync)
+#                  Image: joplin/joplin-server
+#   - SiYuan:      https://github.com/siyuan-note/siyuan          (local-first note app)
+#                  Image: b3log/siyuan
+#   - Trilium:     https://github.com/zadam/trilium               (hierarchical notes)
+#                  Image: zadam/trilium
+#   - Notesnook:   https://github.com/streetwriters/notesnook     (encrypted notes)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Memos or another verified note-taking app.
+
+# services:
+#   leavepad:
+#     image: ghcr.io/leavepad/leavepad:latest  # ← DOES NOT EXIST
+#     container_name: leavepad
+#     hostname: leavepad
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/leavepad/config:/config
+#     ports:
+#       - ${PORT_LEAVEPAD:-3000}:3000

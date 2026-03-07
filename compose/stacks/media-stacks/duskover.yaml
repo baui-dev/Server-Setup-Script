@@ -1,0 +1,38 @@
+# DUSKOVER
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# Searched GitHub: github.com/duskover/duskover → no such organization or repository found
+# GHCR image ghcr.io/duskover/duskover → does NOT exist
+#
+# The described functionality (media library scanning, *arr ecosystem integration,
+# background library maintenance, metadata fetching) is already covered by verified tools.
+# No project named "Duskover" could be located anywhere.
+#
+# ✅ Verified alternatives for media library scanning and management:
+#   - Radarr:      https://github.com/Radarr/Radarr               (movie management)
+#                  Image: lscr.io/linuxserver/radarr
+#   - Sonarr:      https://github.com/Sonarr/Sonarr               (TV show management)
+#                  Image: lscr.io/linuxserver/sonarr
+#   - Jellyfin:    https://github.com/jellyfin/jellyfin           (media server with library scan)
+#                  Image: jellyfin/jellyfin
+#   - Plex Meta Manager: https://github.com/meisnate12/Plex_Meta_Manager
+#                  Image: meisnate12/plex-meta-manager
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified media management tool or remove this file.
+
+# services:
+#   duskover:
+#     image: ghcr.io/duskover/duskover:latest  # ← DOES NOT EXIST
+#     container_name: duskover
+#     hostname: duskover
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#     volumes:
+#       - ${BASE_DATA}/duskover/config:/config
+#       - ${MOVIES_DIR}:/movies:ro
+#       - ${TV_DIR}:/tv:ro
+#     ports:
+#       - ${PORT_DUSKOVER:-8080}:8080

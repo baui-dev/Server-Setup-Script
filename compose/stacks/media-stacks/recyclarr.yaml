@@ -1,0 +1,40 @@
+# RECYCLARR
+# GitHub: https://github.com/recyclarr/recyclarr
+# Image: ghcr.io/recyclarr/recyclarr:8  (latest stable major version)
+# Docs: https://recyclarr.dev/wiki
+#
+# Recyclarr is a command-line tool that automatically synchronizes recommended
+# settings from the TRaSH Guides (https://trash-guides.info) to your Sonarr and
+# Radarr instances. It syncs custom formats, quality profiles, and quality definitions.
+# Runs on a schedule (cron) — no web UI. All configuration via recyclarr.yml.
+#
+# NOTE: The `latest` tag is no longer published. Use the major version tag (currently `8`).
+# Check https://github.com/recyclarr/recyclarr/releases for the latest major version.
+#
+# === QUICK START ===
+# 1. Start the container: docker compose -f recyclarr.yaml up -d
+# 2. Generate starter config: docker exec recyclarr recyclarr config create
+# 3. Edit ${BASE_DATA}/recyclarr/config/recyclarr.yml with your Sonarr/Radarr API keys
+# 4. Manual sync: docker exec recyclarr recyclarr sync
+# 5. The container will also sync automatically per CRON_SCHEDULE
+
+services:
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:8
+    container_name: recyclarr
+    hostname: recyclarr
+    restart: unless-stopped
+    user: ${PUID:-1000}:${PGID:-1000}
+    environment:
+      - TZ=${TZ}
+      - CRON_SCHEDULE=${RECYCLARR_CRON:-@daily}     # Sync schedule: @daily, @weekly, or cron expr
+      # - RECYCLARR_CREATE_CONFIG=true               # Create starter config on first run
+    volumes:
+      - ${BASE_DATA}/recyclarr/config:/config        # recyclarr.yml and local custom formats
+    # No ports exposed - CLI/background tool, no web interface
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

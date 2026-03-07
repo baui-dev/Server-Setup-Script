@@ -1,0 +1,32 @@
+# TERMIX (server-management variant)
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/nicholaswilde/termix → no such repository found for this user
+# GHCR image ghcr.io/nicholaswilde/termix → does NOT exist
+# Note: nicholaswilde is a real GitHub user but has no "termix" project
+# Multiple hallucinated projects were attributed to this user (arcana, dockhand, deq, mina-server)
+#
+# ✅ Verified alternatives for web-based terminal access:
+#   - ttyd:        https://github.com/tsl0922/ttyd                (web terminal, shares any command)
+#                  Image: tsl0922/ttyd
+#   - Gotty:       https://github.com/yudai/gotty                 (CLI tool as web app)
+#   - Wetty:       https://github.com/butlerx/wetty               (web terminal over SSH)
+#                  Image: wettyoss/wetty
+#   - Nexterm:     https://github.com/gnmyt/nexterm               (multi-server web terminal)
+#                  Image: ghcr.io/gnmyt/nexterm
+#   - Upterm:      https://github.com/owenthereal/upterm          (terminal sharing via SSH)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with ttyd, Nexterm, or another verified web terminal tool.
+
+# services:
+#   termix:
+#     image: ghcr.io/nicholaswilde/termix:latest  # ← DOES NOT EXIST
+#     container_name: termix
+#     hostname: termix
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/termix/config:/config
+#     ports:
+#       - ${PORT_TERMIX:-3000}:3000

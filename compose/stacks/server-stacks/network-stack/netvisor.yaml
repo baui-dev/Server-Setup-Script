@@ -1,0 +1,33 @@
+# NETVISOR
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/nicholasgasior/netvisor → no such repository known for this user
+# Docker Hub image netvisor/netvisor → does NOT exist
+# Note: YAML had a namespace inconsistency — Docker Hub org "netvisor" vs GitHub user "nicholasgasior"
+#   This mismatch itself signals the content was AI-generated without verification
+#
+# ✅ Verified alternatives for network visualization and monitoring:
+#   - ntopng:      https://github.com/ntop/ntopng                 (network traffic analysis)
+#                  Image: ntop/ntopng
+#   - Netdata:     https://github.com/netdata/netdata             (real-time network monitoring)
+#                  Image: netdata/netdata
+#   - Grafana+Prometheus: comprehensive network metrics stack
+#   - Prometheus + node_exporter: for host network stats
+#   - LibreNMS:    https://github.com/librenms/librenms           (network monitoring)
+#                  Image: librenms/librenms
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified network monitoring tool or remove this file.
+
+# services:
+#   netvisor:
+#     image: netvisor/netvisor:latest  # ← DOES NOT EXIST
+#     container_name: netvisor
+#     hostname: netvisor
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/netvisor/config:/config
+#       - ${BASE_DATA}/netvisor/data:/data
+#     ports:
+#       - ${PORT_NETVISOR:-8080}:8080

@@ -1,0 +1,76 @@
+# Joplin Server
+# GitHub: https://github.com/laurent22/joplin
+# Image: joplin/server:latest
+# Docs: https://github.com/laurent22/joplin/blob/dev/packages/server/README.md
+#
+# Self-hosted sync server for the Joplin note-taking application.
+# Allows syncing notes across the Joplin desktop and mobile clients.
+# Requires PostgreSQL. The Joplin clients (desktop/mobile) connect to this server
+# as their sync target.
+#
+# After setup: in Joplin app, go to Tools > Options > Synchronisation,
+# choose "Joplin Server", and enter: https://${DOMAIN}
+
+services:
+  joplin:
+    image: joplin/server:latest
+    container_name: joplin
+    hostname: joplin
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Application configuration
+      - APP_PORT=22300
+      - APP_BASE_URL=https://${DOMAIN}
+      # Database backend (pg = PostgreSQL)
+      - DB_CLIENT=pg
+      - POSTGRES_HOST=joplin-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=joplin
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      # Mailer (optional, for user invitations and password reset)
+      # - MAILER_ENABLED=1
+      # - MAILER_HOST=smtp.${DOMAIN}
+      # - MAILER_PORT=587
+      # - MAILER_SECURITY=starttls
+      # - MAILER_AUTH_USER=${JOPLIN_SMTP_USER}
+      # - MAILER_AUTH_PASSWORD=${JOPLIN_SMTP_PASSWORD}
+      # - MAILER_NOREPLY_EMAIL=joplin@${DOMAIN}
+      # - MAILER_NOREPLY_NAME=Joplin
+      # Storage (local filesystem or S3-compatible)
+      # - STORAGE_DRIVER=Type=Filesystem; Path=/home/joplin/files
+      # S3 storage (uncomment and configure if using object storage):
+      # - STORAGE_DRIVER=Type=S3; Region=us-east-1; AccessKeyId=${JOPLIN_S3_KEY}; SecretAccessKey=${JOPLIN_S3_SECRET}; Bucket=joplin; ForcePathStyle=false
+    volumes:
+      - ${BASE_DATA}/joplin/data:/home/joplin/files
+    ports:
+      - ${PORT_JOPLIN:-22300}:22300
+    depends_on:
+      joplin-postgres:
+        condition: service_healthy
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  joplin-postgres:
+    image: postgres:16-alpine
+    container_name: joplin-postgres
+    hostname: joplin-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=joplin
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/joplin/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d joplin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

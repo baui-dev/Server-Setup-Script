@@ -1,0 +1,59 @@
+# RUSTDESK SERVER
+# GitHub: https://github.com/rustdesk/rustdesk-server
+# Image: rustdesk/rustdesk-server:latest
+# Docs: https://rustdesk.com/docs/en/self-host/rustdesk-server-oss/docker
+#
+# RustDesk Server is the self-hosted backend for the RustDesk remote desktop
+# client. Consists of two services:
+#   hbbs — ID/rendezvous server (handles peer discovery and NAT traversal)
+#   hbbr — relay server (relays traffic when direct connections fail)
+#
+# After deployment, note the public key printed in the hbbs logs and
+# configure it in the RustDesk client under Custom Server settings.
+
+services:
+  rustdesk-hbbs:
+    image: rustdesk/rustdesk-server:latest
+    container_name: rustdesk-hbbs
+    hostname: rustdesk-hbbs
+    restart: unless-stopped
+    command: hbbs
+    depends_on:
+      - rustdesk-hbbr
+    environment:
+      - TZ=${TZ}
+    volumes:
+      # Stores server keys (id_ed25519, id_ed25519.pub) and peer data
+      - ${BASE_DATA}/rustdesk/data:/root
+    ports:
+      # TCP: ID server (client registration and NAT punch-through)
+      - ${PORT_RUSTDESK}:21115
+      # TCP+UDP: signal server (heartbeat, punch-through coordination)
+      - ${PORT_RUSTDESK_SIGNAL}:21116
+      - ${PORT_RUSTDESK_SIGNAL}:21116/udp
+      # TCP: web client (rustdesk-server-pro only)
+      - "21118:21118"
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  rustdesk-hbbr:
+    image: rustdesk/rustdesk-server:latest
+    container_name: rustdesk-hbbr
+    hostname: rustdesk-hbbr
+    restart: unless-stopped
+    command: hbbr
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/rustdesk/data:/root
+    ports:
+      # TCP: relay server (proxies encrypted traffic between peers)
+      - "21117:21117"
+      # TCP: web socket relay (browser client support)
+      - "21119:21119"
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

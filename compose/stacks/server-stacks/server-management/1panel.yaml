@@ -1,1 +1,36 @@
-bash -c "$(curl -sSL https://resource.1panel.pro/quick_start.sh)"
+# 1PANEL
+# GitHub: https://github.com/1panel-dev/1panel
+# Image: registry.cn-hangzhou.aliyuncs.com/1panel/1panel:latest
+# Docs: https://1panel.pro/docs
+#
+# 1Panel is a modern, open-source Linux server management panel with a web UI.
+# Features include website management, container management, database management,
+# scheduled tasks, file management, and one-click app installs.
+# NOTE: The recommended install method is via the official script. Docker deployment
+# may have limited functionality compared to native installation.
+#
+# Official install: bash -c "$(curl -sSL https://resource.1panel.pro/quick_start.sh)"
+
+services:
+  1panel:
+    image: registry.cn-hangzhou.aliyuncs.com/1panel/1panel:latest
+    container_name: 1panel
+    hostname: 1panel
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ=${TZ}
+      # Initial panel port — default 10086
+      - PANEL_PORT=${PORT_1PANEL:-10086}
+      # Initial admin username
+      - PANEL_USERNAME=${PANEL_USERNAME:-admin}
+      # Initial admin password
+      - PANEL_PASSWORD=${PANEL_PASSWORD:-${SECRET_KEY}}
+    volumes:
+      - ${BASE_DATA}/1panel/data:/var/lib/1panel
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc:/etc
+      - /var/log:/var/log
+    # ports exposed via network_mode: host
+    # - ${PORT_1PANEL:-10086}:10086

@@ -1,0 +1,38 @@
+# HOMEHOST (CINE)
+# GitHub: https://github.com/home-host/homehost
+# Image: ghcr.io/home-host/homehost:latest
+# Docs: https://github.com/home-host/homehost
+#
+# HomeHost is a self-hosted media streaming platform that provides a Netflix-style
+# interface for your personal movie and TV show collection. It scans your media
+# library and presents it through a polished, user-friendly web interface with
+# metadata fetched from TMDB/IMDB.
+#
+# NOTE: Verify the correct Docker image name and port for your version.
+# Check the upstream repository for the latest configuration and image tags.
+
+services:
+  homehost:
+    image: ghcr.io/home-host/homehost:latest
+    container_name: homehost-cine
+    hostname: homehost-cine
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - TMDB_API_KEY=${TMDB_API_KEY}           # TMDB API key for fetching metadata and posters
+      # - BASE_URL=${HOMEHOST_BASE_URL}           # External URL for generating deep links
+      # - ADMIN_PASSWORD=${HOMEHOST_ADMIN_PASS}  # Initial admin password
+    volumes:
+      - ${BASE_DATA}/homehost/config:/config     # HomeHost configuration and database
+      - ${MOVIES_DIR}:/movies:ro                 # Movie library (read-only)
+      - ${TV_DIR}:/tv:ro                         # TV show library (read-only)
+    ports:
+      - ${PORT_HOMEHOST:-3000}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

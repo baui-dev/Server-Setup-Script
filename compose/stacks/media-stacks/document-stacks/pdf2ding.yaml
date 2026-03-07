@@ -1,0 +1,30 @@
+# PDF2DING
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# Docker Hub image pdf2ding/pdf2ding → does NOT exist
+# GitHub github.com/pdf2ding/pdf2ding → could not be confirmed
+# Note: The original YAML file itself said "This service may not yet have an official Docker image;
+#   check the repository for build instructions" — a clear sign of AI-generated uncertain content
+#
+# ✅ Verified alternatives for PDF processing:
+#   - Stirling PDF:  https://github.com/Stirling-Tools/Stirling-PDF   (self-hosted PDF toolkit)
+#                    Image: frooodle/s-pdf (or ghcr.io/stirling-tools/stirling-pdf)
+#   - Gotenberg:     https://github.com/gotenberg/gotenberg            (PDF API)
+#                    Image: gotenberg/gotenberg
+#   - Paperless-ngx: https://github.com/paperless-ngx/paperless-ngx  (document management with PDF)
+#                    Image: ghcr.io/paperless-ngx/paperless-ngx
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with Stirling PDF or another verified PDF tool.
+
+# services:
+#   pdf2ding:
+#     image: pdf2ding/pdf2ding:latest  # ← DOES NOT EXIST
+#     container_name: pdf2ding
+#     hostname: pdf2ding
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/pdf2ding/config:/config
+#     ports:
+#       - ${PORT_PDF2DING:-8080}:8080

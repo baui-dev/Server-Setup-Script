@@ -1,0 +1,38 @@
+# OPENPANEL
+# GitHub: https://github.com/stefanpejcic/OpenPanel
+# Image: openpanel/openpanel:latest
+# Docs: https://docs.openpanel.com
+#
+# OpenPanel is a free, open-source web hosting control panel for self-hosted
+# environments. Supports multi-user hosting, Docker-based isolation per user,
+# website management, databases, SSL/TLS, and email.
+# NOTE: OpenPanel is primarily designed for native installation. Docker deployment
+# may require privileged access. Check docs for containerized install options.
+
+services:
+  openpanel:
+    image: openpanel/openpanel:latest
+    container_name: openpanel
+    hostname: openpanel
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - TZ=${TZ}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${SECRET_KEY}
+    volumes:
+      - ${BASE_DATA}/openpanel/data:/etc/openpanel
+      - ${BASE_DATA}/openpanel/websites:/home
+      - ${BASE_DATA}/openpanel/mysql:/var/lib/mysql
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - ${PORT_OPENPANEL}:2087
+      # Optional: expose website hosting ports
+      # - "80:80"
+      # - "443:443"
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

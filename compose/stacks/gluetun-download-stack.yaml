@@ -1,383 +1,985 @@
-version: "3"
+# =============================================================================
+# Gluetun Download Stack - Docker Compose
+# =============================================================================
+#
+# This file defines a complete download stack routed through the Gluetun VPN
+# container. Containers using `network_mode: "service:gluetun"` share Gluetun's
+# network namespace and have all traffic routed through the VPN tunnel.
+#
+# Services included:
+#
+#   VPN Gateway:
+#     - gluetun             (VPN gateway - all tunnelled services route through this)
+#
+#   Download Clients (VPN-routed via Gluetun):
+#     - qbittorrent         (BitTorrent client with VueTorrent UI mod)
+#     - sabnzbd             (Usenet binary newsreader)
+#     - jdownloader-2       (Direct download manager, noVNC Web UI)
+#     - pyload-ng           (Direct download manager)
+#     - slskd               (Soulseek P2P client)
+#
+#   Indexers / Search (VPN-routed via Gluetun):
+#     - bitmagnet           (BitTorrent DHT crawler and search engine)
+#     - bitmagnet-postgres  (PostgreSQL database required by Bitmagnet)
+#     - prowlarr            (Indexer manager and proxy for arr apps)
+#     - autobrr             (IRC announce channel download automation)
+#
+#   *arr Suite (VPN-routed via Gluetun):
+#     - radarr              (Movie collection manager)
+#     - sonarr              (TV show collection manager)
+#     - bazarr              (Subtitle manager for Radarr/Sonarr)
+#     - lidarr              (Music collection manager)
+#
+#   Management (Direct networking, no VPN):
+#     - maintainerr         (Media library maintenance / cleanup)
+#     - jellyseerr          (Media request management for Jellyfin)
+#     - profilarr           (Quality profile sync for arr apps)
+#     - notifiarr           (Unified notification hub for arr apps)
+#
+#   Commented out (optional / one-shot):
+#     - configarr           (Configuration-as-code for arr apps)
+#
+# Usage:
+#   docker compose --env-file /path/to/config.env up -d
+#
+# All configurable values are sourced from config.env. Required variables:
+#   BASE_DATA, DOWNLOADS_DIR, TZ, PUID, PGID
+#   VPN_SERVICE_PROVIDER, VPN_TYPE, WIREGUARD_PRIVATE_KEY, WIREGUARD_ADDRESSES
+#   VPN_SERVER_CITIES, UPDATER_PERIOD, VPN_PORT_FORWARDING
+#   PORT_* (see config.env for the full port list)
+#   POSTGRES_PASSWORD, POSTGRES_USER
+#
+# PORT CONFLICT WARNING:
+#   PORT_GLUETUN_CONTROL and PORT_PYLOAD both default to 8000 in config.env.
+#   Gluetun's internal control server binds to port 8000 inside the shared
+#   network namespace. If pyload-ng also tries to bind to 8000, the containers
+#   will conflict and one will fail to start. Resolve this by either:
+#     - Setting PORT_PYLOAD to a different value (e.g. 8001) in config.env, OR
+#     - Adding HTTP_CONTROL_SERVER_PORT=<other_port> to gluetun's environment
+#       and updating the healthcheck test to use that port.
+# =============================================================================
+
 services:
+
+  # ===========================================================================
+  # GLUETUN - VPN Gateway
+  # GitHub:  https://github.com/qdm12/gluetun
+  # Wiki:    https://github.com/qdm12/gluetun-wiki
+  #
+  # Gluetun is a VPN client in a container that supports many providers
+  # (Mullvad, NordVPN, ExpressVPN, etc.) and VPN protocols (WireGuard, OpenVPN).
+  # It acts as a network gateway: every container with
+  #   network_mode: "service:gluetun"
+  # joins Gluetun's network namespace and routes all traffic through the VPN.
+  #
+  # Because those containers share one network namespace, ALL ports for ALL
+  # tunnelled services must be declared here on the gluetun service.
+  # Services that share Gluetun's namespace do NOT have their own `ports:` keys.
+  #
+  # External container networking:
+  #   https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md
+  # ===========================================================================
   gluetun:
-    image: qmcgaw/gluetun
+    image: qmcgaw/gluetun:latest
     container_name: gluetun
-    # Hostname to use for container, required in some instances for the rest of the stack to each other endpoints 
+    # Hostname is required so services in other Compose stacks can reach
+    # Gluetun-routed services by a stable name (e.g. http://gluetun:8085).
     hostname: gluetun
-    # line above must be uncommented to allow external containers to connect.
-    # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md#external-container-to-gluetun
+    # NET_ADMIN is required to create and manage the VPN tunnel interface.
     cap_add:
       - NET_ADMIN
+    # /dev/net/tun is the kernel TUN device used to create the VPN tunnel.
     devices:
       - /dev/net/tun:/dev/net/tun
+    # -------------------------------------------------------------------------
+    # Ports - ALL tunnelled services expose their ports HERE.
+    # Because every tunnelled service shares Gluetun's network namespace, this
+    # is the only place where port mappings can be declared for those services.
+    # Format: "<host_port>:<container_port>[/protocol]"
+    # -------------------------------------------------------------------------
     ports:
-      - 6881:6881
-      - 6881:6881/udp
+      # --- Gluetun HTTP Control Server ---
+      # Internal REST API used for health checks, status queries, and VPN
+      # control. The container always listens on port 8000 internally.
+      # See: https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/control-server.md
+      # WARNING: PORT_GLUETUN_CONTROL and PORT_PYLOAD both default to 8000.
+      # Change one of them in config.env before starting (see header note above).
+      - "${PORT_GLUETUN_CONTROL}:8000"       # Gluetun control server (internal port is always 8000)
 
-      - 3333:3333 # Bitmagnet
-      - 7878:7878 # Radarr
-      - 7474:7474 # Autobrr
+      # --- qBittorrent ---
+      - "${PORT_QBITTORRENT}:${PORT_QBITTORRENT}"                         # Web UI
+      - "${PORT_QBITTORRENT_TORRENT}:${PORT_QBITTORRENT_TORRENT}/tcp"     # BitTorrent TCP
+      - "${PORT_QBITTORRENT_TORRENT}:${PORT_QBITTORRENT_TORRENT}/udp"     # BitTorrent UDP
 
+      # --- SABnzbd ---
+      - "${PORT_SABNZBD}:${PORT_SABNZBD}"                                 # Web UI
 
-      - 8085:8085 # qbittorrent
-      - 8080:8080 # sabnzbd
-      - 5800:5800 # jdownloader-2
-      - 8000:8000 # pyload-ng
-      - 5030:5030 # slskd
-      
+      # --- JDownloader 2 ---
+      - "${PORT_JDOWNLOADER}:${PORT_JDOWNLOADER}"                         # noVNC Web UI
 
+      # --- pyLoad NG ---
+      - "${PORT_PYLOAD}:${PORT_PYLOAD}"                                   # Web UI
+      # - "9666:9666"                                                      # Click'n'Load browser integration (optional)
 
+      # --- slskd (Soulseek) ---
+      - "${PORT_SLSKD}:${PORT_SLSKD}"                                     # Web UI
+      # - "5031:5031"                                                      # slskd secondary HTTP port (optional)
+      - "${PORT_SLSKD_SOULSEEK}:${PORT_SLSKD_SOULSEEK}"                  # Soulseek P2P port
 
-      - 8989:8989 # Sonarr
-      - 9696:9696 # Prowlarr
-      - 6767:6767 # Bazarr
-      - 8686:8686 # Lidarr
+      # --- Bitmagnet ---
+      - "${PORT_BITMAGNET}:${PORT_BITMAGNET}"                             # API and Web UI
+      - "${PORT_BITMAGNET_TORRENT}:${PORT_BITMAGNET_TORRENT}/tcp"         # DHT BitTorrent TCP
+      - "${PORT_BITMAGNET_TORRENT}:${PORT_BITMAGNET_TORRENT}/udp"         # DHT BitTorrent UDP
+
+      # --- Prowlarr ---
+      - "${PORT_PROWLARR}:${PORT_PROWLARR}"                               # Web UI
+
+      # --- Autobrr ---
+      - "${PORT_AUTOBRR}:${PORT_AUTOBRR}"                                 # Web UI
+
+      # --- *arr Suite ---
+      - "${PORT_RADARR}:${PORT_RADARR}"                                   # Radarr Web UI
+      - "${PORT_SONARR}:${PORT_SONARR}"                                   # Sonarr Web UI
+      - "${PORT_BAZARR}:${PORT_BAZARR}"                                   # Bazarr Web UI
+      - "${PORT_LIDARR}:${PORT_LIDARR}"                                   # Lidarr Web UI
+
     volumes:
-      - /home/ubuntu/docker/arr-stack/gluetun:/gluetun
-    environment:
-      - VPN_SERVICE_PROVIDER=mullvad
-      - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=wOEI9rqqbDwnN8/Bpp22sVz48T71vJ4fYmFWujulwUU=
-      - WIREGUARD_ADDRESSES=10.64.222.21/32
-      - SERVER_CITIES=Amsterdam
-      # Timezone for accurate log times
-      - TZ=Europe/London
-      # Server list updater
-      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
-      - UPDATER_PERIOD=24h
-      - VPN_PORT_FORWARDING=on
+      # Gluetun configuration directory.
+      # Stores server lists, firewall rules, and other persistent state.
+      - ${BASE_DATA}/gluetun/config:/gluetun
 
-#Indexer Stack
-services:
-  prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
-    container_name: prowlarr
-    hostname: prowlarr
-    network_mode: "service:gluetun"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - /home/ubuntu/docker/arr-stack/prowlarr/data:/config
-    restart: unless-stopped
+      # -----------------------------------------------------------------------
+      # VPN Provider
+      # Supported providers: https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
+      # -----------------------------------------------------------------------
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
 
-    services:
-  autobrr:
-    container_name: autobrr
-    hostname: autobrr
-    network_mode: "service:gluetun"
-    image: ghcr.io/autobrr/autobrr:latest
-    restart: unless-stopped
-    environment:
+      # VPN protocol to use. Options: wireguard | openvpn
+      - VPN_TYPE=${VPN_TYPE}
+
+      # -----------------------------------------------------------------------
+      # WireGuard Configuration (used when VPN_TYPE=wireguard)
+      # -----------------------------------------------------------------------
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      # Optional: WireGuard pre-shared key (provider-dependent)
+      # - WIREGUARD_PRESHARED_KEY=${WIREGUARD_PRESHARED_KEY}
+
+      # -----------------------------------------------------------------------
+      # OpenVPN Configuration (used when VPN_TYPE=openvpn)
+      # Uncomment and fill in if switching from WireGuard to OpenVPN.
+      # -----------------------------------------------------------------------
+      # - OPENVPN_USER=${OPENVPN_USER}
+      # - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      # - OPENVPN_VERSION=2.6             # OpenVPN version: 2.5 or 2.6
+      # - OPENVPN_PROTOCOL=udp            # Transport protocol: udp or tcp
+      # - OPENVPN_CIPHER=                 # Optional cipher override
+      # - OPENVPN_AUTH=                   # Optional auth algorithm override
+
+      # -----------------------------------------------------------------------
+      # Server Selection
+      # Use one or more of the following to filter which VPN servers are used.
+      # All filters are ANDed together. Consult provider-specific docs for valid
+      # values: https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
+      # -----------------------------------------------------------------------
+      - SERVER_CITIES=${VPN_SERVER_CITIES}
+      # - SERVER_COUNTRIES=Netherlands    # Filter by country name(s), comma-separated
+      # - SERVER_REGIONS=                 # Filter by region (provider-specific)
+      # - SERVER_HOSTNAMES=               # Filter by specific server hostnames
+      # - SERVER_NAMES=                   # Filter by server names
+
+      # -----------------------------------------------------------------------
+      # Port Forwarding
+      # Enables VPN-side port forwarding when the provider supports it.
+      # Forwarded port is written to /gluetun/forwarded_port inside the container.
+      # See: https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/port-forwarding.md
+      # -----------------------------------------------------------------------
+      - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
+      # - VPN_PORT_FORWARDING_PROVIDER=   # Override if port forwarding provider
+      #                                   # differs from VPN_SERVICE_PROVIDER
+
+      # -----------------------------------------------------------------------
+      # Server List Updater
+      # Controls how often Gluetun refreshes its internal VPN server list.
+      # Set to 0 to disable automatic updates.
+      # See: https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md
+      # -----------------------------------------------------------------------
+      - UPDATER_PERIOD=${UPDATER_PERIOD}
+      # - UPDATER_MIN_RATIO=0.6           # Minimum fraction of valid servers
+      #                                   # required after an update (0.0 - 1.0)
+
+      # -----------------------------------------------------------------------
+      # Timezone
+      # Ensures log timestamps are accurate for your locale.
+      # -----------------------------------------------------------------------
       - TZ=${TZ}
-    user: 1000:1000
-    volumes:
-      - ${BASE_DOCKER_DATA_PATH}/autobrr/config:/config
-    ports:
-      - 7474:7474
 
-    ---
-version: "2"
-services:
-  slskd:
-    image: slskd/slskd
-    container_name: slskd
-    hostname: slskd
-    network_mode: "service:gluetun"
-    ports:
-      - "5030:5030"
-      - "5031:5031"
-      - "50300:50300"
-    environment:
-      - SLSKD_REMOTE_CONFIGURATION=true
-    volumes:
-      - <path/to/application/data>:/app
-    restart: unless-stopped
+      # -----------------------------------------------------------------------
+      # HTTP Control Server
+      # An internal REST API used by the healthcheck below and for manual VPN
+      # control (e.g. cycling servers without restarting the container).
+      # The control server always binds to port 8000 inside the container
+      # unless HTTP_CONTROL_SERVER_PORT is changed.
+      # See: https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/control-server.md
+      # -----------------------------------------------------------------------
+      # - HTTP_CONTROL_SERVER_PORT=8000   # Change internal control port (default: 8000)
+      #                                   # Must also update the healthcheck test below.
+      # - HTTP_CONTROL_SERVER_LOG=on      # Log control server requests (default: on)
 
+      # -----------------------------------------------------------------------
+      # DNS / DNS-over-TLS
+      # Gluetun runs its own DoT resolver to prevent DNS leaks.
+      # -----------------------------------------------------------------------
+      # - DOT=on                          # Enable DNS-over-TLS (default: on)
+      # - DOT_PROVIDERS=cloudflare        # DoT providers: cloudflare, google, quad9, etc.
+      # - DOT_CACHING=on                  # Cache DNS responses (default: on)
+      # - DNS_ADDRESS=127.0.0.1           # Override DNS server address inside the VPN
+      # - DNS_KEEP_NAMESERVER=off         # Keep host nameserver alongside Gluetun's (default: off)
+      # - DNS_UPDATE_PERIOD=24h           # How often to refresh DoT provider IPs
 
-    servies:
-  bitmagnet:
-    image: ghcr.io/bitmagnet-io/bitmagnet:latest
-    container_name: bitmagnet
-    hostname: bitmagnet
-    network_mode: "service:gluetun"
-    ports:
-      # API and WebUI port:
-      - "3333:3333"
-      # BitTorrent ports:
-      - "3334:3334/tcp"
-      - "3334:3334/udp"
-    restart: unless-stopped
-    environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PASSWORD=postgres
-    #      - TMDB_API_KEY=your_api_key
-    volumes:
-      - ./config:/root/.config/bitmagnet
-    command:
-      - worker
-      - run
-      - --keys=http_server
-      - --keys=queue_server
-      # disable the next line to run without DHT crawler
-      - --keys=dht_crawler
-    depends_on:
-      postgres:
-        condition: service_healthy
-      - gluetun
+      # -----------------------------------------------------------------------
+      # Firewall / Kill Switch
+      # Gluetun blocks all non-VPN traffic by default (kill switch).
+      # Use FIREWALL_OUTBOUND_SUBNETS to allow LAN access through the kill switch.
+      # -----------------------------------------------------------------------
+      # - FIREWALL=on                     # Enable kill switch firewall (default: on)
+      # - FIREWALL_INPUT_PORTS=           # Comma-separated inbound ports to permit (LAN -> container)
+      # - FIREWALL_OUTBOUND_SUBNETS=      # Comma-separated CIDRs to permit without VPN
+      #                                   # Example: 192.168.1.0/24 for LAN access
+      # - FIREWALL_VPN_INPUT_PORTS=       # Ports forwarded by the VPN provider (auto-set when port
+      #                                   # forwarding is enabled, but can be set manually)
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: bitmagnet-postgres
-    hostname: bitmagnet-postgres
-    network_mode: "service:bitmagnet"
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-    #    ports:
-    #      - "5432:5432" Expose this port if you'd like to dig around in the database
-    restart: unless-stopped
-    environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=bitmagnet
-      - PGUSER=postgres
-    shm_size: 1g
+      # -----------------------------------------------------------------------
+      # Logging
+      # -----------------------------------------------------------------------
+      # - LOG_LEVEL=info                  # Verbosity: debug | info | warning | error (default: info)
+
+    # -------------------------------------------------------------------------
+    # Healthcheck
+    # Queries the Gluetun control server's /v1/vpn/status endpoint.
+    # All services with `depends_on: gluetun: condition: service_healthy` will
+    # wait until this check passes before starting.
+    # If you changed HTTP_CONTROL_SERVER_PORT above, update port 8000 here too.
+    # -------------------------------------------------------------------------
     healthcheck:
-      test:
-        - CMD-SHELL
-        - pg_isready
-      start_period: 20s
-      interval: 10s
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8000/v1/vpn/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
-  # --------------------------------------------------------
+    restart: unless-stopped
 
-#DOWNLOAD STACK
+
+  # ===========================================================================
+  # QBITTORRENT - BitTorrent Download Client
+  # GitHub: https://github.com/linuxserver/docker-qbittorrent
+  # Docs:   https://docs.linuxserver.io/images/docker-qbittorrent
+  #
+  # Feature-rich BitTorrent client. This deployment includes the VueTorrent
+  # Docker mod which replaces the default Web UI with a modern, responsive
+  # interface. Remove DOCKER_MODS to use the default qBittorrent Web UI.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_QBITTORRENT}
+  # ===========================================================================
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent
+    image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     hostname: qbittorrent
+    # All network traffic is routed through Gluetun's VPN tunnel.
+    # Note: hostname has no effect here - the container uses gluetun's
+    # network namespace and therefore gluetun's hostname for networking.
     network_mode: "service:gluetun"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-      - WEBUI_PORT=8085
+      # LinuxServer.io standard user/group mapping variables.
+      # The container process runs as this UID:GID to match host file ownership.
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      # Port that the qBittorrent Web UI listens on inside the container.
+      # Must match the port exposed on the gluetun service above.
+      - WEBUI_PORT=${PORT_QBITTORRENT}
+      # VueTorrent mod: replaces the default Web UI with a modern reactive interface.
+      # GitHub: https://github.com/VueTorrent/VueTorrent
+      # Remove or comment out this line to use the default qBittorrent Web UI.
       - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest
+      # Optional: explicitly set the BitTorrent listening port.
+      # Useful when VPN port forwarding assigns a specific port.
+      # - TORRENTING_PORT=${PORT_QBITTORRENT_TORRENT}
     volumes:
-      - /home/ubuntu/docker/arr-stack/qbittorrent:/config
-      - /home/ubuntu/docker/arr-stack/qbittorrent/downloads:/downloads
+      # qBittorrent configuration, settings database, and resume data.
+      - ${BASE_DATA}/qbittorrent/config:/config
+      # Destination for completed downloads.
+      # Configure this path in qBittorrent Settings > Downloads.
+      - ${DOWNLOADS_DIR}:/downloads
+    # Wait for Gluetun to be healthy (VPN tunnel up) before starting.
     depends_on:
-      - gluetun
-    restart: always
-
-    ---
-services:
-  pyload-ng:
-    image: lscr.io/linuxserver/pyload-ng:latest
-    container_name: pyload-ng
-    hostname: pyload-ng
-    network_mode: "service:gluetun"
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - /path/to/pyload-ng/config:/config
-      - /path/to/downloads:/downloads
-    ports:
-      - 8000:8000
-      - 9666:9666 #optional
+      gluetun:
+        condition: service_healthy
     restart: unless-stopped
 
-services:
+
+  # ===========================================================================
+  # SABNZBD - Usenet Download Client
+  # GitHub: https://github.com/linuxserver/docker-sabnzbd
+  # Docs:   https://docs.linuxserver.io/images/docker-sabnzbd
+  #
+  # SABnzbd downloads and post-processes Usenet binary content. Integrates
+  # with Radarr, Sonarr, and other arr applications as a download client.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_SABNZBD}
+  # ===========================================================================
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
     container_name: sabnzbd
     hostname: sabnzbd
     network_mode: "service:gluetun"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      # Optional: enable HTTPS for the Web UI (requires cert setup in SABnzbd)
+      # - HAS_HTTPS=false
     volumes:
-      - /path/to/sabnzbd/config:/config
-      - /path/to/downloads:/downloads #optional
-      - /path/to/incomplete/downloads:/incomplete-downloads #optional
+      # SABnzbd configuration, history database, and NZB queue.
+      - ${BASE_DATA}/sabnzbd/config:/config
+      # Destination for completed and post-processed downloads.
+      - ${DOWNLOADS_DIR}:/downloads
+      # Optional: separate directory for in-progress (incomplete) downloads.
+      # Using a fast disk (e.g. SSD/NVMe) for incomplete downloads improves
+      # assembly and repair performance before moving to the final destination.
+      # - ${BASE_DATA}/sabnzbd/incomplete:/incomplete-downloads
     depends_on:
-      - gluetun
-    ports:
-      - 8080:8080
-    restart: unless-stopped 
-
-
-services:
-  jdownloader-2:
-    image: jlesage/jdownloader-2
-    container_name: jdownloader-2
-    hostname: jdownloader-2
-    network_mode: "service:gluetun"
-    volumes:
-      - "/docker/appdata/jdownloader-2:/config:rw"
-      - "/home/user/Downloads:/output:rw"
-    depends_on:
-      - gluetun
-    ports:
-      - "5800:5800"
+      gluetun:
+        condition: service_healthy
     restart: unless-stopped
 
 
+  # ===========================================================================
+  # JDOWNLOADER 2 - Direct Download Manager
+  # GitHub: https://github.com/jlesage/docker-jdownloader-2
+  # Docs:   https://hub.docker.com/r/jlesage/jdownloader-2
+  #
+  # JDownloader 2 supports hundreds of direct-download hosting sites. The Web
+  # UI is delivered via noVNC (a browser-based VNC client) and shows the full
+  # JDownloader 2 desktop application.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI (noVNC): http://<host>:${PORT_JDOWNLOADER}
+  # ===========================================================================
+  jdownloader-2:
+    image: jlesage/jdownloader-2:latest
+    container_name: jdownloader-2
+    hostname: jdownloader-2
+    network_mode: "service:gluetun"
+    environment:
+      - TZ=${TZ}
+      # Optional: password to protect the noVNC Web UI
+      # - VNC_PASSWORD=${JDOWNLOADER_VNC_PASSWORD}
+      # Optional: display resolution for the noVNC interface
+      # - DISPLAY_WIDTH=1920
+      # - DISPLAY_HEIGHT=1080
+      # Optional: enable the built-in dark theme
+      # - DARK_MODE=0                     # 0 = disabled (default), 1 = enabled
+      # Optional: keep the application process running when the browser tab is closed
+      # - KEEP_APP_RUNNING=0              # 0 = exit when idle (default), 1 = always keep running
+      # Optional: process niceness (-20 highest priority, 19 lowest)
+      # - APP_NICENESS=0
+    volumes:
+      # JDownloader 2 configuration, settings, and plugin cache.
+      - ${BASE_DATA}/jdownloader-2/config:/config:rw
+      # Destination for completed downloads.
+      - ${DOWNLOADS_DIR}:/output:rw
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    restart: unless-stopped
 
-#Arr Stack
-services:
+
+  # ===========================================================================
+  # PYLOAD-NG - Direct Download Manager
+  # GitHub: https://github.com/linuxserver/docker-pyload-ng
+  # Docs:   https://docs.linuxserver.io/images/docker-pyload-ng
+  #
+  # pyLoad is a free, open-source download manager for one-click hosters.
+  # "NG" is the community-maintained next-generation fork.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_PYLOAD}
+  #
+  # NOTE: PORT_PYLOAD defaults to 8000, which conflicts with PORT_GLUETUN_CONTROL.
+  # Change one of them in config.env before starting (see header warning above).
+  # ===========================================================================
+  pyload-ng:
+    image: lscr.io/linuxserver/pyload-ng:latest
+    container_name: pyload-ng
+    hostname: pyload-ng
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      # pyLoad configuration, database, and plugin data.
+      - ${BASE_DATA}/pyload-ng/config:/config
+      # Destination for completed downloads.
+      - ${DOWNLOADS_DIR}:/downloads
+    # Optional: Click'n'Load port. Allows the browser extension to add links
+    # directly to pyLoad by intercepting click-and-load URLs.
+    # Also add "- 9666:9666" to the gluetun ports section above to enable this.
+    # ports:
+    #   - "9666:9666"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # ===========================================================================
+  # SLSKD - Soulseek Client
+  # GitHub: https://github.com/slskd/slskd
+  # Docs:   https://github.com/slskd/slskd/blob/master/docs/config.md
+  #
+  # slskd is a modern .NET Soulseek client with a web-based interface.
+  # Soulseek is a P2P network focused on music sharing.
+  # SLSKD_REMOTE_CONFIGURATION=true allows changing settings via the Web UI
+  # without needing to restart or edit config files directly.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_SLSKD}
+  # Soulseek P2P port: ${PORT_SLSKD_SOULSEEK}
+  # ===========================================================================
+  slskd:
+    image: slskd/slskd:latest
+    container_name: slskd
+    hostname: slskd
+    network_mode: "service:gluetun"
+    environment:
+      # Allow configuration changes via the Web UI (a restart is still required
+      # for most settings to take effect, but the UI makes editing convenient).
+      - SLSKD_REMOTE_CONFIGURATION=true
+      # Optional: Soulseek network credentials
+      # - SLSKD_SLSK_USERNAME=${SLSKD_USERNAME}
+      # - SLSKD_SLSK_PASSWORD=${SLSKD_PASSWORD}
+      # Optional: comma-separated list of directories to share on Soulseek
+      # - SLSKD_SHARED_DIR=/music
+      # Optional: where slskd saves completed downloads inside the container
+      # - SLSKD_DOWNLOADS_DIR=/downloads
+      # Optional: where slskd holds in-progress downloads
+      # - SLSKD_INCOMPLETE_DIR=/incomplete
+      # Optional: enable verbose debug logging
+      # - SLSKD_DEBUG=false
+      # Optional: JWT secret used to sign Web UI authentication tokens.
+      # Auto-generated on first start if not set (resets all sessions on restart).
+      # - SLSKD_JWT_KEY=${SLSKD_JWT_KEY}
+      # Optional: change the HTTP listening port inside the container
+      # - SLSKD_HTTP_PORT=${PORT_SLSKD}
+      # Optional: change the Soulseek P2P listening port
+      # - SLSKD_SLSK_LISTEN_PORT=${PORT_SLSKD_SOULSEEK}
+    volumes:
+      # slskd application data: configuration, database, and downloads.
+      # The entire /app directory is persisted here.
+      - ${BASE_DATA}/slskd/config:/app
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # ===========================================================================
+  # BITMAGNET - BitTorrent DHT Crawler and Search Engine
+  # GitHub: https://github.com/bitmagnet-io/bitmagnet
+  # Docs:   https://bitmagnet.io/
+  #
+  # Bitmagnet crawls the DHT (Distributed Hash Table) network to discover
+  # and index torrents. It provides a search interface and GraphQL API.
+  # Optionally enriches metadata using TMDB (movie/TV info).
+  # Requires its own PostgreSQL database (see bitmagnet-postgres below).
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI / API: http://<host>:${PORT_BITMAGNET}
+  # BitTorrent DHT: ${PORT_BITMAGNET_TORRENT} (TCP + UDP)
+  # ===========================================================================
+  bitmagnet:
+    image: ghcr.io/bitmagnet-io/bitmagnet:latest
+    container_name: bitmagnet
+    hostname: bitmagnet
+    network_mode: "service:gluetun"
+    environment:
+      # PostgreSQL connection. Because bitmagnet-postgres also uses
+      # network_mode: "service:gluetun", both containers share the same
+      # network namespace, so postgres is reachable via localhost.
+      - POSTGRES_HOST=localhost
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      # Database name that Bitmagnet will use (created automatically on first start)
+      - POSTGRES_NAME=bitmagnet
+      # Optional: TMDB API key for enriching torrent metadata with movie/TV info.
+      # Obtain a free key at: https://www.themoviedb.org/settings/api
+      # - TMDB_API_KEY=${TMDB_API_KEY}
+      # Optional: log verbosity
+      # - LOG_LEVEL=info                  # debug | info | warn | error
+    volumes:
+      # Bitmagnet configuration files (YAML-based config).
+      - ${BASE_DATA}/bitmagnet/config:/root/.config/bitmagnet
+    # The `command` list selects which Bitmagnet workers to run.
+    # Comment out individual --keys lines to disable specific subsystems.
+    command:
+      - worker
+      - run
+      # HTTP server: serves the Web UI and GraphQL/REST API
+      - --keys=http_server
+      # Queue server: processes background tasks (metadata enrichment, etc.)
+      - --keys=queue_server
+      # DHT crawler: crawls the DHT network to discover new torrents.
+      # Comment this line out to run Bitmagnet without active crawling
+      # (useful if you only want the search interface without new discoveries).
+      - --keys=dht_crawler
+    depends_on:
+      # Wait for PostgreSQL to accept connections before starting.
+      bitmagnet-postgres:
+        condition: service_healthy
+      # Also wait for Gluetun's VPN tunnel to be up.
+      gluetun:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # ===========================================================================
+  # BITMAGNET-POSTGRES - PostgreSQL Database for Bitmagnet
+  # Image: https://hub.docker.com/_/postgres (official postgres:16-alpine)
+  #
+  # Provides the relational database that Bitmagnet uses to store its torrent
+  # index and metadata. Uses the Alpine variant for a smaller image size.
+  #
+  # Also shares Gluetun's network namespace so that Bitmagnet can reach it
+  # via localhost (both containers are in the same network namespace).
+  # ===========================================================================
+  bitmagnet-postgres:
+    image: postgres:16-alpine
+    container_name: bitmagnet-postgres
+    hostname: bitmagnet-postgres
+    # Shares Gluetun's network namespace so Bitmagnet can connect via localhost.
+    network_mode: "service:gluetun"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      # Database that Bitmagnet will use (created automatically if absent)
+      - POSTGRES_DB=bitmagnet
+      # PGUSER is used by the pg_isready healthcheck command below.
+      - PGUSER=${POSTGRES_USER}
+    volumes:
+      # PostgreSQL data files. Persist this directory to keep the database
+      # across container restarts and image updates.
+      - ${BASE_DATA}/bitmagnet/postgres:/var/lib/postgresql/data
+    # Optional: expose PostgreSQL for external tools (e.g. pgAdmin, DBeaver).
+    # Also add "- 5432:5432" to the gluetun ports section to enable external access.
+    # ports:
+    #   - "5432:5432"
+    # Allocate extra shared memory. PostgreSQL uses shared memory for its buffer
+    # pool. 1g is a generous default; tune to your available RAM.
+    shm_size: 1g
+    # Health check ensures Bitmagnet does not start until PostgreSQL is ready
+    # to accept connections. pg_isready returns 0 when the server is accepting
+    # connections, and non-zero otherwise.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready
+      start_period: 20s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # ===========================================================================
+  # PROWLARR - Indexer Manager and Proxy
+  # GitHub: https://github.com/linuxserver/docker-prowlarr
+  # Docs:   https://docs.linuxserver.io/images/docker-prowlarr
+  #
+  # Prowlarr manages Usenet and BitTorrent indexers and synchronises them with
+  # Radarr, Sonarr, Lidarr, and other arr applications automatically.
+  # Routing through Gluetun ensures all indexer queries exit via the VPN.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_PROWLARR}
+  # ===========================================================================
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      # Prowlarr configuration, database, and indexer definitions.
+      - ${BASE_DATA}/prowlarr/config:/config
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # ===========================================================================
+  # AUTOBRR - IRC Announce Channel Download Automation
+  # GitHub: https://github.com/autobrr/autobrr
+  # Docs:   https://autobrr.com/
+  #
+  # Autobrr connects to IRC announce channels and automatically sends matching
+  # releases to download clients (qBittorrent, SABnzbd, Deluge, etc.) based
+  # on configurable filters. Ideal for racing pre-time releases.
+  # Routing through Gluetun keeps IRC traffic private.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_AUTOBRR}
+  # ===========================================================================
+  autobrr:
+    image: ghcr.io/autobrr/autobrr:latest
+    container_name: autobrr
+    hostname: autobrr
+    network_mode: "service:gluetun"
+    # Run as a non-root user for improved security.
+    # Must match PUID:PGID so the process can write to the config volume.
+    user: "${PUID}:${PGID}"
+    environment:
+      - TZ=${TZ}
+    volumes:
+      # Autobrr configuration, filters database, and IRC session data.
+      - ${BASE_DATA}/autobrr/config:/config
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # ===========================================================================
+  # RADARR - Movie Collection Manager
+  # GitHub: https://github.com/linuxserver/docker-radarr
+  # Docs:   https://docs.linuxserver.io/images/docker-radarr
+  #
+  # Radarr monitors movie release RSS feeds and automatically grabs, sorts,
+  # and renames movies. Integrates with Prowlarr for indexers, and
+  # qBittorrent/SABnzbd/etc. for download clients.
+  # Routing through Gluetun protects indexer and download traffic.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_RADARR}
+  # ===========================================================================
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     hostname: radarr
+    network_mode: "service:gluetun"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
-      - /path/to/radarr/data:/config
-      - /path/to/movies:/movies #optional
-      - /path/to/download-client-downloads:/downloads #optional
-    ports:
-      - 7878:7878
+      # Radarr configuration, SQLite database, and application data.
+      - ${BASE_DATA}/radarr/config:/config
+      # Completed downloads directory. Add Radarr's root folder path in Settings
+      # > Media Management so it can import from here.
+      - ${DOWNLOADS_DIR}:/downloads
+      # Optional: mount your movie library if it is on a different path than downloads.
+      # Configure the root folder in Radarr Settings > Media Management.
+      # - /path/to/movies:/movies
+    depends_on:
+      gluetun:
+        condition: service_healthy
     restart: unless-stopped
 
+
+  # ===========================================================================
+  # SONARR - TV Show Collection Manager
+  # GitHub: https://github.com/linuxserver/docker-sonarr
+  # Docs:   https://docs.linuxserver.io/images/docker-sonarr
+  #
+  # Sonarr monitors TV show release RSS feeds and automatically grabs, sorts,
+  # and renames episodes. Integrates with Prowlarr for indexers and
+  # qBittorrent/SABnzbd/etc. for download clients.
+  # Routing through Gluetun protects indexer and download traffic.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_SONARR}
+  # ===========================================================================
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     hostname: sonarr
     network_mode: "service:gluetun"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
-      - /home/ubuntu/docker/arr-stack/sonarr/data:/config
-      - /home/ubuntu/docker/arr-stack/sonarr/tvseries:/tv #optional
-      - /home/ubuntu/docker/arr-stack/sonarr/downloadclient-downloads:/downloads #optional
+      # Sonarr configuration, SQLite database, and application data.
+      - ${BASE_DATA}/sonarr/config:/config
+      # Completed downloads directory used for importing episodes.
+      - ${DOWNLOADS_DIR}:/downloads
+      # Optional: mount your TV series library if on a different path.
+      # Configure the root folder in Sonarr Settings > Media Management.
+      # - /path/to/tv:/tv
+    depends_on:
+      gluetun:
+        condition: service_healthy
     restart: unless-stopped
 
+
+  # ===========================================================================
+  # BAZARR - Subtitle Manager
+  # GitHub: https://github.com/linuxserver/docker-bazarr
+  # Docs:   https://docs.linuxserver.io/images/docker-bazarr
+  #
+  # Bazarr automatically searches for and downloads subtitles for movies and
+  # TV shows managed by Radarr and Sonarr. Supports many subtitle providers
+  # (OpenSubtitles, Subscene, etc.).
+  # Routing through Gluetun keeps subtitle provider queries private.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_BAZARR}
+  # ===========================================================================
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     hostname: bazarr
+    network_mode: "service:gluetun"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
-      - /path/to/bazarr/config:/config
-      - /path/to/movies:/movies #optional
-      - /path/to/tv:/tv #optional
-    ports:
-      - 6767:6767
+      # Bazarr configuration and subtitle cache database.
+      - ${BASE_DATA}/bazarr/config:/config
+      # Optional: mount media directories so Bazarr can place subtitle files
+      # alongside your media. Paths must match what Radarr/Sonarr use.
+      # - /path/to/movies:/movies
+      # - /path/to/tv:/tv
+    depends_on:
+      gluetun:
+        condition: service_healthy
     restart: unless-stopped
 
-    lidarr:
+
+  # ===========================================================================
+  # LIDARR - Music Collection Manager
+  # GitHub: https://github.com/linuxserver/docker-lidarr
+  # Docs:   https://docs.linuxserver.io/images/docker-lidarr
+  #
+  # Lidarr monitors music release RSS feeds and automatically grabs, sorts,
+  # and renames albums and tracks. Integrates with Prowlarr for indexers and
+  # download clients. Fetches metadata from MusicBrainz.
+  # Routing through Gluetun protects indexer and download traffic.
+  #
+  # Shares Gluetun's network namespace - all traffic exits through the VPN.
+  # Web UI: http://<host>:${PORT_LIDARR}
+  # ===========================================================================
+  lidarr:
     image: lscr.io/linuxserver/lidarr:latest
     container_name: lidarr
     hostname: lidarr
+    network_mode: "service:gluetun"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
-      - /path/to/lidarr/config:/config
-      - /path/to/music:/music #optional
-      - /path/to/downloads:/downloads #optional
-    ports:
-      - 8686:8686
+      # Lidarr configuration, SQLite database, and application data.
+      - ${BASE_DATA}/lidarr/config:/config
+      # Completed downloads directory used for importing music.
+      - ${DOWNLOADS_DIR}:/downloads
+      # Optional: mount your music library if on a different path.
+      # Configure the root folder in Lidarr Settings > Media Management.
+      # - /path/to/music:/music
+    depends_on:
+      gluetun:
+        condition: service_healthy
     restart: unless-stopped
 
 
-services:
-    maintainerr:
-        image: ghcr.io/jorenn92/maintainerr:latest # or jorenn92/maintainerr:latest
-        container_name: maintainerr
-        hostname: maintainerr
-        user: 1000:1000
-        volumes:
-          - type: bind
-            source: ./data
-            target: /opt/data
-        environment:
-          - TZ=Europe/Brussels
-#      - DEBUG=true # uncomment to enable debug logs
-#      - BASE_PATH=/maintainerr # uncomment if you're serving maintainerr from a subdirectory
-#      - UI_HOSTNAME=:: # uncomment if you want to listen on IPv6 instead (default 0.0.0.0)
-#      - UI_PORT=6247 # uncomment to change the UI port (default 6246). Useful if you're on a network where the port is already in use
-#      - API_PORT=3002 # uncomment to change the API port (default 3001). Useful if you're on a network where the port is already in use
-        ports:
-          - 6246:6246
-        restart: unless-stopped
+  # ===========================================================================
+  # MAINTAINERR - Media Library Maintenance
+  # GitHub: https://github.com/jorenn92/maintainerr
+  # Docs:   https://maintainerr.info/
+  #
+  # Maintainerr automatically removes content from your Plex/Jellyfin libraries
+  # based on configurable rules (e.g. "watched more than 30 days ago", "not
+  # watched in 6 months", etc.). Integrates with Radarr and Sonarr to also
+  # delete the underlying files when media is removed.
+  #
+  # Does NOT route through Gluetun (uses direct network access).
+  # Web UI: http://<host>:6246
+  # ===========================================================================
+  maintainerr:
+    image: ghcr.io/jorenn92/maintainerr:latest
+    # Alternatively use the Docker Hub mirror: jorenn92/maintainerr:latest
+    container_name: maintainerr
+    hostname: maintainerr
+    # Run as a non-root user. Must match the ownership of the data volume.
+    user: "${PUID}:${PGID}"
+    environment:
+      - TZ=${TZ}
+      # Optional: enable verbose debug logging
+      # - DEBUG=true
+      # Optional: serve Maintainerr from a URL subdirectory (e.g. /maintainerr)
+      # Useful when using a reverse proxy with a path-based routing rule.
+      # - BASE_PATH=/maintainerr
+      # Optional: listen on IPv6 instead of the default IPv4 (0.0.0.0)
+      # - UI_HOSTNAME=::
+      # Optional: change the Web UI listening port (default: 6246)
+      # Useful if port 6246 is already in use on your host.
+      # - UI_PORT=6247
+      # Optional: change the internal API port (default: 3001)
+      # - API_PORT=3002
+    volumes:
+      # Maintainerr persistent data: configuration and rule database.
+      - type: bind
+        source: ${BASE_DATA}/maintainerr/data
+        target: /opt/data
+    ports:
+      - "6246:6246"
+    restart: unless-stopped
 
 
-        ---
-services:
+  # ===========================================================================
+  # JELLYSEERR - Media Request Management
+  # GitHub: https://github.com/fallenbagel/jellyseerr
+  # Docs:   https://docs.jellyseerr.dev/
+  #
+  # Jellyseerr is a fork of Overseerr adapted for Jellyfin. It provides a
+  # user-facing interface where users can browse and request movies or TV shows.
+  # Approved requests are automatically sent to Radarr and Sonarr.
+  #
+  # Does NOT route through Gluetun (uses direct network access).
+  # Web UI: http://<host>:5055
+  # ===========================================================================
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
     hostname: jellyseerr
     environment:
-      - LOG_LEVEL=debug
-      - TZ=Asia/Tashkent
-      - PORT=5055 #optional
+      # Log verbosity level: debug | info | warn | error
+      - LOG_LEVEL=info
+      - TZ=${TZ}
+      # Optional: change the port Jellyseerr listens on (default: 5055).
+      # If changed, update the ports mapping below to match.
+      # - PORT=5055
     ports:
-      - 5055:5055
+      - "5055:5055"
     volumes:
-      - /path/to/appdata/config:/app/config
+      # Jellyseerr configuration, user data, and request database.
+      - ${BASE_DATA}/jellyseerr/config:/app/config
     restart: unless-stopped
 
 
-
-    services:
-    profilarr:
-        image: santiagosayshey/profilarr:latest # Use :beta for early access to new features
-        container_name: profilarr
-        hostname: profilarr
-        ports:
-            - 6868:6868
-        volumes:
-            - /path/to/your/data:/config # Replace with your actual path
-        environment:
-            - TZ=UTC # Set your timezone
-        restart: unless-stopped
-
-
-
-#version: "3.8"
-services:
-  configarr:
-    image: ghcr.io/raydak-labs/configarr:latest
-    container_name: configarr
-    hostname: configarr
-    user: 1000:1000
-    #user: 1000:1000 # Optional, defaults to root:root
-    environment:
-      - TZ=Etc/UTC
+  # ===========================================================================
+  # PROFILARR - Quality Profile Sync for *arr Applications
+  # GitHub: https://github.com/santiagosayshey/profilarr
+  #
+  # Profilarr imports and synchronises quality profiles and custom formats from
+  # community repositories (e.g. TRaSH-Guides) into Radarr, Sonarr, and other
+  # arr apps. Eliminates manual profile maintenance.
+  # Use the :beta tag to get early access to new features.
+  #
+  # Does NOT route through Gluetun (uses direct network access).
+  # Web UI: http://<host>:6868
+  # ===========================================================================
+  profilarr:
+    image: santiagosayshey/profilarr:latest
+    # Use :beta for early access to new features (may be unstable):
+    # image: santiagosayshey/profilarr:beta
+    container_name: profilarr
+    hostname: profilarr
+    ports:
+      - "6868:6868"
     volumes:
-      - ./config:/app/config # Contains the config.yml and secrets.yml
-      - ./dockerrepos:/app/repos # Cache repositories
-      - ./custom/cfs:/app/cfs # Optional if custom formats locally provided
-      - ./custom/templates:/app/templates # Optional if custom templates
-    # restart: "no" # optional make sure this is set to no or removed. Default is no
+      # Profilarr configuration, profile definitions, and sync state.
+      - ${BASE_DATA}/profilarr/config:/config
+    environment:
+      - TZ=${TZ}
+    restart: unless-stopped
 
-    services:
-  # Replace or pass in APPDATA (below).
+
+  # ===========================================================================
+  # NOTIFIARR - Unified Notification Hub
+  # GitHub: https://github.com/Notifiarr/notifiarr
+  # Docs:   https://notifiarr.com/
+  #
+  # Notifiarr aggregates events from arr apps, Plex, Tautulli, and other
+  # services and forwards structured notifications to Discord, Telegram, and
+  # other platforms via the notifiarr.com relay service.
+  #
+  # Does NOT route through Gluetun (uses direct network access).
+  # Web UI: http://<host>:${PORT_NOTIFIARR}
+  # ===========================================================================
   notifiarr:
+    image: golift/notifiarr:latest
     container_name: notifiarr
     hostname: notifiarr
-    image: golift/notifiarr
-    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Optional: set the Notifiarr API key directly as an env var.
+      # Alternatively, configure it in the Web UI after first start.
+      # - DN_API_KEY=${NOTIFIARR_API_KEY}
     ports:
-      - "5454:5454"
+      - "${PORT_NOTIFIARR}:${PORT_NOTIFIARR}"
     volumes:
-      - ${APPDATA}/notifiarr:/config
-      - /var/run/utmp:/var/run/utmp
-      - /etc/machine-id:/etc/machine-id
+      # Notifiarr configuration and settings.
+      - ${BASE_DATA}/notifiarr/config:/config
+      # Provides information about currently logged-in users.
+      # Mount read-only (:ro) as Notifiarr only reads this file.
+      - /var/run/utmp:/var/run/utmp:ro
+      # Provides a stable machine identifier used to uniquely identify this host.
+      # Mount read-only (:ro) as Notifiarr only reads this file.
+      - /etc/machine-id:/etc/machine-id:ro
+    restart: unless-stopped
 
-      ---
+
+  # ===========================================================================
+  # CONFIGARR - Configuration-as-Code for *arr Applications  [OPTIONAL]
+  # GitHub: https://github.com/raydak-labs/configarr
+  # Docs:   https://configarr.raydak.de/
+  #
+  # Configarr applies YAML-based configuration to Radarr, Sonarr, Lidarr, and
+  # other arr apps. Useful for declarative setup, disaster recovery, or keeping
+  # multiple instances in sync with a shared configuration repository.
+  #
+  # This is a ONE-SHOT service: it runs, applies configuration, and exits.
+  # It should NOT be set to restart: unless-stopped.
+  # Run it manually when needed:
+  #   docker compose --env-file config.env run --rm configarr
+  #
+  # Uncomment the entire block below to enable configarr.
+  # ===========================================================================
+  # configarr:
+  #   image: ghcr.io/raydak-labs/configarr:latest
+  #   container_name: configarr
+  #   hostname: configarr
+  #   # Run as a non-root user for security (must match PUID:PGID).
+  #   user: "${PUID}:${PGID}"
+  #   environment:
+  #     - TZ=${TZ}
+  #     # Optional: log verbosity
+  #     # - LOG_LEVEL=info              # debug | info | warn | error
+  #   volumes:
+  #     # config.yml (defines which apps to configure and what settings to apply)
+  #     # secrets.yml (API keys for each arr app - keep this file private)
+  #     - ${BASE_DATA}/configarr/config:/app/config
+  #     # Local cache of cloned Git repositories (custom formats, templates).
+  #     # Persisting this directory avoids re-cloning on every run.
+  #     - ${BASE_DATA}/configarr/repos:/app/repos
+  #     # Optional: local custom format definitions (overrides remote sources)
+  #     # - ${BASE_DATA}/configarr/cfs:/app/cfs
+  #     # Optional: local custom template definitions (overrides remote sources)
+  #     # - ${BASE_DATA}/configarr/templates:/app/templates
+  #   # Do NOT set restart: unless-stopped. Configarr is designed to run once
+  #   # and exit. "no" is the Docker default but is explicit here for clarity.
+  #   restart: "no"

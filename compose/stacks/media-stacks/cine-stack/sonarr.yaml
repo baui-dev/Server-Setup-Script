@@ -1,0 +1,32 @@
+# SONARR
+# GitHub: https://github.com/Sonarr/Sonarr
+# Image: lscr.io/linuxserver/sonarr:latest
+# Docs: https://wiki.servarr.com/sonarr
+#
+# Sonarr is a TV show collection manager for Usenet and BitTorrent users.
+# Monitors RSS feeds for new episodes, integrates with download clients,
+# handles post-processing, renaming, and advanced quality management for TV series.
+
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${BASE_DATA}/sonarr/config:/config       # Sonarr configuration and SQLite database
+      - ${TV_DIR}:/tv                            # TV show library root path
+      - ${DOWNLOADS_DIR}:/downloads              # Download client completed downloads path
+      # - ${MEDIA_DIR}:/media                    # Optional: unified media root if using single-path layout
+    ports:
+      - ${PORT_SONARR:-8989}:8989
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

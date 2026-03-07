@@ -1,0 +1,62 @@
+# HIDDIFY
+# GitHub: https://github.com/hiddify/hiddify-manager
+# Image: hiddify/hiddify-manager:latest
+# Docs: https://hiddify.com/manager/installation-and-setup/
+#
+# Anti-censorship, multi-protocol proxy server manager for bypassing
+# internet restrictions. Supports VLESS, VMess, Reality, Trojan, ShadowSocks,
+# Hysteria2, Tuic, WireGuard, and more. Provides a web management panel,
+# subscription links for clients, and Cloudflare CDN integration.
+# Designed for regions with heavy internet censorship. Uses Docker internally
+# for its own service orchestration.
+
+services:
+  hiddify:
+    image: hiddify/hiddify-manager:latest
+    container_name: hiddify
+    hostname: hiddify
+    restart: unless-stopped
+    # Hiddify needs host network for full protocol support
+    network_mode: host
+    privileged: true
+    environment:
+      - TZ=${TZ}
+      # Admin panel credentials
+      - ADMIN_SECRET=${HIDDIFY_ADMIN_SECRET:-changeme}
+      # Domain for certificates and proxy endpoints
+      - DOMAIN=${DOMAIN}
+      # Fake domain (SNI for reality protocol)
+      # - FAKE_DOMAIN=www.google.com
+      # Mode: auto-cdn-ip, direct, sub-link-only
+      # - MODE=auto-cdn-ip
+    volumes:
+      - ${BASE_DATA}/hiddify/config:/opt/hiddify-manager
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    # When using bridge network (limited functionality):
+    # ports:
+    #   - 80:80
+    #   - 443:443
+    #   - ${PORT_HIDDIFY:-8443}:8443
+
+# ============================================================
+# Hiddify Manager requires host network for full functionality.
+# It manages its own internal Docker containers for different protocols.
+#
+# First-time setup:
+# 1. Point your domain DNS to the server IP
+# 2. Start the container and wait for initialization (~2 min)
+# 3. Access the admin panel:
+#    https://your-server/<ADMIN_SECRET>/
+# 4. Configure proxy protocols and generate subscription links
+# 5. Share the subscription link with clients (Hiddify, V2rayNG, etc.)
+#
+# Client apps:
+# - HiddifyNext (Android, iOS, Windows, macOS, Linux)
+# - V2rayNG (Android)
+# - Shadowrocket (iOS)
+# - Clash / Mihomo (cross-platform)
+#
+# Note: This tool is designed for use in regions with internet censorship.
+# Ensure compliance with local laws when deploying.
+# ============================================================

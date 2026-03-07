@@ -1,0 +1,72 @@
+# SABNZBD
+# GitHub: https://github.com/sabnzbd/sabnzbd
+# Image: lscr.io/linuxserver/sabnzbd:latest
+# Docs: https://docs.linuxserver.io/images/docker-sabnzbd/
+#
+# Open-source Usenet (NZB) download client. Fetches files from Usenet
+# newsgroups via NNTP, handles multi-part NZB downloads, par2 repair,
+# unraring, and post-processing. Integrates natively with Sonarr, Radarr,
+# Lidarr, and other *arr applications as a download client.
+# Features a web UI, API, scheduling, and extensive plugin support.
+
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    hostname: sabnzbd
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Optional: run with nightly/testing builds
+      # - SABNZBD_RELEASE=nightly
+    volumes:
+      # Application config (stores settings, nzb queue, history)
+      - ${BASE_DATA}/sabnzbd/config:/config
+      # Completed downloads directory
+      - ${DOWNLOADS_DIR:-/downloads}/complete:/downloads
+      # Incomplete/working directory (faster if on same drive as complete)
+      - ${DOWNLOADS_DIR:-/downloads}/incomplete:/incomplete-downloads
+    ports:
+      # Web UI
+      - ${PORT_SABNZBD:-8080}:8080
+      # HTTPS Web UI (optional)
+      # - ${PORT_SABNZBD_HTTPS:-8443}:8443
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Access:
+#   http://your-server:${PORT_SABNZBD:-8080}
+#   On first start, SABnzbd will open a setup wizard.
+#
+# Initial configuration:
+# 1. Add a Usenet provider (news server):
+#    Config -> Servers -> Add Server
+#    - Hostname: news.provider.com
+#    - Port: 563 (SSL) or 119
+#    - Username/Password from your Usenet provider
+#    - SSL: yes (recommended)
+#    - Max connections: per your subscription
+# 2. Set download paths:
+#    Config -> Folders:
+#    - Temporary download folder: /incomplete-downloads
+#    - Completed download folder: /downloads
+# 3. Enable API for *arr integration:
+#    Config -> General -> API Key (auto-generated)
+#
+# Sonarr/Radarr integration:
+#   Settings -> Download Clients -> SABnzbd:
+#   - Host: sabnzbd
+#   - Port: 8080
+#   - API Key: (from SABnzbd Config -> General)
+#   - Category: tv (Sonarr) / movies (Radarr)
+#
+# Indexer integration:
+#   Use Prowlarr or NZBHydra2 as your NZB indexer aggregator.
+# ============================================================

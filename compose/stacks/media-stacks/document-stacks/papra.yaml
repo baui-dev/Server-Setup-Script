@@ -1,0 +1,35 @@
+# Papra
+# GitHub: https://github.com/papra-hq/papra
+# Image: ghcr.io/papra-hq/papra:latest
+# Docs: https://papra.app/docs
+#
+# Modern, minimalist document management and organization platform. Upload,
+# tag, search, and share documents through a clean web interface. Features
+# full-text search, folder organization, and team collaboration. Uses SQLite
+# by default for simple single-server deployments with no external database
+# dependency.
+
+services:
+  papra:
+    image: ghcr.io/papra-hq/papra:latest
+    container_name: papra
+    hostname: papra
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PAPRA_CLIENT_BASE_URL=${PAPRA_URL:-http://localhost:${PORT_PAPRA}}
+      # SQLite database path (default, no external DB needed)
+      - PAPRA_DB_URL=file:/app/server/db/papra.db
+      # Set to true to enable registration for new users
+      - PAPRA_REGISTRATION_ALLOWED=${PAPRA_REGISTRATION_ALLOWED:-false}
+    volumes:
+      - ${BASE_DATA}/papra/db:/app/server/db
+      - ${BASE_DATA}/papra/documents:/app/server/documents
+    ports:
+      - ${PORT_PAPRA}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

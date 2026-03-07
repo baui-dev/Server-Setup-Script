@@ -1,0 +1,58 @@
+# PYLOAD-NG
+# GitHub: https://github.com/pyload/pyload
+# Image: lscr.io/linuxserver/pyload-ng:latest
+# Docs: https://pyload.net/
+#
+# Free and open-source download manager written in Python. Supports
+# 400+ file hosting sites via plugins (Mega, 1fichier, uploaded.net,
+# MediaFire, etc.). Features a web UI, download queue management,
+# account management for premium hosters, captcha solving, scheduling,
+# and multi-link/archive processing. Next-gen rewrite of the classic pyLoad.
+
+services:
+  pyload:
+    image: lscr.io/linuxserver/pyload-ng:latest
+    container_name: pyload
+    hostname: pyload
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      # Application config and plugins
+      - ${BASE_DATA}/pyload/config:/config
+      # Download destination
+      - ${DOWNLOADS_DIR:-/downloads}/pyload:/downloads
+    ports:
+      # Web UI
+      - ${PORT_PYLOAD:-8000}:8000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Access:
+#   http://your-server:${PORT_PYLOAD:-8000}
+#   Default login: pyload / pyload (change immediately)
+#
+# First-time setup:
+# 1. Access the web UI and change default credentials
+# 2. Go to Settings -> Plugins to configure hoster accounts
+# 3. Add premium accounts for sites you use (Mega, 1fichier, etc.)
+# 4. Navigate to Downloads -> Add Package -> Paste links
+#
+# Plugin management:
+#   Plugins auto-update from the pyLoad plugin repository.
+#   Missing plugins: Settings -> Plugins -> Browse/Install
+#
+# Captcha solving:
+#   Configure under Settings -> Plugins -> Captcha
+#   Supports: 9kw.eu, anti-captcha.com, 2captcha.com
+#
+# CLI usage:
+#   docker exec -it pyload pyload --help
+# ============================================================

@@ -1,0 +1,36 @@
+# KURRIER
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# Searched GitHub: github.com/nicholasgasior/kurrier → no such project found
+# Docker Hub image nicholasgasior/kurrier → does NOT exist
+# "nicholasgasior" is not a known author of Docker homelab tools
+#
+# The concept (webhook relay / notification fan-out courier) is real.
+# No self-hosted Docker tool named "Kurrier" could be located.
+#
+# ✅ Verified alternatives for webhook relay and notification routing:
+#   - Ntfy:        https://github.com/binwiederhier/ntfy          (push notification server)
+#                  Image: binwiederhier/ntfy
+#   - Gotify:      https://github.com/gotify/server               (push notification server)
+#                  Image: gotify/server
+#   - Apprise API: https://github.com/caronc/apprise-api          (multi-channel notify API)
+#                  Image: caronc/apprise
+#   - Notifiarr:   https://github.com/Notifiarr/notifiarr         (notification router for *arr)
+#                  Image: golift/notifiarr
+#   - Novu:        https://github.com/novuhq/novu                 (full notification platform)
+#                  Image: ghcr.io/novuhq/novu
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified webhook/notification tool or remove this file.
+
+# services:
+#   kurrier:
+#     image: nicholasgasior/kurrier:latest  # ← DOES NOT EXIST
+#     container_name: kurrier
+#     hostname: kurrier
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/kurrier/config:/config
+#     ports:
+#       - ${PORT_KURRIER:-3000}:3000

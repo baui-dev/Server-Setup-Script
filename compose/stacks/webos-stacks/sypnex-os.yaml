@@ -1,0 +1,37 @@
+# Sypnex OS
+# GitHub: https://github.com/Sypnex-LLC/sypnex-os
+# Image: nginx:alpine (static web app - no official Docker image)
+# Docs: https://github.com/Sypnex-LLC/sypnex-os
+#
+# Sypnex OS is a browser-based web operating system with a built-in app store,
+# desktop environment, and modular application support. The project is a
+# frontend static web application with no official prebuilt Docker image.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/Sypnex-LLC/sypnex-os /tmp/sypnex-src
+#   cd /tmp/sypnex-src && npm install && npm run build
+#   cp -r /tmp/sypnex-src/dist/* ${BASE_DATA}/sypnex-os/html/
+#
+# Check the upstream repository for the latest build instructions.
+
+services:
+  sypnex-os:
+    # No official Docker image available.
+    # Build from source: git clone https://github.com/Sypnex-LLC/sypnex-os
+    image: nginx:alpine
+    container_name: sypnex-os
+    hostname: sypnex-os
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/sypnex-os/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/sypnex-os/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_SYPNEX:-8893}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

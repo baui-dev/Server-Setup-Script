@@ -1,0 +1,36 @@
+# NOTIFUSE
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/notifuse/notifuse → does NOT exist
+# Docker Hub image notifuse/notifuse → does NOT exist
+#
+# The description (unified API for multi-channel notifications — email, SMS, push,
+# Slack, webhooks; template management; user preferences; delivery tracking) is
+# essentially a word-for-word description of Novu (https://novu.co).
+# "Notifuse" appears to be an AI-hallucinated name that does not correspond to
+# any real project.
+#
+# ✅ Verified alternatives for notification management platforms:
+#   - Novu:        https://github.com/novuhq/novu                 (THE real multi-channel notification platform)
+#                  Image: ghcr.io/novuhq/novu
+#   - Ntfy:        https://github.com/binwiederhier/ntfy          (simple push notification server)
+#                  Image: binwiederhier/ntfy
+#   - Gotify:      https://github.com/gotify/server               (push notification server)
+#                  Image: gotify/server
+#   - Apprise API: https://github.com/caronc/apprise-api          (100+ service notification API)
+#                  Image: caronc/apprise
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Use Novu (ghcr.io/novuhq/novu) as the verified replacement.
+
+# services:
+#   notifuse:
+#     image: notifuse/notifuse:latest  # ← DOES NOT EXIST
+#     container_name: notifuse
+#     hostname: notifuse
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/notifuse/config:/config
+#     ports:
+#       - ${PORT_NOTIFUSE:-3000}:3000

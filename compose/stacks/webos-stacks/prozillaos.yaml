@@ -1,1 +1,39 @@
-https://github.com/prozilla-os/ProzillaOS-boilerplate
+# PROZILLAOS BOILERPLATE
+# GitHub: https://github.com/prozilla-os/ProzillaOS-boilerplate
+# Main ProzillaOS: https://github.com/prozilla-os/ProzillaOS
+# Image: nginx:alpine (static React app - no official Docker image)
+# Docs: https://prozilla.dev/docs
+#
+# NOTE: See Prozillaos.yaml for the primary ProzillaOS implementation.
+# This variant is for a custom ProzillaOS app built from the boilerplate template.
+# The boilerplate lets you create your own ProzillaOS-based web OS with custom apps.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/prozilla-os/ProzillaOS-boilerplate /tmp/prozillaos-bp
+#   cd /tmp/prozillaos-bp && npm install && npm run build
+#   mkdir -p ${BASE_DATA}/prozillaos-bp/html
+#   cp -r /tmp/prozillaos-bp/dist/* ${BASE_DATA}/prozillaos-bp/html/
+#
+# Container name is prozillaos-bp to avoid conflict with Prozillaos.yaml.
+
+services:
+  prozillaos-bp:
+    # No official Docker image — serves the custom-built boilerplate dist via nginx.
+    # Build from boilerplate: https://github.com/prozilla-os/ProzillaOS-boilerplate
+    image: nginx:alpine
+    container_name: prozillaos-bp
+    hostname: prozillaos-bp
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/prozillaos-bp/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/prozillaos-bp/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_PROZILLAOS_BP:-8900}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

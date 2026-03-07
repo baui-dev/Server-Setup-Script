@@ -1,0 +1,54 @@
+# Umami
+# GitHub: https://github.com/umami-software/umami
+# Image: ghcr.io/umami-software/umami:postgresql-latest
+# Docs: https://umami.is/docs
+#
+# Privacy-focused, open-source web analytics platform. A lightweight, fast
+# alternative to Google Analytics that collects no personally identifiable
+# information and sets no cookies by default. Tracks page views, sessions,
+# referrers, devices, and custom events. Requires PostgreSQL.
+#
+# NOTE: "unami.yaml" references Umami analytics. If a different service was
+# intended, replace this file's contents accordingly.
+
+services:
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    container_name: umami
+    hostname: umami
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@umami-db:5432/umami
+      - DATABASE_TYPE=postgresql
+      - APP_SECRET=${UMAMI_APP_SECRET:-changeme-replace-with-long-random-secret}
+    ports:
+      - ${PORT_UMAMI:-3000}:3000
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  umami-db:
+    image: postgres:16-alpine
+    container_name: umami-db
+    hostname: umami-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=umami
+    volumes:
+      - ${BASE_DATA}/umami/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d umami"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

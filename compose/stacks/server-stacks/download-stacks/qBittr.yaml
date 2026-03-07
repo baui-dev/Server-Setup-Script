@@ -1,1 +1,76 @@
-https://github.com/Feramance/qBitrr
+# QBITRR (qBitrr)
+# GitHub: https://github.com/Feramance/qBitrr
+# Image: feramance/qbitrr:latest
+# Docs: https://github.com/Feramance/qBitrr/wiki
+#
+# Advanced torrent management tool for qBittorrent that integrates deeply
+# with Sonarr and Radarr. Re-searches failed/stalled downloads, manages
+# import queue, handles unmonitored torrents, and provides enhanced search
+# capabilities. Designed to run alongside the *arr stack to ensure
+# downloads always complete successfully by automatically retrying failed grabs.
+
+services:
+  qbitrr:
+    image: feramance/qbitrr:latest
+    container_name: qbitrr
+    hostname: qbitrr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${BASE_DATA}/qbitrr/config:/config
+      # Must match the download paths used in qBittorrent, Sonarr, and Radarr
+      - ${DOWNLOADS_DIR:-/downloads}:/downloads
+    # qBitrr connects to qBittorrent/Sonarr/Radarr over the network
+    # No ports exposed by this service itself
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# REQUIRED: Create ${BASE_DATA}/qbitrr/config/config.toml
+# Full config reference: https://github.com/Feramance/qBitrr/wiki/Configuration
+# ============================================================
+# [qBittorrent]
+# host = "qbittorrent"
+# port = 8085
+# username = "${QBITTORRENT_USERNAME:-admin}"
+# password = "${QBITTORRENT_PASSWORD}"
+# # Category for downloads managed by qBitrr
+# managed_categories = ["tv-sonarr", "radarr"]
+#
+# [Settings]
+# # How often to check for stalled/failed downloads (seconds)
+# loop_sleep_timer = 5
+# # Number of seconds before a torrent is considered stalled
+# stalled_time = 1800
+# # Remove torrents with no seeds
+# failed_removal_timer = 30
+# # Re-search failed items
+# auto_search_enabled = true
+# # Log level: CRITICAL, ERROR, WARNING, INFO, DEBUG, TRACE
+# log_level = "INFO"
+#
+# [[Radarr]]
+# # Name (used for logging)
+# name = "Radarr"
+# host = "radarr"
+# port = 7878
+# api_key = "${RADARR_API_KEY}"
+# # Category assigned to Radarr downloads in qBittorrent
+# category = "radarr"
+#
+# [[Sonarr]]
+# name = "Sonarr"
+# host = "sonarr"
+# port = 8989
+# api_key = "${SONARR_API_KEY}"
+# category = "tv-sonarr"
+# # Profile for anime (optional)
+# # anime_category = "anime-sonarr"
+# ============================================================

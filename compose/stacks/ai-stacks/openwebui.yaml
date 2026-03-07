@@ -1,0 +1,124 @@
+# OPEN WEBUI
+# GitHub: https://github.com/open-webui/open-webui
+# Image: ghcr.io/open-webui/open-webui:main
+# Docs: https://docs.openwebui.com/getting-started/
+#
+# Open WebUI is a feature-rich, self-hosted web interface for interacting with LLMs.
+# It supports Ollama (local models), OpenAI-compatible APIs, and dozens of other providers.
+# Features include: multi-user auth, chat history, RAG (document Q&A), web search,
+# image generation, TTS/STT, model management, fine-tune prompts, and a plugin system.
+# Works as a standalone app or alongside a running Ollama instance.
+#
+# === QUICK START ===
+# 1. Copy config.env to .env and set WEBUI_SECRET_KEY and OPENWEBUI_OLLAMA_URL
+# 2. docker compose -f openwebui.yaml up -d
+# 3. Navigate to http://localhost:${PORT_OPENWEBUI}
+# 4. The first registered user automatically becomes admin
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    hostname: open-webui
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+
+      # --- Ollama Backend ---
+      # Set to your Ollama instance URL. Use host.docker.internal to reach Ollama on the host.
+      # Set to empty string "" to disable Ollama integration entirely (OpenAI-only mode).
+      - OLLAMA_BASE_URL=${OPENWEBUI_OLLAMA_URL:-http://host.docker.internal:11434}
+      # - OLLAMA_API_BASE_URL=${OPENWEBUI_OLLAMA_URL:-http://host.docker.internal:11434}/api  # Deprecated alias
+
+      # --- OpenAI API ---
+      # Connect to OpenAI or any OpenAI-compatible API (LiteLLM, LocalAI, vLLM, etc.)
+      # - OPENAI_API_KEY=                            # OpenAI or compatible API key
+      # - OPENAI_API_BASE_URL=https://api.openai.com/v1  # Base URL (override for local/alt endpoints)
+      # Multiple OpenAI-compatible endpoints (semicolon-separated for keys, comma-separated for URLs):
+      # - OPENAI_API_KEYS=key1;key2
+      # - OPENAI_API_BASE_URLS=http://litellm:4000/v1,http://localai:8080/v1
+
+      # --- Authentication & Security ---
+      # REQUIRED: Secret key for session signing. Generate with: openssl rand -hex 32
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      # - WEBUI_AUTH=true                            # true = require login, false = open access
+      # - WEBUI_AUTH_TRUSTED_EMAIL_HEADER=           # Header for trusted SSO email (e.g. X-Auth-Email)
+      # - WEBUI_AUTH_TRUSTED_NAME_HEADER=            # Header for trusted SSO display name
+      # - DEFAULT_USER_ROLE=pending                  # Role for new signups: admin | user | pending
+      # - ENABLE_SIGNUP=true                         # Allow new user registration
+      # - ENABLE_LOGIN_FORM=true                     # Show username/password login form
+      # - ENABLE_OAUTH_SIGNUP=false                  # Allow account creation via OAuth
+      # - ENABLE_API_KEY=true                        # Allow API key authentication
+
+      # --- OAuth / SSO (Authentik, Keycloak, Zitadel, etc.) ---
+      # - ENABLE_OAUTH_SIGNUP=false
+      # - OAUTH_PROVIDER_NAME=SSO                    # Display name on login button
+      # - OAUTH_CLIENT_ID=                           # OAuth2 client ID
+      # - OAUTH_CLIENT_SECRET=                       # OAuth2 client secret
+      # - OPENID_PROVIDER_URL=                       # OIDC discovery endpoint
+      # - OAUTH_SCOPES=openid email profile
+
+      # --- UI / Branding ---
+      # - WEBUI_NAME=Open WebUI                      # Application display name
+      # - WEBUI_FAVICON_URL=                         # Custom favicon URL
+      # - WEBUI_BANNERS=[]                           # JSON array of banner messages to display
+      # - DEFAULT_MODELS=llama3.2                    # Pre-select this model on new chats
+      # - DEFAULT_PROMPT_SUGGESTIONS=[]              # JSON array of preset prompt suggestions
+
+      # --- RAG (Retrieval Augmented Generation) ---
+      # - RAG_EMBEDDING_ENGINE=                      # Embedding engine: default (local) or openai
+      # - RAG_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2  # Local embedding model
+      # - RAG_RERANKING_MODEL=                       # Optional reranking model for better results
+      # - PDF_EXTRACT_IMAGES=false                   # Extract images from PDFs during ingestion
+      # - CHUNK_SIZE=1500                            # Document chunk size for RAG
+      # - CHUNK_OVERLAP=100                          # Chunk overlap in characters
+
+      # --- Web Search ---
+      # - ENABLE_RAG_WEB_SEARCH=false                # Enable web search in chat
+      # - RAG_WEB_SEARCH_ENGINE=duckduckgo           # Engine: duckduckgo | searxng | serper | brave | bing
+      # - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>&format=json
+      # - SERPER_API_KEY=                            # Serper.dev API key
+      # - BRAVE_SEARCH_API_KEY=                      # Brave Search API key
+
+      # --- Image Generation ---
+      # - ENABLE_IMAGE_GENERATION=false              # Enable image generation tab
+      # - IMAGE_GENERATION_ENGINE=openai             # Engine: openai | comfyui | automatic1111
+      # - IMAGES_OPENAI_API_BASE_URL=https://api.openai.com/v1
+      # - IMAGES_OPENAI_API_KEY=                     # API key for image generation
+      # - AUTOMATIC1111_BASE_URL=http://a1111:7860   # Automatic1111 / Stable Diffusion WebUI URL
+
+      # --- Audio (TTS / STT) ---
+      # - AUDIO_STT_ENGINE=                          # Speech-to-text: openai or web (browser built-in)
+      # - AUDIO_TTS_ENGINE=                          # Text-to-speech: openai, elevenlabs, or empty (browser)
+      # - AUDIO_TTS_OPENAI_API_KEY=                  # TTS API key (if using openai engine)
+      # - AUDIO_TTS_VOICE=alloy                      # OpenAI TTS voice
+
+      # --- Pipelines ---
+      # Open WebUI Pipelines allow custom Python processing of messages
+      # - PIPELINES_URL=http://pipelines:9099        # Pipelines service URL
+
+      # --- Telemetry ---
+      # - SCARF_NO_ANALYTICS=true                    # Disable Scarf analytics
+
+    volumes:
+      - ${BASE_DATA}/open-webui/data:/app/backend/data    # Chat history, users, RAG docs, uploads, config
+
+    ports:
+      - ${PORT_OPENWEBUI}:8080                            # WebUI
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"               # Allows reaching Ollama on the Docker host
+
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.open-webui.rule=Host(`chat.${DOMAIN}`)"
+    #   - "traefik.http.routers.open-webui.entrypoints=websecure"
+    #   - "traefik.http.routers.open-webui.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.open-webui.loadbalancer.server.port=8080"
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,32 @@
+# STEAMRIP
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# Docker Hub image steamrip/steamrip → does NOT exist
+# GitHub github.com/steamrip/steamrip → does NOT exist
+#
+# IMPORTANT: "SteamRip" in the real world refers to a piracy website (steamrip.com)
+# that distributes game downloads — NOT a legitimate tool for extracting game audio.
+# The described use case (extracting and cataloguing Steam game audio assets) did not
+# correspond to any real open-source Docker project.
+#
+# ✅ Verified alternatives for game soundtrack management:
+#   - Beets:      https://github.com/beetbox/beets           (music library organizer)
+#                 Image: beetbox/beets
+#   - Navidrome:  https://github.com/navidrome/navidrome     (music streaming server)
+#                 Image: deluan/navidrome
+#   - MusicBrainz Picard: for tagging game soundtracks manually
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Remove this file or replace with a legitimate music management tool.
+
+# services:
+#   steamrip:
+#     image: steamrip/steamrip:latest  # ← DOES NOT EXIST
+#     container_name: steamrip
+#     hostname: steamrip
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/steamrip/config:/config
+#     ports:
+#       - ${PORT_STEAMRIP:-3000}:3000

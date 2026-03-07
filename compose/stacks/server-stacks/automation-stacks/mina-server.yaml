@@ -1,0 +1,39 @@
+# MINA SERVER
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# GitHub github.com/nicholaswilde/mina-server → no such repository found
+# GHCR image ghcr.io/nicholaswilde/mina-server → does NOT exist
+# Note: nicholaswilde is a real GitHub user but has no "mina-server" repository
+#
+# The real "Mina" project exists at github.com/mina-deploy/mina — it is a
+# Ruby-based minimalist CLI deployment tool, NOT a Docker server application.
+# This YAML file appears to be based on a confusion between the real Mina CLI tool
+# and a fictional Docker service.
+#
+# ✅ Verified alternatives for self-hosted deployment automation:
+#   - Semaphore UI: https://github.com/semaphoreui/semaphore      (Ansible/Terraform UI)
+#                   Image: semaphoreui/semaphore
+#   - Woodpecker CI: https://github.com/woodpecker-ci/woodpecker (lightweight CI/CD)
+#                   Image: woodpeckerci/woodpecker-server
+#   - Drone CI:     https://github.com/harness/drone             (container-native CI/CD)
+#                   Image: drone/drone
+#   - Coolify:      https://github.com/coollabsio/coolify        (self-hosted Heroku/Netlify)
+#                   Image: ghcr.io/coollabsio/coolify
+#   - Dokploy:      https://github.com/Dokploy/dokploy           (Docker/K8s deployment)
+#                   Image: dokploy/dokploy
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified deployment automation tool or remove this file.
+
+# services:
+#   mina-server:
+#     image: ghcr.io/nicholaswilde/mina-server:latest  # ← DOES NOT EXIST
+#     container_name: mina-server
+#     hostname: mina-server
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/mina-server/config:/config
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#     ports:
+#       - ${PORT_MINA_SERVER:-3000}:3000

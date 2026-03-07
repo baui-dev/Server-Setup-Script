@@ -1,0 +1,38 @@
+# MAILRUSH
+# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
+# mailrush.io is a real commercial SaaS email testing service (like Mailtrap)
+# It is NOT open-source and has NO self-hosted Docker image
+# Docker Hub image mailrush/mailrush → does NOT exist
+# GitHub github.com/mailrush/mailrush → does NOT exist
+#
+# The AI confused a commercial SaaS brand (mailrush.io) with a self-hosted tool.
+# There is no self-hosted version of Mailrush.
+#
+# ✅ Verified alternatives for self-hosted email testing / SMTP relay:
+#   - Mailpit:     https://github.com/axllent/mailpit             (SMTP tester with web UI)
+#                  Image: axllent/mailpit
+#   - Inbucket:    https://github.com/inbucket/inbucket           (disposable email server)
+#                  Image: inbucket/inbucket
+#   - MailHog:     https://github.com/mailhog/MailHog             (email testing tool)
+#                  Image: mailhog/mailhog
+#   - Mailu:       https://github.com/Mailu/Mailu                 (full email server suite)
+#                  Image: mailu/mailu
+#   - Postal:      https://github.com/postalserver/postal         (full SMTP server)
+#                  Image: ghcr.io/postalserver/postal
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified email tool or remove this file.
+
+# services:
+#   mailrush:
+#     image: mailrush/mailrush:latest  # ← DOES NOT EXIST
+#     container_name: mailrush
+#     hostname: mailrush
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#     volumes:
+#       - ${BASE_DATA}/mailrush/config:/config
+#     ports:
+#       - ${PORT_MAILRUSH:-3000}:3000
+#       - ${PORT_MAILRUSH_SMTP:-2525}:2525

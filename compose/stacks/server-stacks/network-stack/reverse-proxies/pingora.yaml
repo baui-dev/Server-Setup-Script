@@ -1,0 +1,77 @@
+# PINGORA
+# GitHub: https://github.com/cloudflare/pingora
+# Image: N/A - Pingora is a Rust framework/library, not a pre-built container
+# Docs: https://github.com/cloudflare/pingora/tree/main/docs
+#
+# Pingora is a high-performance, asynchronous Rust framework developed by
+# Cloudflare for building programmable network proxies. It is the foundation
+# of Cloudflare's proxy infrastructure, handling 35M+ requests per second.
+# It is NOT a standalone service - you write proxy logic in Rust and compile
+# a custom binary. There is no official pre-built Docker image.
+#
+# Use cases: custom load balancers, traffic management, security filters,
+# protocol translators. Supports HTTP/1, HTTP/2, WebSocket, TLS (OpenSSL/BoringSSL).
+#
+# If you want a ready-made proxy, consider:
+# - Traefik (traefik:latest) - auto-discovers Docker services
+# - Caddy (caddy:latest) - automatic HTTPS
+# - Nginx Proxy Manager (jc21/nginx-proxy-manager)
+# - Zoraxy (zoraxydocker/zoraxy) - see zoraxy/zoraxy.yaml
+
+services:
+  # Example: custom Pingora proxy built from your application
+  # Replace 'your-org/your-pingora-app:latest' with your compiled image
+  pingora:
+    image: your-org/your-pingora-app:latest
+    container_name: pingora
+    hostname: pingora
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Custom config file for your Pingora application
+      # - CONFIG_FILE=/config/pingora.yaml
+    volumes:
+      - ${BASE_DATA}/pingora/config:/config
+      - ${BASE_DATA}/pingora/logs:/logs
+    ports:
+      - 80:80
+      - 443:443
+      - ${PORT_PINGORA_ADMIN:-6188}:6188
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Building a Pingora application:
+#
+# 1. Add pingora to your Cargo.toml:
+#    [dependencies]
+#    pingora = { version = "0.4", features = ["lb"] }
+#
+# 2. Implement the ProxyHttp trait:
+#    use pingora::prelude::*;
+#    struct MyProxy;
+#    #[async_trait]
+#    impl ProxyHttp for MyProxy {
+#        type CTX = ();
+#        fn new_ctx(&self) -> Self::CTX {}
+#        async fn upstream_peer(&self, session: &mut Session, _ctx: &mut Self::CTX)
+#            -> Result<Box<HttpPeer>> {
+#            let peer = Box::new(HttpPeer::new("127.0.0.1:8080", false, "".to_string()));
+#            Ok(peer)
+#        }
+#    }
+#
+# 3. Build and create a Docker image:
+#    FROM rust:1.75 AS builder
+#    COPY . .
+#    RUN cargo build --release
+#    FROM debian:bookworm-slim
+#    COPY --from=builder /target/release/my-proxy /usr/local/bin/
+#    CMD ["my-proxy"]
+#
+# Pingora GitHub examples: https://github.com/cloudflare/pingora/tree/main/pingora-proxy/examples
+# ============================================================

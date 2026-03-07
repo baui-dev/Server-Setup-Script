@@ -1,0 +1,43 @@
+# Planify
+# GitHub: https://github.com/alainm23/planify
+# Image: ghcr.io/alainm23/planify:latest
+# Docs: https://github.com/alainm23/planify#readme
+#
+# Modern task management and to-do application. Originally a GNOME desktop app
+# (formerly GNOME To Do), Planify has evolved to include Todoist and CalDAV sync
+# integration. Primarily designed as a native desktop application for Linux (GTK/GNOME).
+#
+# SELF-HOSTING NOTE: Planify is primarily a desktop application and does not
+# have an official Docker server image. For self-hosted task management that
+# Planify can sync with, consider:
+#   - A CalDAV server (e.g., Radicale): compose/stacks/misc-stack/
+#   - A self-hosted Todoist-compatible backend
+#
+# The configuration below assumes a potential future web/server version or a
+# community-built container. Verify the GitHub repo for the latest Docker status.
+
+services:
+  planify:
+    image: ghcr.io/alainm23/planify:latest
+    container_name: planify
+    hostname: planify
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # CalDAV integration (for syncing tasks via CalDAV protocol)
+      # - CALDAV_SERVER_URL=https://caldav.${DOMAIN}
+      # - CALDAV_USERNAME=${PLANIFY_CALDAV_USER}
+      # - CALDAV_PASSWORD=${PLANIFY_CALDAV_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/planify/data:/app/data
+      - ${BASE_DATA}/planify/config:/config
+    ports:
+      - ${PORT_PLANIFY:-3000}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

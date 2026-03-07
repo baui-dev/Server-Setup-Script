@@ -1,0 +1,36 @@
+# Deej-AI
+# GitHub: https://github.com/teticio/Deej-AI
+# Image: teticio/deej-ai:latest
+# Docs: https://github.com/teticio/Deej-AI#readme
+#
+# AI-powered DJ and playlist creator. Uses deep learning (audio embeddings via
+# track2vec and Spotify audio features) to generate smooth, sonically coherent
+# playlists from your local music library or Spotify. Provides a web UI for
+# generating and previewing playlists. GPU acceleration is optional but
+# recommended for model training on large collections.
+
+services:
+  deej-ai:
+    image: teticio/deej-ai:latest
+    container_name: deej-ai
+    hostname: deej-ai
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Optional: Spotify integration for playlist export / library augmentation
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID:-}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET:-}
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI:-}
+      - SPOTIFY_USERNAME=${SPOTIFY_USERNAME:-}
+    volumes:
+      - ${BASE_DATA}/deej-ai/models:/models
+      - ${BASE_DATA}/deej-ai/data:/data
+      - ${MUSIC_DIR}:/music:ro
+    ports:
+      - ${PORT_DEEJ_AI}:5000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

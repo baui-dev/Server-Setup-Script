@@ -1,0 +1,41 @@
+# LIDIFY
+# ⚠️  STATUS: UNVERIFIED - Docker image and GitHub repository could not be confirmed
+# Searched GitHub: https://github.com/TheWickedNet/Lidify → returns 404 (not found)
+# "TheWickedNet" org exists on GitHub but has no Lidify repository.
+# Docker Hub image thewickednet/lidify → does NOT exist
+#
+# The concept (Lidarr + Spotify bridge) is real and useful. There may be a similarly-named
+# or moved project. Check GitHub for current alternatives.
+#
+# ✅ Verified alternatives for Lidarr + Spotify integration:
+#   - lidarr-spotify-import: Search GitHub for "lidarr spotify" for community scripts
+#   - Lidarr import lists:   Use Lidarr's built-in Spotify/LastFM import list feature
+#                            (Settings → Import Lists → Add Spotify Followed Artists)
+#   - Headphones:            https://github.com/rembo10/headphones (older, but functional)
+#   - Beets w/ Spotify:      https://beets.io (has spotify plugin for metadata)
+#
+# Lidarr's own import lists (no extra container needed):
+#   Settings → Import Lists → + → Spotify (requires a Spotify app credentials)
+#   Settings → Import Lists → + → Last.fm (pull from your listening history)
+#
+# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
+# Replace with a verified Lidarr–Spotify bridge or use Lidarr's native import lists.
+
+# services:
+#   lidify:
+#     image: thewickednet/lidify:latest  # ← DOES NOT EXIST
+#     container_name: lidify
+#     hostname: lidify
+#     restart: unless-stopped
+#     environment:
+#       - TZ=${TZ}
+#       - PUID=${PUID}
+#       - PGID=${PGID}
+#       - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+#       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+#       - LIDARR_URL=${LIDARR_URL:-http://lidarr:8686}
+#       - LIDARR_API_KEY=${LIDARR_API_KEY}
+#     volumes:
+#       - ${BASE_DATA}/lidify/config:/config
+#     ports:
+#       - ${PORT_LIDIFY:-5000}:5000

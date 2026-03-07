@@ -1,0 +1,39 @@
+# OwnTone Server
+# GitHub: https://github.com/owntone/owntone-server
+# Image: owntone/owntone:latest
+# Docs: https://owntone.github.io/owntone-server
+#
+# Open-source iTunes/DAAP and RSP music and video server. Streams your music
+# library to iTunes, forked-daapd clients, Roku Soundbridge, and other DAAP/RSP
+# compatible players. Also supports AirPlay 1/2, Chromecast, and PulseAudio
+# outputs. Compatible with the iOS/Android "Remote" app for library browsing
+# and playback control. Includes a built-in web UI.
+#
+# NOTE: This deployment uses network_mode: host, which is required for Bonjour/
+# mDNS advertisement (iTunes/AirPlay pairing). Alternatively, configure Avahi
+# on the host and use bridge networking with explicit port mappings.
+
+services:
+  owntone-server:
+    image: owntone/owntone:latest
+    container_name: owntone-server
+    hostname: owntone-server
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${BASE_DATA}/owntone-server/config:/etc/owntone
+      - ${BASE_DATA}/owntone-server/data:/var/cache/owntone
+      - ${MUSIC_DIR}:/music:ro
+    # With host networking, ports are bound directly on the host:
+    # 3689/tcp  - DAAP (iTunes library sharing) and web UI
+    # 3688/tcp  - RSP
+    # 3689/udp  - mDNS advertisement
+    # 6600/tcp  - MPD protocol (if enabled in config)
+
+# networks:
+#   proxy:
+#     external: true

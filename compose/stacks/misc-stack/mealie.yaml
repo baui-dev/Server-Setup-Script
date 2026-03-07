@@ -1,0 +1,78 @@
+# Mealie
+# GitHub: https://github.com/mealie-recipes/mealie
+# Image: ghcr.io/mealie-recipes/mealie:latest
+# Docs: https://docs.mealie.io
+#
+# Self-hosted recipe manager and meal planner with a clean UI, automatic
+# ingredient parsing, and smart shopping lists. Supports importing recipes
+# from URLs and exporting to multiple formats. Uses PostgreSQL for storage.
+
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:latest
+    container_name: mealie
+    hostname: mealie
+    restart: unless-stopped
+    depends_on:
+      mealie-db:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Application settings
+      - ALLOW_SIGNUP=${MEALIE_ALLOW_SIGNUP:-false}
+      - DEFAULT_EMAIL=${MEALIE_DEFAULT_EMAIL:-admin@example.com}
+      - DEFAULT_PASSWORD=${MEALIE_DEFAULT_PASSWORD:-changeme}
+      - DEFAULT_GROUP=Home
+      - BASE_URL=https://mealie.${DOMAIN}
+      # Database — PostgreSQL
+      - DB_ENGINE=postgres
+      - POSTGRES_USER=${POSTGRES_USER:-mealie}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_SERVER=mealie-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=mealie
+      # Token lifetime in hours
+      - TOKEN_TIME=48
+      # Max workers for the API server
+      - MAX_WORKERS=1
+      - WEB_CONCURRENCY=1
+      # SMTP (optional)
+      # - SMTP_HOST=
+      # - SMTP_PORT=587
+      # - SMTP_FROM_NAME=Mealie
+      # - SMTP_FROM_EMAIL=
+      # - SMTP_AUTH_STRATEGY=TLS
+      # - SMTP_USER=
+      # - SMTP_PASSWORD=
+    volumes:
+      - ${BASE_DATA}/mealie/data:/app/data
+    ports:
+      - ${PORT_MEALIE}:9000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  mealie-db:
+    image: postgres:16-alpine
+    container_name: mealie-db
+    hostname: mealie-db
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=${POSTGRES_USER:-mealie}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=mealie
+    volumes:
+      - ${BASE_DATA}/mealie/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mealie} -d mealie"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

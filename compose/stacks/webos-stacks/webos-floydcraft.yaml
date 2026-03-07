@@ -1,0 +1,37 @@
+# WebOS (FloydCraft)
+# GitHub: https://github.com/floydcraft/webos (community web desktop project)
+# Image: nginx:alpine (static site - no official Docker image)
+# Docs: https://github.com/floydcraft/webos
+#
+# WebOS by FloydCraft is a browser-based desktop environment / web OS. There
+# is no official prebuilt Docker image. Clone the repository, build the static
+# assets, and serve them via nginx.
+#
+# Build steps (run once before starting):
+#   git clone https://github.com/floydcraft/webos /tmp/webos-floydcraft-src
+#   cd /tmp/webos-floydcraft-src && npm install && npm run build
+#   cp -r /tmp/webos-floydcraft-src/dist/* ${BASE_DATA}/webos-floydcraft/html/
+#
+# Note: Search GitHub for "floydcraft webos" to find the authoritative repo.
+
+services:
+  webos-floydcraft:
+    # No official Docker image available.
+    # Build from source: git clone https://github.com/floydcraft/webos
+    image: nginx:alpine
+    container_name: webos-floydcraft
+    hostname: webos-floydcraft
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/webos-floydcraft/html:/usr/share/nginx/html:ro
+      - ${BASE_DATA}/webos-floydcraft/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - ${PORT_WEBOS_FLOYDCRAFT:-8894}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
