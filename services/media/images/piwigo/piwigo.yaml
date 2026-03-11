@@ -1,0 +1,29 @@
+# PIWIGO
+# GitHub: https://github.com/Piwigo/Piwigo
+# Image: lscr.io/linuxserver/piwigo
+# Docs: https://piwigo.org/doc/
+#
+# Open source photo gallery software for the web. Manage, search, and share your
+# photos. Highly extensible with plugins and themes.
+
+services:
+  piwigo:
+    image: lscr.io/linuxserver/piwigo:latest
+    container_name: piwigo
+    hostname: piwigo
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+    volumes:
+      - ${DOCKER_DATA}/media/piwigo/config:/config
+      # - /path/to/gallery:/gallery                            # Photo gallery storage
+
+    ports:
+      - ${PORT_PIWIGO:-8101}:80
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

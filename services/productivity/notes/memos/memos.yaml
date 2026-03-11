@@ -1,0 +1,29 @@
+# MEMOS
+# GitHub: https://github.com/usememos/memos
+# Image: neosmemo/memos
+# Docs: https://www.usememos.com/docs
+#
+# An open-source, self-hosted memo hub. Lightweight personal note-taking service
+# for quick thoughts, snippets, and bookmarks. Privacy-first design.
+
+services:
+  memos:
+    image: neosmemo/memos:latest
+    container_name: memos
+    hostname: memos
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - MEMOS_MODE=prod                                      # Run mode (prod, dev)
+      # - MEMOS_PORT=5230                                      # Listen port
+      # - MEMOS_DRIVER=sqlite                                  # Database driver
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/memos/config:/var/opt/memos
+
+    ports:
+      - ${PORT_MEMOS:-5230}:5230
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

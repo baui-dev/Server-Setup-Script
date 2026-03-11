@@ -1,0 +1,32 @@
+# NTFY
+# GitHub: https://github.com/binwiederhier/ntfy
+# Image: binwiederhier/ntfy
+# Docs: https://docs.ntfy.sh/
+#
+# Simple HTTP-based pub-sub notification service. Send push notifications to your
+# phone or desktop via scripts. No signup required, works with Android and iOS.
+
+services:
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    hostname: ntfy
+    restart: unless-stopped
+
+    command: serve
+
+    environment:
+      - TZ=${TZ}
+      # - NTFY_BASE_URL=https://ntfy.${BASE_DOMAIN}            # Public base URL
+      # - NTFY_BEHIND_PROXY=true                               # Set to true if behind proxy
+      # - NTFY_AUTH_DEFAULT_ACCESS=deny-all                    # Default access control
+
+    volumes:
+      - ${DOCKER_DATA}/communication/ntfy/config:/etc/ntfy
+      - ${DOCKER_DATA}/communication/ntfy/data:/var/cache/ntfy
+
+    ports:
+      - ${PORT_NTFY:-8840}:80
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

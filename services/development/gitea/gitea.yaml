@@ -1,0 +1,33 @@
+# GITEA
+# GitHub: https://github.com/go-gitea/gitea
+# Image: gitea/gitea
+# Docs: https://docs.gitea.com/
+#
+# A painless self-hosted all-in-one software development service. Includes Git hosting,
+# code review, team collaboration, package registry, and CI/CD.
+
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    hostname: gitea
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - USER_UID=${PUID}                                     # Run as this UID
+      # - USER_GID=${PGID}                                     # Run as this GID
+      # - GITEA__database__DB_TYPE=sqlite3                     # Database type
+      # - GITEA__server__DOMAIN=gitea.${BASE_DOMAIN}           # External domain
+      # - GITEA__server__SSH_DOMAIN=gitea.${BASE_DOMAIN}       # SSH domain
+      # - GITEA__server__ROOT_URL=https://gitea.${BASE_DOMAIN} # Root URL
+
+    volumes:
+      - ${DOCKER_DATA}/development/gitea/config:/data
+
+    ports:
+      - ${PORT_GITEA:-3000}:3000                               # Web UI
+      # - ${PORT_GITEA_SSH:-2222}:22                           # SSH port
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

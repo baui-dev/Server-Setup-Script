@@ -1,0 +1,29 @@
+# AUTHELIA
+# GitHub: https://github.com/authelia/authelia
+# Image: authelia/authelia
+# Docs: https://www.authelia.com/configuration/
+#
+# Open-source authentication and authorization server. Provides SSO with MFA,
+# integrates with Nginx, Traefik, and Caddy as a forward auth provider.
+
+services:
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    hostname: authelia
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT_SECRET}           # JWT secret (required)
+      # - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}   # Session secret (required)
+      # - AUTHELIA_STORAGE_ENCRYPTION_KEY=${ENCRYPTION_KEY}    # Storage encryption key
+
+    volumes:
+      - ${DOCKER_DATA}/server/authelia/config:/config
+
+    ports:
+      - ${PORT_AUTHELIA:-9091}:9091
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

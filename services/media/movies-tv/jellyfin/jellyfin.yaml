@@ -1,0 +1,34 @@
+# JELLYFIN
+# GitHub: https://github.com/jellyfin/jellyfin
+# Image: jellyfin/jellyfin
+# Docs: https://jellyfin.org/docs/
+#
+# Free Software Media System. Jellyfin lets you manage and stream your media to any device.
+# Alternative to the proprietary Emby and Plex.
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    hostname: jellyfin
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}                                         # User ID for file permissions
+      # - PGID=${PGID}                                         # Group ID for file permissions
+      # - JELLYFIN_PublishedServerUrl=jellyfin.${BASE_DOMAIN}  # External URL for autodiscovery
+
+    volumes:
+      - ${DOCKER_DATA}/media/jellyfin/config:/config
+      - ${DOCKER_DATA}/media/jellyfin/cache:/cache
+      # - /path/to/media:/media                                # Media library (adjust path)
+      # - /path/to/media2:/media2:ro                           # Additional library (read-only)
+
+    ports:
+      - ${PORT_JELLYFIN:-8096}:8096
+      # - ${PORT_JELLYFIN_DLNA:-1900}:1900/udp                 # DLNA discovery
+      # - ${PORT_JELLYFIN_LAN:-7359}:7359/udp                  # LAN autodiscovery
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

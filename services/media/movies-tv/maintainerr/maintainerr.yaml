@@ -1,0 +1,28 @@
+# MAINTAINERR
+# GitHub: https://github.com/jorenn92/Maintainerr
+# Image: jorenn92/maintainerr
+# Docs: https://docs.maintainerr.info/
+#
+# A tool for managing your media library. Define rules to automatically delete
+# media from Plex/Jellyfin and remove it from Sonarr/Radarr when criteria are met.
+
+services:
+  maintainerr:
+    image: jorenn92/maintainerr:latest
+    container_name: maintainerr
+    hostname: maintainerr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}                                         # User ID for file permissions
+      # - PGID=${PGID}                                         # Group ID for file permissions
+
+    volumes:
+      - ${DOCKER_DATA}/media/maintainerr/config:/opt/data
+
+    ports:
+      - ${PORT_MAINTAINERR:-6246}:6246
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

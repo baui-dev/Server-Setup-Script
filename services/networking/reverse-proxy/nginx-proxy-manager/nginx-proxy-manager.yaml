@@ -1,0 +1,31 @@
+# NGINX PROXY MANAGER
+# GitHub: https://github.com/NginxProxyManager/nginx-proxy-manager
+# Image: jc21/nginx-proxy-manager
+# Docs: https://nginxproxymanager.com/guide/
+#
+# Docker container for managing Nginx proxy hosts with a simple, powerful interface.
+# Supports SSL certificates via Let's Encrypt, access lists, and redirection hosts.
+
+services:
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    hostname: nginx-proxy-manager
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - DB_SQLITE_FILE=/data/database.sqlite                 # SQLite DB path (default)
+      # - DISABLE_IPV6=true                                    # Disable IPv6 if not supported
+
+    volumes:
+      - ${DOCKER_DATA}/networking/nginx-proxy-manager/config:/data
+      - ${DOCKER_DATA}/networking/nginx-proxy-manager/letsencrypt:/etc/letsencrypt
+
+    ports:
+      - ${PORT_NPM_HTTP:-80}:80                                # HTTP (proxy)
+      - ${PORT_NPM_HTTPS:-443}:443                             # HTTPS (proxy)
+      - ${PORT_NPM_ADMIN:-81}:81                               # Admin web UI
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

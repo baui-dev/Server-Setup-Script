@@ -1,0 +1,34 @@
+# QBITTORRENT
+# GitHub: https://github.com/qbittorrent/qBittorrent
+# Image: lscr.io/linuxserver/qbittorrent
+# Docs: https://docs.linuxserver.io/images/docker-qbittorrent/
+#
+# Feature-rich BitTorrent client with a web UI. Supports sequential downloading,
+# torrent creation, RSS feed auto-downloading, and many more features.
+
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    hostname: qbittorrent
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - WEBUI_PORT=8085
+      # - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest # VueTorrent UI mod
+      # - TORRENTING_PORT=6881                                 # Port for incoming connections
+
+    volumes:
+      - ${DOCKER_DATA}/misc/qbittorrent/config:/config
+      # - /path/to/downloads:/downloads                        # Downloads directory
+
+    ports:
+      - ${PORT_QBITTORRENT:-8085}:8085
+      # - 6881:6881                                            # Torrenting port (TCP)
+      # - 6881:6881/udp                                        # Torrenting port (UDP)
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

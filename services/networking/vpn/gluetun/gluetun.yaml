@@ -1,0 +1,38 @@
+# GLUETUN
+# GitHub: https://github.com/qdm12/gluetun
+# Image: qmcgaw/gluetun
+# Docs: https://github.com/qdm12/gluetun/wiki
+#
+# VPN client in a Docker container for multiple VPN providers. Other containers
+# can route all their traffic through this container using network_mode: service:gluetun.
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    hostname: gluetun
+    restart: unless-stopped
+
+    cap_add:
+      - NET_ADMIN
+
+    devices:
+      - /dev/net/tun:/dev/net/tun
+
+    environment:
+      - TZ=${TZ}
+      - VPN_SERVICE_PROVIDER=mullvad                           # VPN provider (mullvad, nordvpn, etc.)
+      - VPN_TYPE=wireguard                                     # VPN type (wireguard, openvpn)
+      # - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}       # WireGuard private key
+      # - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}           # WireGuard addresses
+      # - SERVER_COUNTRIES=Sweden                              # VPN server country
+      # - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16             # Allow LAN access through VPN
+
+    volumes:
+      - ${DOCKER_DATA}/networking/gluetun/config:/gluetun
+
+    ports:
+      - ${PORT_GLUETUN:-8888}:8888                             # HTTP proxy port
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

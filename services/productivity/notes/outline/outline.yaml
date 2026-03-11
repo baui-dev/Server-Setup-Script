@@ -1,0 +1,36 @@
+# OUTLINE
+# GitHub: https://github.com/outline/outline
+# Image: outlinewiki/outline
+# Docs: https://docs.getoutline.com/s/hosting/
+#
+# Fast, collaborative, markdown-based wiki for teams. Self-hosted knowledge base
+# with rich editing, integrations, and access controls.
+
+services:
+  outline:
+    image: outlinewiki/outline:latest
+    container_name: outline
+    hostname: outline
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - SECRET_KEY=${SECRET_KEY}                             # 32-char hex secret (required)
+      # - UTILS_SECRET=${UTILS_SECRET}                         # Utils secret (required)
+      # - DATABASE_URL=postgres://user:pass@host:5432/outline  # PostgreSQL connection URL
+      # - REDIS_URL=redis://redis:6379                         # Redis connection URL
+      # - URL=https://wiki.${BASE_DOMAIN}                      # Public URL (required)
+      # - PORT=3000                                            # Internal port
+      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}               # S3 storage access key
+      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}       # S3 storage secret key
+      # - AWS_REGION=us-east-1                                 # S3 region
+      # - AWS_S3_UPLOAD_BUCKET_NAME=outline                    # S3 bucket name
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/outline/config:/var/lib/outline/data
+
+    ports:
+      - ${PORT_OUTLINE:-3900}:3000
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

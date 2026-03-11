@@ -1,0 +1,29 @@
+# PORTAINER
+# GitHub: https://github.com/portainer/portainer
+# Image: portainer/portainer-ce
+# Docs: https://docs.portainer.io/
+#
+# Powerful container management UI for Docker and Kubernetes. Deploy, configure,
+# troubleshoot, and secure containers through a user-friendly web interface.
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    hostname: portainer
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+
+    volumes:
+      - ${DOCKER_DATA}/server/portainer/config:/data
+      - /var/run/docker.sock:/var/run/docker.sock                # Docker socket
+
+    ports:
+      - ${PORT_PORTAINER:-9000}:9000                             # HTTP web UI
+      - ${PORT_PORTAINER_HTTPS:-9443}:9443                       # HTTPS web UI
+      # - ${PORT_PORTAINER_AGENT:-8000}:8000                     # Agent/Edge agent port
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

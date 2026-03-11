@@ -1,0 +1,30 @@
+# SABNZBD
+# GitHub: https://github.com/sabnzbd/sabnzbd
+# Image: lscr.io/linuxserver/sabnzbd
+# Docs: https://sabnzbd.org/wiki/
+#
+# Open-source Usenet newsreader. Automatically downloads and processes NZB files.
+# Integrates with Sonarr, Radarr, and other arr applications.
+
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    hostname: sabnzbd
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+    volumes:
+      - ${DOCKER_DATA}/misc/sabnzbd/config:/config
+      # - /path/to/downloads:/downloads                        # Download directory
+      # - /path/to/incomplete:/incomplete-downloads            # Incomplete downloads
+
+    ports:
+      - ${PORT_SABNZBD:-8080}:8080
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

@@ -1,0 +1,30 @@
+# HOMARR
+# GitHub: https://github.com/ajnart/homarr
+# Image: ghcr.io/ajnart/homarr
+# Docs: https://homarr.dev/docs/getting-started/
+#
+# Sleek, modern dashboard for your server. Integrates with many self-hosted apps
+# to show live data. Drag-and-drop customization with a rich app catalog.
+
+services:
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    hostname: homarr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - BASE_URL=homarr.${BASE_DOMAIN}                       # External base URL
+      # - SECRET_ENCRYPTION_KEY=${SECRET_KEY}                  # Encryption key (32 hex chars)
+      # - AUTH_PROVIDER=credentials                            # Auth provider (credentials, ldap, oidc)
+
+    volumes:
+      - ${DOCKER_DATA}/server/homarr/config:/appdata
+      - /var/run/docker.sock:/var/run/docker.sock:ro            # Docker socket (for container info)
+
+    ports:
+      - ${PORT_HOMARR:-7575}:7575
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

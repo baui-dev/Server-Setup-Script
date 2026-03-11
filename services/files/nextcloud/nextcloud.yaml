@@ -1,0 +1,36 @@
+# NEXTCLOUD
+# GitHub: https://github.com/nextcloud/server
+# Image: nextcloud
+# Docs: https://docs.nextcloud.com/server/latest/admin_manual/
+#
+# Self-hosted productivity platform. File sync and share, calendar, contacts,
+# collaborative documents, video calls, and hundreds of apps.
+
+services:
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    hostname: nextcloud
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}                                         # User ID for file permissions
+      # - PGID=${PGID}                                         # Group ID for file permissions
+      # - NEXTCLOUD_ADMIN_USER=admin                           # Initial admin username
+      # - NEXTCLOUD_ADMIN_PASSWORD=changeme                    # Initial admin password
+      # - NEXTCLOUD_TRUSTED_DOMAINS=cloud.${BASE_DOMAIN}       # Trusted domain(s)
+      # - MYSQL_HOST=mariadb                                   # Database host
+      # - MYSQL_DATABASE=nextcloud                             # Database name
+      # - MYSQL_USER=nextcloud                                 # Database user
+      # - MYSQL_PASSWORD=${MYSQL_PASSWORD}                     # Database password
+
+    volumes:
+      - ${DOCKER_DATA}/files/nextcloud/config:/var/www/html
+      # - /path/to/data:/var/www/html/data                     # User data directory
+
+    ports:
+      - ${PORT_NEXTCLOUD:-8880}:80
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

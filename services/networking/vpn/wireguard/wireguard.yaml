@@ -1,0 +1,41 @@
+# WIREGUARD
+# GitHub: https://github.com/linuxserver/docker-wireguard
+# Image: lscr.io/linuxserver/wireguard
+# Docs: https://docs.linuxserver.io/images/docker-wireguard/
+#
+# WireGuard is an extremely simple yet fast and modern VPN. This LinuxServer image
+# can function as both a server and a client. Includes a web UI for easy management.
+
+services:
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    hostname: wireguard
+    restart: unless-stopped
+
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - SERVERURL=vpn.example.com                            # External server URL or IP
+      # - SERVERPORT=51820                                     # Server listen port
+      # - PEERS=3                                              # Number of peer configs to generate
+      # - PEERDNS=auto                                         # DNS for peers (auto or IP)
+      # - INTERNAL_SUBNET=10.13.13.0                           # Internal subnet
+
+    volumes:
+      - ${DOCKER_DATA}/networking/wireguard/config:/config
+      - /lib/modules:/lib/modules:ro                           # Kernel modules (required)
+
+    ports:
+      - ${PORT_WIREGUARD:-51820}:51820/udp
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

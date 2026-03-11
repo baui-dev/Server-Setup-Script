@@ -1,0 +1,34 @@
+# JOPLIN SERVER
+# GitHub: https://github.com/laurent22/joplin
+# Image: joplin/server
+# Docs: https://joplinapp.org/help/self_hosting/server/
+#
+# Synchronisation server for Joplin note-taking app. Allows multiple clients to
+# sync notes, notebooks, and tags. End-to-end encryption supported.
+
+services:
+  joplin:
+    image: joplin/server:latest
+    container_name: joplin
+    hostname: joplin
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - APP_BASE_URL=http://localhost:22300                     # Public base URL (change to your domain)
+      - APP_PORT=22300                                         # Application port
+      # - DB_CLIENT=pg                                         # Database client (pg or sqlite3)
+      # - POSTGRES_HOST=postgres                               # PostgreSQL host
+      # - POSTGRES_PORT=5432                                   # PostgreSQL port
+      # - POSTGRES_DATABASE=joplin                             # PostgreSQL database
+      # - POSTGRES_USER=joplin                                 # PostgreSQL user
+      # - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}               # PostgreSQL password
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/joplin/config:/home/joplin
+
+    ports:
+      - ${PORT_JOPLIN:-22300}:22300
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

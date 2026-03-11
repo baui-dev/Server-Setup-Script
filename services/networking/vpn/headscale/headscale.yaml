@@ -1,0 +1,30 @@
+# HEADSCALE
+# GitHub: https://github.com/juanfont/headscale
+# Image: headscale/headscale
+# Docs: https://headscale.net/
+#
+# An open source, self-hosted implementation of the Tailscale control server.
+# Allows you to run your own Tailscale coordination server for your mesh VPN.
+
+services:
+  headscale:
+    image: headscale/headscale:latest
+    container_name: headscale
+    hostname: headscale
+    restart: unless-stopped
+
+    command: serve
+
+    environment:
+      - TZ=${TZ}
+
+    volumes:
+      - ${DOCKER_DATA}/networking/headscale/config:/etc/headscale
+      - ${DOCKER_DATA}/networking/headscale/data:/var/lib/headscale
+
+    ports:
+      - ${PORT_HEADSCALE:-8080}:8080                           # gRPC and HTTP port
+      # - ${PORT_HEADSCALE_METRICS:-9090}:9090                 # Metrics endpoint
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

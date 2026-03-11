@@ -1,0 +1,36 @@
+# SLSKD
+# GitHub: https://github.com/slskd/slskd
+# Image: slskd/slskd
+# Docs: https://github.com/slskd/slskd/blob/master/docs/config.md
+#
+# A modern client-server application for the Soulseek file sharing network.
+# Web UI for searching, downloading, and sharing music on Soulseek.
+
+services:
+  slskd:
+    image: slskd/slskd:latest
+    container_name: slskd
+    hostname: slskd
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - SLSKD_REMOTE_CONFIGURATION=true                        # Enable remote config via Web UI
+      # - SLSKD_USERNAME=slskd                                 # Soulseek username
+      # - SLSKD_PASSWORD=slskd                                 # Soulseek password
+      # - SLSKD_SLSK_LISTEN_PORT=50300                         # Soulseek listen port
+
+    volumes:
+      - ${DOCKER_DATA}/media/slskd/config:/app
+      # - /path/to/music:/music                                # Shared music directory
+      # - /path/to/downloads:/downloads                        # Downloads directory
+
+    ports:
+      - ${PORT_SLSKD:-5030}:5030
+      # - ${PORT_SLSKD_HTTPS:-5031}:5031                       # HTTPS port
+      # - 50300:50300                                          # Soulseek listen port
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

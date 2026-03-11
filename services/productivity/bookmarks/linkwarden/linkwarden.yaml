@@ -1,0 +1,31 @@
+# LINKWARDEN
+# GitHub: https://github.com/linkwarden/linkwarden
+# Image: ghcr.io/linkwarden/linkwarden
+# Docs: https://docs.linkwarden.app/
+#
+# Self-hosted, open-source collaborative bookmark manager. Archive, organize, and
+# preserve webpages with full-page snapshots, tags, and collections.
+
+services:
+  linkwarden:
+    image: ghcr.io/linkwarden/linkwarden:latest
+    container_name: linkwarden
+    hostname: linkwarden
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}                   # Auth secret (required)
+      # - NEXTAUTH_URL=https://links.${BASE_DOMAIN}            # Public URL (required)
+      # - DATABASE_URL=postgresql://user:pass@host:5432/linkwarden # PostgreSQL URL
+      # - STORAGE_FOLDER=/data                                 # Storage folder for archives
+      # - NEXT_PUBLIC_DISABLE_REGISTRATION=true                # Disable new registrations
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/linkwarden/config:/data/data
+
+    ports:
+      - ${PORT_LINKWARDEN:-3300}:3000
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

@@ -1,0 +1,28 @@
+# UPTIME KUMA
+# GitHub: https://github.com/louislam/uptime-kuma
+# Image: louislam/uptime-kuma
+# Docs: https://github.com/louislam/uptime-kuma/wiki
+#
+# A self-hosted monitoring tool like Uptime Robot. Monitor your websites, APIs,
+# and services with beautiful status pages and notifications.
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    hostname: uptime-kuma
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}                                         # User ID for file permissions
+      # - PGID=${PGID}                                         # Group ID for file permissions
+
+    volumes:
+      - ${DOCKER_DATA}/networking/uptime-kuma/config:/app/data
+
+    ports:
+      - ${PORT_UPTIME_KUMA:-3001}:3001
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
