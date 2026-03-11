@@ -301,7 +301,7 @@
       "description": "DNS ad blocker",
       "github": "https://github.com/AdguardTeam/AdGuardHome",
       "docker_image": "adguard/adguardhome",
-      "ports": ["PORT_ADGUARD"],
+      "ports": ["PORT_ADGUARD_SETUP", "PORT_ADGUARD_HTTP", "PORT_ADGUARD_HTTPS", "PORT_ADGUARD_DNS"],
       "requires": [],
       "exposes_http": true,
       "reverse_proxy": {
@@ -330,7 +330,7 @@
       "description": "DNS ad blocker",
       "github": "https://github.com/pi-hole/pi-hole",
       "docker_image": "pihole/pihole",
-      "ports": ["PORT_PIHOLE"],
+      "ports": ["PORT_PIHOLE", "PORT_PIHOLE_DNS"],
       "requires": [],
       "exposes_http": true,
       "reverse_proxy": {
@@ -363,11 +363,7 @@
       "requires": [],
       "exposes_http": false,
       "reverse_proxy": null,
-      "healthcheck": {
-        "url": "http://localhost:5335",
-        "interval_seconds": 10,
-        "timeout_seconds": 5
-      },
+      "healthcheck": null,
       "compatibility": {
         "architectures": ["amd64", "arm64"],
         "minimum_docker_version": "20.10",
@@ -384,7 +380,7 @@
       "description": "Reverse proxy with GUI",
       "github": "https://github.com/NginxProxyManager/nginx-proxy-manager",
       "docker_image": "jc21/nginx-proxy-manager",
-      "ports": ["PORT_NGINX_PROXY_MANAGER"],
+      "ports": ["PORT_NPM_HTTP", "PORT_NPM_HTTPS", "PORT_NPM_ADMIN"],
       "requires": [],
       "exposes_http": true,
       "reverse_proxy": {
@@ -413,7 +409,7 @@
       "description": "Cloud native proxy",
       "github": "https://github.com/traefik/traefik",
       "docker_image": "traefik",
-      "ports": ["PORT_TRAEFIK"],
+      "ports": ["PORT_TRAEFIK_HTTP", "PORT_TRAEFIK_HTTPS", "PORT_TRAEFIK_DASHBOARD"],
       "requires": [],
       "exposes_http": true,
       "reverse_proxy": {
@@ -502,8 +498,12 @@
       "docker_image": "qmcgaw/gluetun",
       "ports": ["PORT_GLUETUN"],
       "requires": [],
-      "exposes_http": false,
-      "reverse_proxy": null,
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "gluetun.${BASE_DOMAIN}",
+        "path": "/"
+      },
       "healthcheck": {
         "url": "http://localhost:8888",
         "interval_seconds": 10,
@@ -558,11 +558,7 @@
       "requires": [],
       "exposes_http": false,
       "reverse_proxy": null,
-      "healthcheck": {
-        "url": "http://localhost:51820",
-        "interval_seconds": 10,
-        "timeout_seconds": 5
-      },
+      "healthcheck": null,
       "compatibility": {
         "architectures": ["amd64", "arm64"],
         "minimum_docker_version": "20.10",
