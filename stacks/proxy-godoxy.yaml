@@ -1,0 +1,511 @@
+version: '3.8'
+services:
+  jellyfin:
+    '# Source': registry entry for jellyfin
+    extends:
+      file: ../services/media/movies-tv/jellyfin/jellyfin.yaml
+      service: jellyfin
+    labels:
+      proxy.host: jellyfin.${BASE_DOMAIN}
+      proxy.port: '8096'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  sonarr:
+    '# Source': registry entry for sonarr
+    extends:
+      file: ../services/media/movies-tv/sonarr/sonarr.yaml
+      service: sonarr
+    labels:
+      proxy.host: sonarr.${BASE_DOMAIN}
+      proxy.port: '8989'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  radarr:
+    '# Source': registry entry for radarr
+    extends:
+      file: ../services/media/movies-tv/radarr/radarr.yaml
+      service: radarr
+    labels:
+      proxy.host: radarr.${BASE_DOMAIN}
+      proxy.port: '7878'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  bazarr:
+    '# Source': registry entry for bazarr
+    extends:
+      file: ../services/media/movies-tv/bazarr/bazarr.yaml
+      service: bazarr
+    labels:
+      proxy.host: bazarr.${BASE_DOMAIN}
+      proxy.port: '6767'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  jellyseerr:
+    '# Source': registry entry for jellyseerr
+    extends:
+      file: ../services/media/movies-tv/jellyseerr/jellyseerr.yaml
+      service: jellyseerr
+    labels:
+      proxy.host: jellyseerr.${BASE_DOMAIN}
+      proxy.port: '5055'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  prowlarr:
+    '# Source': registry entry for prowlarr
+    extends:
+      file: ../services/media/movies-tv/prowlarr/prowlarr.yaml
+      service: prowlarr
+    labels:
+      proxy.host: prowlarr.${BASE_DOMAIN}
+      proxy.port: '9696'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  maintainerr:
+    '# Source': registry entry for maintainerr
+    extends:
+      file: ../services/media/movies-tv/maintainerr/maintainerr.yaml
+      service: maintainerr
+    labels:
+      proxy.host: maintainerr.${BASE_DOMAIN}
+      proxy.port: '6246'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  lidarr:
+    '# Source': registry entry for lidarr
+    extends:
+      file: ../services/media/music/lidarr/lidarr.yaml
+      service: lidarr
+    labels:
+      proxy.host: lidarr.${BASE_DOMAIN}
+      proxy.port: '8686'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  slskd:
+    '# Source': registry entry for slskd
+    extends:
+      file: ../services/media/music/slskd/slskd.yaml
+      service: slskd
+    labels:
+      proxy.host: slskd.${BASE_DOMAIN}
+      proxy.port: '5030'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  piwigo:
+    '# Source': registry entry for piwigo
+    extends:
+      file: ../services/media/images/piwigo/piwigo.yaml
+      service: piwigo
+    labels:
+      proxy.host: piwigo.${BASE_DOMAIN}
+      proxy.port: '8101'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  adguard:
+    '# Source': registry entry for adguard
+    extends:
+      file: ../services/networking/dns/adguard/adguard.yaml
+      service: adguard
+    labels:
+      proxy.host: adguard.${BASE_DOMAIN}
+      proxy.port: '3000'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  pihole:
+    '# Source': registry entry for pihole
+    extends:
+      file: ../services/networking/dns/pihole/pihole.yaml
+      service: pihole
+    labels:
+      proxy.host: pihole.${BASE_DOMAIN}
+      proxy.port: '8080'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  nginx-proxy-manager:
+    '# Source': registry entry for nginx-proxy-manager
+    extends:
+      file: ../services/networking/reverse-proxy/nginx-proxy-manager/nginx-proxy-manager.yaml
+      service: nginx-proxy-manager
+    labels:
+      proxy.host: nginx-proxy-manager.${BASE_DOMAIN}
+      proxy.port: '81'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  traefik:
+    '# Source': registry entry for traefik
+    extends:
+      file: ../services/networking/reverse-proxy/traefik/traefik.yaml
+      service: traefik
+    labels:
+      proxy.host: traefik.${BASE_DOMAIN}
+      proxy.port: '8080'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  beszel:
+    '# Source': registry entry for beszel
+    extends:
+      file: ../services/networking/monitoring/beszel/beszel.yaml
+      service: beszel
+    labels:
+      proxy.host: beszel.${BASE_DOMAIN}
+      proxy.port: '8090'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  uptime-kuma:
+    '# Source': registry entry for uptime-kuma
+    extends:
+      file: ../services/networking/monitoring/uptime-kuma/uptime-kuma.yaml
+      service: uptime-kuma
+    labels:
+      proxy.host: uptime-kuma.${BASE_DOMAIN}
+      proxy.port: '3001'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  gluetun:
+    '# Source': registry entry for gluetun
+    extends:
+      file: ../services/networking/vpn/gluetun/gluetun.yaml
+      service: gluetun
+    labels:
+      proxy.host: gluetun.${BASE_DOMAIN}
+      proxy.port: '8888'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  headscale:
+    '# Source': registry entry for headscale
+    extends:
+      file: ../services/networking/vpn/headscale/headscale.yaml
+      service: headscale
+    labels:
+      proxy.host: headscale.${BASE_DOMAIN}
+      proxy.port: '8080'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  openwebui:
+    '# Source': registry entry for openwebui
+    extends:
+      file: ../services/ai/openwebui/openwebui.yaml
+      service: openwebui
+    labels:
+      proxy.host: openwebui.${BASE_DOMAIN}
+      proxy.port: '3000'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  n8n:
+    '# Source': registry entry for n8n
+    extends:
+      file: ../services/ai/n8n/n8n.yaml
+      service: n8n
+    labels:
+      proxy.host: n8n.${BASE_DOMAIN}
+      proxy.port: '5678'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  anythingllm:
+    '# Source': registry entry for anythingllm
+    extends:
+      file: ../services/ai/anythingllm/anythingllm.yaml
+      service: anythingllm
+    labels:
+      proxy.host: anythingllm.${BASE_DOMAIN}
+      proxy.port: '3020'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  gitea:
+    '# Source': registry entry for gitea
+    extends:
+      file: ../services/development/gitea/gitea.yaml
+      service: gitea
+    labels:
+      proxy.host: gitea.${BASE_DOMAIN}
+      proxy.port: '3000'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  code-server:
+    '# Source': registry entry for code-server
+    extends:
+      file: ../services/development/code-server/code-server.yaml
+      service: code-server
+    labels:
+      proxy.host: code-server.${BASE_DOMAIN}
+      proxy.port: '8443'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  semaphore:
+    '# Source': registry entry for semaphore
+    extends:
+      file: ../services/development/semaphore/semaphore.yaml
+      service: semaphore
+    labels:
+      proxy.host: semaphore.${BASE_DOMAIN}
+      proxy.port: '3000'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  nextcloud:
+    '# Source': registry entry for nextcloud
+    extends:
+      file: ../services/files/nextcloud/nextcloud.yaml
+      service: nextcloud
+    labels:
+      proxy.host: nextcloud.${BASE_DOMAIN}
+      proxy.port: '8880'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  filebrowser:
+    '# Source': registry entry for filebrowser
+    extends:
+      file: ../services/files/filebrowser/filebrowser.yaml
+      service: filebrowser
+    labels:
+      proxy.host: filebrowser.${BASE_DOMAIN}
+      proxy.port: '8888'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  minio:
+    '# Source': registry entry for minio
+    extends:
+      file: ../services/files/minio/minio.yaml
+      service: minio
+    labels:
+      proxy.host: minio.${BASE_DOMAIN}
+      proxy.port: '9001'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  matrix-synapse:
+    '# Source': registry entry for matrix-synapse
+    extends:
+      file: ../services/communication/matrix-synapse/matrix-synapse.yaml
+      service: matrix-synapse
+    labels:
+      proxy.host: matrix.${BASE_DOMAIN}
+      proxy.port: '8008'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  ntfy:
+    '# Source': registry entry for ntfy
+    extends:
+      file: ../services/communication/ntfy/ntfy.yaml
+      service: ntfy
+    labels:
+      proxy.host: ntfy.${BASE_DOMAIN}
+      proxy.port: '8840'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  gotify:
+    '# Source': registry entry for gotify
+    extends:
+      file: ../services/communication/gotify/gotify.yaml
+      service: gotify
+    labels:
+      proxy.host: gotify.${BASE_DOMAIN}
+      proxy.port: '8850'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  joplin:
+    '# Source': registry entry for joplin
+    extends:
+      file: ../services/productivity/notes/joplin/joplin.yaml
+      service: joplin
+    labels:
+      proxy.host: joplin.${BASE_DOMAIN}
+      proxy.port: '22300'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  outline:
+    '# Source': registry entry for outline
+    extends:
+      file: ../services/productivity/notes/outline/outline.yaml
+      service: outline
+    labels:
+      proxy.host: outline.${BASE_DOMAIN}
+      proxy.port: '3900'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  memos:
+    '# Source': registry entry for memos
+    extends:
+      file: ../services/productivity/notes/memos/memos.yaml
+      service: memos
+    labels:
+      proxy.host: memos.${BASE_DOMAIN}
+      proxy.port: '5230'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  linkwarden:
+    '# Source': registry entry for linkwarden
+    extends:
+      file: ../services/productivity/bookmarks/linkwarden/linkwarden.yaml
+      service: linkwarden
+    labels:
+      proxy.host: linkwarden.${BASE_DOMAIN}
+      proxy.port: '3300'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  wallabag:
+    '# Source': registry entry for wallabag
+    extends:
+      file: ../services/productivity/bookmarks/wallabag/wallabag.yaml
+      service: wallabag
+    labels:
+      proxy.host: wallabag.${BASE_DOMAIN}
+      proxy.port: '8760'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  vikunja:
+    '# Source': registry entry for vikunja
+    extends:
+      file: ../services/productivity/tasks/vikunja/vikunja.yaml
+      service: vikunja
+    labels:
+      proxy.host: vikunja.${BASE_DOMAIN}
+      proxy.port: '3456'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  plane:
+    '# Source': registry entry for plane
+    extends:
+      file: ../services/productivity/tasks/plane/plane.yaml
+      service: plane
+    labels:
+      proxy.host: plane.${BASE_DOMAIN}
+      proxy.port: '8970'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  homepage:
+    '# Source': registry entry for homepage
+    extends:
+      file: ../services/server/dashboards/homepage/homepage.yaml
+      service: homepage
+    labels:
+      proxy.host: homepage.${BASE_DOMAIN}
+      proxy.port: '3050'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  homarr:
+    '# Source': registry entry for homarr
+    extends:
+      file: ../services/server/dashboards/homarr/homarr.yaml
+      service: homarr
+    labels:
+      proxy.host: homarr.${BASE_DOMAIN}
+      proxy.port: '7575'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  portainer:
+    '# Source': registry entry for portainer
+    extends:
+      file: ../services/server/dashboards/portainer/portainer.yaml
+      service: portainer
+    labels:
+      proxy.host: portainer.${BASE_DOMAIN}
+      proxy.port: '9000'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  dozzle:
+    '# Source': registry entry for dozzle
+    extends:
+      file: ../services/server/management/dozzle/dozzle.yaml
+      service: dozzle
+    labels:
+      proxy.host: dozzle.${BASE_DOMAIN}
+      proxy.port: '8940'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  authelia:
+    '# Source': registry entry for authelia
+    extends:
+      file: ../services/server/auth/authelia/authelia.yaml
+      service: authelia
+    labels:
+      proxy.host: auth.${BASE_DOMAIN}
+      proxy.port: '9091'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  qbittorrent:
+    '# Source': registry entry for qbittorrent
+    extends:
+      file: ../services/misc/qbittorrent/qbittorrent.yaml
+      service: qbittorrent
+    labels:
+      proxy.host: qbittorrent.${BASE_DOMAIN}
+      proxy.port: '8085'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  sabnzbd:
+    '# Source': registry entry for sabnzbd
+    extends:
+      file: ../services/misc/sabnzbd/sabnzbd.yaml
+      service: sabnzbd
+    labels:
+      proxy.host: sabnzbd.${BASE_DOMAIN}
+      proxy.port: '8080'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  autobrr:
+    '# Source': registry entry for autobrr
+    extends:
+      file: ../services/misc/autobrr/autobrr.yaml
+      service: autobrr
+    labels:
+      proxy.host: autobrr.${BASE_DOMAIN}
+      proxy.port: '7474'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+  flaresolverr:
+    '# Source': registry entry for flaresolverr
+    extends:
+      file: ../services/misc/flaresolverr/flaresolverr.yaml
+      service: flaresolverr
+    labels:
+      proxy.host: flaresolverr.${BASE_DOMAIN}
+      proxy.port: '8191'
+      proxy.scheme: http
+    networks:
+    - ${DEFAULT_NETWORK}
+networks:
+  ${DEFAULT_NETWORK}:
+    external: true
