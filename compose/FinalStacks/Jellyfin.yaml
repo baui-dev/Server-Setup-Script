@@ -1,0 +1,177 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    user: 1000:1000
+    ports:
+      - 8096:8096/tcp
+      # - 7359:7359/udp 
+    volumes:
+      - ./jellyfin-config:/config
+      - ./jellyfin-cache:/cache
+      - ${DATA_LOCATION}:/data
+    restart: 'unless-stopped'
+    environment:
+      - TZ=${TIMEZONE}
+      - /dev/dri:/dev/dri 
+
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    ports: # Expose qBittorrent's web UI and torrent ports through VPN
+      # - 8700:8096   # Jellyfin
+      - 8701:8701   # qBittorrent Web UI
+      - 6881:6881   # torrent port
+      - 6881:6881/udp
+      - 7878:7878   # Radarr
+      - 8989:8989   # Sonarr
+      - 8686:8686   # Lidarr
+      - 6767:6767   # Bazarr
+      - 9696:9696   # Prowlarr
+      - 8191:8191   # FlareSolverr
+      # - 5055:5055   # Jellyseerr
+    volumes:
+      - ./gluetun:/gluetun
+      # - ./gluetun/us-den.conf:/gluetun/wireguard/wg0.conf
+    environment:
+      - VPN_TYPE=openvpn
+      - VPN_SERVICE_PROVIDER=protonvpn
+      - OPENVPN_USER=${OPENVPN_USER}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - VPN_PORT_FORWARDING=on
+      - SERVER_COUNTRIES=United States
+      - TZ=${TIMEZONE}
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=8701
+      - WEBUI_ADDRESS=0.0.0.0
+      - WEBUI_EXTERNAL_ACCESS=true
+    volumes:
+      - ./qbittorrent:/config
+      - ${DATA_LOCATION}:/data
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr
+    container_name: radarr
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 7878:7878
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./radarr:/config
+      - ${DATA_LOCATION}:/data
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    container_name: sonarr
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 8989:8989
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./sonarr:/config
+      - ${DATA_LOCATION}:/data
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 8686:8686
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./lidarr:/config
+      - ${DATA_LOCATION}:/data
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr
+    container_name: bazarr
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 6767:6767
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./bazarr:/config
+      - ${DATA_LOCATION}:/data
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr
+    container_name: prowlarr
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 9696:9696
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./prowlarr:/config
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    environment:
+      - TZ=${TIMEZONE}
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 8191:8191
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - TZ=${TIMEZONE}   
+      - LOG_LEVEL=info
+    ports:
+      - "5055:5055"
+    volumes:
+      - ./jellyseerr:/app/config
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+      - jellyfin
+      - sonarr
+      - radarr
