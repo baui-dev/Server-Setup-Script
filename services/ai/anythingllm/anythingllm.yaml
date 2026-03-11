@@ -25,7 +25,7 @@ services:
       - ${DOCKER_DATA}/ai/anythingllm/config:/app/server/storage
 
     ports:
-      - ${PORT_ANYTHINGLLM:-3001}:3001
+      - ${PORT_ANYTHINGLLM:-3020}:3001
 
     # networks:
     #   - ${DEFAULT_NETWORK}
