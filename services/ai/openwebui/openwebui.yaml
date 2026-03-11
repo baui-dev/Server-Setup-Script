@@ -1,0 +1,30 @@
+# OPEN WEBUI
+# GitHub: https://github.com/open-webui/open-webui
+# Image: ghcr.io/open-webui/open-webui
+# Docs: https://docs.openwebui.com/
+#
+# An extensible, feature-rich, and user-friendly self-hosted Web UI for AI models.
+# Supports Ollama, OpenAI-compatible APIs, and many other LLM backends.
+
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:latest
+    container_name: openwebui
+    hostname: openwebui
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - OLLAMA_BASE_URL=http://ollama:11434                  # Ollama backend URL
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}                     # OpenAI API key (optional)
+      # - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}                 # Secret key for sessions
+      # - DEFAULT_MODELS=llama3                                # Default model to load
+
+    volumes:
+      - ${DOCKER_DATA}/ai/openwebui/config:/app/backend/data
+
+    ports:
+      - ${PORT_OPENWEBUI:-3000}:8080
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

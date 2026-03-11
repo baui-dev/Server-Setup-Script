@@ -1,0 +1,30 @@
+# DOZZLE
+# GitHub: https://github.com/amir20/dozzle
+# Image: amir20/dozzle
+# Docs: https://dozzle.dev/guide/getting-started
+#
+# Real-time log viewer for Docker containers in the browser. No database required.
+# Supports log search, filtering, and multi-host monitoring.
+
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    hostname: dozzle
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - DOZZLE_LEVEL=info                                    # Log level (trace, debug, info, warn, error)
+      # - DOZZLE_REMOTE_HOST=tcp://remotehost:2375             # Remote Docker host
+      # - DOZZLE_AUTH_PROVIDER=simple                          # Auth provider (simple, forward-proxy)
+      # - DOZZLE_NO_ANALYTICS=true                             # Disable analytics
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro            # Docker socket (read-only)
+
+    ports:
+      - ${PORT_DOZZLE:-8940}:8080
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

@@ -1,0 +1,29 @@
+# GOTIFY
+# GitHub: https://github.com/gotify/server
+# Image: gotify/server
+# Docs: https://gotify.net/docs/
+#
+# Self-hosted server for sending and receiving push notifications. Simple REST API
+# and real-time WebSocket connections. Android app available.
+
+services:
+  gotify:
+    image: gotify/server:latest
+    container_name: gotify
+    hostname: gotify
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - GOTIFY_DEFAULTUSER_NAME=admin                        # Default admin username
+      # - GOTIFY_DEFAULTUSER_PASS=admin                        # Default admin password
+      # - GOTIFY_SERVER_KEEPALIVEPERIODSECONDS=0               # WebSocket keepalive interval
+
+    volumes:
+      - ${DOCKER_DATA}/communication/gotify/config:/app/data
+
+    ports:
+      - ${PORT_GOTIFY:-8850}:80
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

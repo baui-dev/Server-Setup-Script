@@ -1,0 +1,28 @@
+# PLANE
+# GitHub: https://github.com/makeplane/plane
+# Image: makeplane/plane-frontend
+# Docs: https://docs.plane.so/self-hosting/
+#
+# Open-source project management tool. An alternative to Jira, Linear, and Asana.
+# Manage issues, cycles, modules, and project roadmaps.
+
+services:
+  plane:
+    image: makeplane/plane-frontend:latest
+    container_name: plane
+    hostname: plane
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - NEXT_PUBLIC_API_BASE_URL=https://plane.${BASE_DOMAIN}  # API base URL
+      # - SECRET_KEY=${SECRET_KEY}                               # App secret key (required)
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/plane/config:/code/plane
+
+    ports:
+      - ${PORT_PLANE:-8970}:80
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

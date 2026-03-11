@@ -1,0 +1,101 @@
+digraph service_dependencies {
+    graph [rankdir=LR, fontname="Helvetica", label="Service Dependency Graph", labelloc=t, fontsize=16];
+    node [fontname="Helvetica", fontsize=11, style=filled];
+    edge [fontname="Helvetica", fontsize=10];
+
+    subgraph cluster_ai {
+        label="AI";
+        style=dashed;
+        openwebui [label="Open WebUI", shape=rectangle, fillcolor="#87CEEB", tooltip="Web UI for LLMs"];
+        n8n [label="n8n", shape=rectangle, fillcolor="#87CEEB", tooltip="Workflow automation"];
+        anythingllm [label="AnythingLLM", shape=rectangle, fillcolor="#87CEEB", tooltip="Private LLM workspace"];
+    }
+
+    subgraph cluster_communication {
+        label="COMMUNICATION";
+        style=dashed;
+        matrix_synapse [label="Matrix Synapse", shape=rectangle, fillcolor="#87CEEB", tooltip="Matrix homeserver"];
+        ntfy [label="ntfy", shape=rectangle, fillcolor="#87CEEB", tooltip="Push notifications"];
+        gotify [label="Gotify", shape=rectangle, fillcolor="#87CEEB", tooltip="Self-hosted notifications"];
+    }
+
+    subgraph cluster_development {
+        label="DEVELOPMENT";
+        style=dashed;
+        gitea [label="Gitea", shape=rectangle, fillcolor="#87CEEB", tooltip="Self-hosted Git service"];
+        code_server [label="Code Server", shape=rectangle, fillcolor="#87CEEB", tooltip="VS Code in browser"];
+        semaphore [label="Semaphore", shape=rectangle, fillcolor="#87CEEB", tooltip="Ansible UI"];
+    }
+
+    subgraph cluster_files {
+        label="FILES";
+        style=dashed;
+        nextcloud [label="Nextcloud", shape=rectangle, fillcolor="#87CEEB", tooltip="File sharing and collaboration"];
+        filebrowser [label="File Browser", shape=rectangle, fillcolor="#87CEEB", tooltip="Web file manager"];
+        minio [label="MinIO", shape=rectangle, fillcolor="#87CEEB", tooltip="S3-compatible object storage"];
+    }
+
+    subgraph cluster_media {
+        label="MEDIA";
+        style=dashed;
+        jellyfin [label="Jellyfin", shape=rectangle, fillcolor="#87CEEB", tooltip="Open source media server"];
+        sonarr [label="Sonarr", shape=rectangle, fillcolor="#87CEEB", tooltip="TV series management"];
+        radarr [label="Radarr", shape=rectangle, fillcolor="#87CEEB", tooltip="Movie management"];
+        bazarr [label="Bazarr", shape=rectangle, fillcolor="#87CEEB", tooltip="Subtitle management"];
+        jellyseerr [label="Jellyseerr", shape=rectangle, fillcolor="#87CEEB", tooltip="Media request management"];
+        prowlarr [label="Prowlarr", shape=rectangle, fillcolor="#87CEEB", tooltip="Indexer manager"];
+        maintainerr [label="Maintainerr", shape=rectangle, fillcolor="#87CEEB", tooltip="Media cleanup rules"];
+        lidarr [label="Lidarr", shape=rectangle, fillcolor="#87CEEB", tooltip="Music management"];
+        slskd [label="Slskd", shape=rectangle, fillcolor="#87CEEB", tooltip="Soulseek client"];
+        piwigo [label="Piwigo", shape=rectangle, fillcolor="#87CEEB", tooltip="Photo gallery"];
+    }
+
+    subgraph cluster_misc {
+        label="MISC";
+        style=dashed;
+        qbittorrent [label="qBittorrent", shape=rectangle, fillcolor="#87CEEB", tooltip="BitTorrent client"];
+        sabnzbd [label="SABnzbd", shape=rectangle, fillcolor="#87CEEB", tooltip="Usenet downloader"];
+        autobrr [label="Autobrr", shape=rectangle, fillcolor="#87CEEB", tooltip="Automatic download"];
+        recyclarr [label="Recyclarr", shape=ellipse, fillcolor="#90EE90", tooltip="Quality profiles sync"];
+        flaresolverr [label="FlareSolverr", shape=rectangle, fillcolor="#87CEEB", tooltip="Cloudflare bypass proxy"];
+    }
+
+    subgraph cluster_networking {
+        label="NETWORKING";
+        style=dashed;
+        adguard [label="AdGuard Home", shape=rectangle, fillcolor="#87CEEB", tooltip="DNS ad blocker"];
+        pihole [label="Pi-hole", shape=rectangle, fillcolor="#87CEEB", tooltip="DNS ad blocker"];
+        unbound [label="Unbound", shape=ellipse, fillcolor="#90EE90", tooltip="DNS resolver"];
+        nginx_proxy_manager [label="Nginx Proxy Manager", shape=rectangle, fillcolor="#87CEEB", tooltip="Reverse proxy with GUI"];
+        traefik [label="Traefik", shape=rectangle, fillcolor="#87CEEB", tooltip="Cloud native proxy"];
+        beszel [label="Beszel", shape=rectangle, fillcolor="#87CEEB", tooltip="Lightweight server monitor"];
+        uptime_kuma [label="Uptime Kuma", shape=rectangle, fillcolor="#87CEEB", tooltip="Status page monitor"];
+        gluetun [label="Gluetun", shape=rectangle, fillcolor="#87CEEB", tooltip="VPN client container"];
+        headscale [label="Headscale", shape=rectangle, fillcolor="#87CEEB", tooltip="Self-hosted Tailscale control server"];
+        wireguard [label="WireGuard", shape=ellipse, fillcolor="#90EE90", tooltip="WireGuard VPN server"];
+    }
+
+    subgraph cluster_productivity {
+        label="PRODUCTIVITY";
+        style=dashed;
+        joplin [label="Joplin Server", shape=rectangle, fillcolor="#87CEEB", tooltip="Note-taking server"];
+        outline [label="Outline", shape=rectangle, fillcolor="#87CEEB", tooltip="Wiki and notes"];
+        memos [label="Memos", shape=rectangle, fillcolor="#87CEEB", tooltip="Memo/journal"];
+        linkwarden [label="Linkwarden", shape=rectangle, fillcolor="#87CEEB", tooltip="Bookmark manager"];
+        wallabag [label="Wallabag", shape=rectangle, fillcolor="#87CEEB", tooltip="Read-later service"];
+        vikunja [label="Vikunja", shape=rectangle, fillcolor="#87CEEB", tooltip="Task manager"];
+        plane [label="Plane", shape=rectangle, fillcolor="#87CEEB", tooltip="Project management"];
+    }
+
+    subgraph cluster_server {
+        label="SERVER";
+        style=dashed;
+        homepage [label="Homepage", shape=rectangle, fillcolor="#87CEEB", tooltip="Service dashboard"];
+        homarr [label="Homarr", shape=rectangle, fillcolor="#87CEEB", tooltip="App dashboard"];
+        portainer [label="Portainer", shape=rectangle, fillcolor="#87CEEB", tooltip="Docker management UI"];
+        watchtower [label="Watchtower", shape=ellipse, fillcolor="#90EE90", tooltip="Auto container updates"];
+        dozzle [label="Dozzle", shape=rectangle, fillcolor="#87CEEB", tooltip="Container log viewer"];
+        authelia [label="Authelia", shape=rectangle, fillcolor="#87CEEB", tooltip="Authentication portal"];
+    }
+
+}

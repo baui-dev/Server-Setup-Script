@@ -1,0 +1,29 @@
+# HOMEPAGE
+# GitHub: https://github.com/gethomepage/homepage
+# Image: ghcr.io/gethomepage/homepage
+# Docs: https://gethomepage.dev/latest/
+#
+# A modern, fully static, fast, and highly customizable application dashboard.
+# Integrates with hundreds of self-hosted services to show live stats.
+
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    hostname: homepage
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}                                         # User ID for file permissions
+      # - PGID=${PGID}                                         # Group ID for file permissions
+
+    volumes:
+      - ${DOCKER_DATA}/server/homepage/config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro            # Docker socket (for container stats)
+
+    ports:
+      - ${PORT_HOMEPAGE:-3050}:3000
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

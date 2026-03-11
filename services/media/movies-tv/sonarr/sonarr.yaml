@@ -1,0 +1,32 @@
+# SONARR
+# GitHub: https://github.com/Sonarr/Sonarr
+# Image: lscr.io/linuxserver/sonarr
+# Docs: https://wiki.servarr.com/sonarr
+#
+# Smart PVR for newsgroup and bittorrent users to download TV series automatically.
+# Monitors RSS feeds and grabs, sorts, and renames TV series episodes.
+
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - UMASK=002                                            # File permissions mask
+      # - DOCKER_MODS=linuxserver/mods:sonarr-striptracks      # Strip extra audio tracks mod
+
+    volumes:
+      - ${DOCKER_DATA}/media/sonarr/config:/config
+      # - /path/to/tvseries:/tv                                # TV series library
+      # - /path/to/downloads:/downloads                        # Download client output
+
+    ports:
+      - ${PORT_SONARR:-8989}:8989
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

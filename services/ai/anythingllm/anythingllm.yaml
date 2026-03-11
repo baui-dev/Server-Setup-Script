@@ -1,0 +1,31 @@
+# ANYTHINGLLM
+# GitHub: https://github.com/Mintplex-Labs/anything-llm
+# Image: mintplexlabs/anythingllm
+# Docs: https://docs.anythingllm.com/
+#
+# All-in-one AI app for running LLMs locally or via APIs. Supports document chat,
+# AI agents, and multiple LLM/vector database backends. Privacy-first design.
+
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm:latest
+    container_name: anythingllm
+    hostname: anythingllm
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - STORAGE_DIR=/app/server/storage                      # Data storage directory
+      # - LLM_PROVIDER=ollama                                  # LLM provider (ollama, openai, etc.)
+      # - OLLAMA_BASE_PATH=http://ollama:11434                 # Ollama base URL
+      # - VECTOR_DB=lancedb                                    # Vector database provider
+      # - JWT_SECRET=${JWT_SECRET}                             # JWT signing secret
+
+    volumes:
+      - ${DOCKER_DATA}/ai/anythingllm/config:/app/server/storage
+
+    ports:
+      - ${PORT_ANYTHINGLLM:-3020}:3001
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

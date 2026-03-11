@@ -1,0 +1,28 @@
+# PROWLARR
+# GitHub: https://github.com/Prowlarr/Prowlarr
+# Image: lscr.io/linuxserver/prowlarr
+# Docs: https://wiki.servarr.com/prowlarr
+#
+# Indexer manager/proxy built on the popular arr stack. Integrates with Sonarr, Radarr,
+# Lidarr, and more to manage your indexers from a single central location.
+
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+    volumes:
+      - ${DOCKER_DATA}/media/prowlarr/config:/config
+
+    ports:
+      - ${PORT_PROWLARR:-9696}:9696
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

@@ -1,0 +1,1424 @@
+{
+  "version": "1.0",
+  "generated": "2024-01-01T00:00:00Z",
+  "services": [
+    {
+      "name": "jellyfin",
+      "display_name": "Jellyfin",
+      "category": "media",
+      "subcategory": "movies-tv",
+      "path": "services/media/movies-tv/jellyfin/jellyfin.yaml",
+      "description": "Open source media server",
+      "github": "https://github.com/jellyfin/jellyfin",
+      "docker_image": "jellyfin/jellyfin",
+      "ports": ["PORT_JELLYFIN"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "jellyfin.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8096",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "sonarr",
+      "display_name": "Sonarr",
+      "category": "media",
+      "subcategory": "movies-tv",
+      "path": "services/media/movies-tv/sonarr/sonarr.yaml",
+      "description": "TV series management",
+      "github": "https://github.com/Sonarr/Sonarr",
+      "docker_image": "linuxserver/sonarr",
+      "ports": ["PORT_SONARR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "sonarr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8989",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "radarr",
+      "display_name": "Radarr",
+      "category": "media",
+      "subcategory": "movies-tv",
+      "path": "services/media/movies-tv/radarr/radarr.yaml",
+      "description": "Movie management",
+      "github": "https://github.com/Radarr/Radarr",
+      "docker_image": "linuxserver/radarr",
+      "ports": ["PORT_RADARR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "radarr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:7878",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "bazarr",
+      "display_name": "Bazarr",
+      "category": "media",
+      "subcategory": "movies-tv",
+      "path": "services/media/movies-tv/bazarr/bazarr.yaml",
+      "description": "Subtitle management",
+      "github": "https://github.com/morpheus65535/bazarr",
+      "docker_image": "linuxserver/bazarr",
+      "ports": ["PORT_BAZARR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "bazarr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:6767",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "jellyseerr",
+      "display_name": "Jellyseerr",
+      "category": "media",
+      "subcategory": "movies-tv",
+      "path": "services/media/movies-tv/jellyseerr/jellyseerr.yaml",
+      "description": "Media request management",
+      "github": "https://github.com/Fallenbagel/jellyseerr",
+      "docker_image": "fallenbagel/jellyseerr",
+      "ports": ["PORT_JELLYSEERR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "jellyseerr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:5055",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "prowlarr",
+      "display_name": "Prowlarr",
+      "category": "media",
+      "subcategory": "movies-tv",
+      "path": "services/media/movies-tv/prowlarr/prowlarr.yaml",
+      "description": "Indexer manager",
+      "github": "https://github.com/Prowlarr/Prowlarr",
+      "docker_image": "linuxserver/prowlarr",
+      "ports": ["PORT_PROWLARR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "prowlarr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:9696",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "maintainerr",
+      "display_name": "Maintainerr",
+      "category": "media",
+      "subcategory": "movies-tv",
+      "path": "services/media/movies-tv/maintainerr/maintainerr.yaml",
+      "description": "Media cleanup rules",
+      "github": "https://github.com/jorenn92/Maintainerr",
+      "docker_image": "jorenn92/maintainerr",
+      "ports": ["PORT_MAINTAINERR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "maintainerr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:6246",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "lidarr",
+      "display_name": "Lidarr",
+      "category": "media",
+      "subcategory": "music",
+      "path": "services/media/music/lidarr/lidarr.yaml",
+      "description": "Music management",
+      "github": "https://github.com/Lidarr/Lidarr",
+      "docker_image": "linuxserver/lidarr",
+      "ports": ["PORT_LIDARR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "lidarr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8686",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "slskd",
+      "display_name": "Slskd",
+      "category": "media",
+      "subcategory": "music",
+      "path": "services/media/music/slskd/slskd.yaml",
+      "description": "Soulseek client",
+      "github": "https://github.com/slskd/slskd",
+      "docker_image": "slskd/slskd",
+      "ports": ["PORT_SLSKD"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "slskd.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:5030",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "piwigo",
+      "display_name": "Piwigo",
+      "category": "media",
+      "subcategory": "images",
+      "path": "services/media/images/piwigo/piwigo.yaml",
+      "description": "Photo gallery",
+      "github": "https://github.com/Piwigo/Piwigo",
+      "docker_image": "linuxserver/piwigo",
+      "ports": ["PORT_PIWIGO"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "piwigo.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8101",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "adguard",
+      "display_name": "AdGuard Home",
+      "category": "networking",
+      "subcategory": "dns",
+      "path": "services/networking/dns/adguard/adguard.yaml",
+      "description": "DNS ad blocker",
+      "github": "https://github.com/AdguardTeam/AdGuardHome",
+      "docker_image": "adguard/adguardhome",
+      "ports": ["PORT_ADGUARD_SETUP", "PORT_ADGUARD_HTTP", "PORT_ADGUARD_HTTPS", "PORT_ADGUARD_DNS"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "adguard.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3000",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": ["pihole"]
+      }
+    },
+    {
+      "name": "pihole",
+      "display_name": "Pi-hole",
+      "category": "networking",
+      "subcategory": "dns",
+      "path": "services/networking/dns/pihole/pihole.yaml",
+      "description": "DNS ad blocker",
+      "github": "https://github.com/pi-hole/pi-hole",
+      "docker_image": "pihole/pihole",
+      "ports": ["PORT_PIHOLE", "PORT_PIHOLE_DNS"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "pihole.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8080",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": ["adguard"]
+      }
+    },
+    {
+      "name": "unbound",
+      "display_name": "Unbound",
+      "category": "networking",
+      "subcategory": "dns",
+      "path": "services/networking/dns/unbound/unbound.yaml",
+      "description": "DNS resolver",
+      "github": "https://github.com/NLnetLabs/unbound",
+      "docker_image": "mvance/unbound",
+      "ports": ["PORT_UNBOUND"],
+      "requires": [],
+      "exposes_http": false,
+      "reverse_proxy": null,
+      "healthcheck": null,
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "nginx-proxy-manager",
+      "display_name": "Nginx Proxy Manager",
+      "category": "networking",
+      "subcategory": "reverse-proxy",
+      "path": "services/networking/reverse-proxy/nginx-proxy-manager/nginx-proxy-manager.yaml",
+      "description": "Reverse proxy with GUI",
+      "github": "https://github.com/NginxProxyManager/nginx-proxy-manager",
+      "docker_image": "jc21/nginx-proxy-manager",
+      "ports": ["PORT_NPM_HTTP", "PORT_NPM_HTTPS", "PORT_NPM_ADMIN"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "nginx-proxy-manager.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:81",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "traefik",
+      "display_name": "Traefik",
+      "category": "networking",
+      "subcategory": "reverse-proxy",
+      "path": "services/networking/reverse-proxy/traefik/traefik.yaml",
+      "description": "Cloud native proxy",
+      "github": "https://github.com/traefik/traefik",
+      "docker_image": "traefik",
+      "ports": ["PORT_TRAEFIK_HTTP", "PORT_TRAEFIK_HTTPS", "PORT_TRAEFIK_DASHBOARD"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "traefik.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8080",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "beszel",
+      "display_name": "Beszel",
+      "category": "networking",
+      "subcategory": "monitoring",
+      "path": "services/networking/monitoring/beszel/beszel.yaml",
+      "description": "Lightweight server monitor",
+      "github": "https://github.com/henrygd/beszel",
+      "docker_image": "henrygd/beszel",
+      "ports": ["PORT_BESZEL"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "beszel.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8090",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "uptime-kuma",
+      "display_name": "Uptime Kuma",
+      "category": "networking",
+      "subcategory": "monitoring",
+      "path": "services/networking/monitoring/uptime-kuma/uptime-kuma.yaml",
+      "description": "Status page monitor",
+      "github": "https://github.com/louislam/uptime-kuma",
+      "docker_image": "louislam/uptime-kuma",
+      "ports": ["PORT_UPTIME_KUMA"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "uptime-kuma.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3001",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "gluetun",
+      "display_name": "Gluetun",
+      "category": "networking",
+      "subcategory": "vpn",
+      "path": "services/networking/vpn/gluetun/gluetun.yaml",
+      "description": "VPN client container",
+      "github": "https://github.com/qdm12/gluetun",
+      "docker_image": "qmcgaw/gluetun",
+      "ports": ["PORT_GLUETUN"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "gluetun.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8888",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": true,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "headscale",
+      "display_name": "Headscale",
+      "category": "networking",
+      "subcategory": "vpn",
+      "path": "services/networking/vpn/headscale/headscale.yaml",
+      "description": "Self-hosted Tailscale control server",
+      "github": "https://github.com/juanfont/headscale",
+      "docker_image": "headscale/headscale",
+      "ports": ["PORT_HEADSCALE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "headscale.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8080",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "wireguard",
+      "display_name": "WireGuard",
+      "category": "networking",
+      "subcategory": "vpn",
+      "path": "services/networking/vpn/wireguard/wireguard.yaml",
+      "description": "WireGuard VPN server",
+      "github": "https://github.com/linuxserver/docker-wireguard",
+      "docker_image": "linuxserver/wireguard",
+      "ports": ["PORT_WIREGUARD"],
+      "requires": [],
+      "exposes_http": false,
+      "reverse_proxy": null,
+      "healthcheck": null,
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": true,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "openwebui",
+      "display_name": "Open WebUI",
+      "category": "ai",
+      "subcategory": null,
+      "path": "services/ai/openwebui/openwebui.yaml",
+      "description": "Web UI for LLMs",
+      "github": "https://github.com/open-webui/open-webui",
+      "docker_image": "ghcr.io/open-webui/open-webui",
+      "ports": ["PORT_OPENWEBUI"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "openwebui.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3000",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "n8n",
+      "display_name": "n8n",
+      "category": "ai",
+      "subcategory": null,
+      "path": "services/ai/n8n/n8n.yaml",
+      "description": "Workflow automation",
+      "github": "https://github.com/n8n-io/n8n",
+      "docker_image": "n8nio/n8n",
+      "ports": ["PORT_N8N"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "n8n.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:5678",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "anythingllm",
+      "display_name": "AnythingLLM",
+      "category": "ai",
+      "subcategory": null,
+      "path": "services/ai/anythingllm/anythingllm.yaml",
+      "description": "Private LLM workspace",
+      "github": "https://github.com/Mintplex-Labs/anything-llm",
+      "docker_image": "mintplexlabs/anythingllm",
+      "ports": ["PORT_ANYTHINGLLM"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "anythingllm.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3020",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "gitea",
+      "display_name": "Gitea",
+      "category": "development",
+      "subcategory": null,
+      "path": "services/development/gitea/gitea.yaml",
+      "description": "Self-hosted Git service",
+      "github": "https://github.com/go-gitea/gitea",
+      "docker_image": "gitea/gitea",
+      "ports": ["PORT_GITEA"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "gitea.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3000",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "code-server",
+      "display_name": "Code Server",
+      "category": "development",
+      "subcategory": null,
+      "path": "services/development/code-server/code-server.yaml",
+      "description": "VS Code in browser",
+      "github": "https://github.com/coder/code-server",
+      "docker_image": "linuxserver/code-server",
+      "ports": ["PORT_CODE_SERVER"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "code-server.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8443",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "semaphore",
+      "display_name": "Semaphore",
+      "category": "development",
+      "subcategory": null,
+      "path": "services/development/semaphore/semaphore.yaml",
+      "description": "Ansible UI",
+      "github": "https://github.com/semaphoreui/semaphore",
+      "docker_image": "semaphoreui/semaphore",
+      "ports": ["PORT_SEMAPHORE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "semaphore.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3000",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "nextcloud",
+      "display_name": "Nextcloud",
+      "category": "files",
+      "subcategory": null,
+      "path": "services/files/nextcloud/nextcloud.yaml",
+      "description": "File sharing and collaboration",
+      "github": "https://github.com/nextcloud/server",
+      "docker_image": "nextcloud",
+      "ports": ["PORT_NEXTCLOUD"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "nextcloud.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8880",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "filebrowser",
+      "display_name": "File Browser",
+      "category": "files",
+      "subcategory": null,
+      "path": "services/files/filebrowser/filebrowser.yaml",
+      "description": "Web file manager",
+      "github": "https://github.com/filebrowser/filebrowser",
+      "docker_image": "filebrowser/filebrowser",
+      "ports": ["PORT_FILEBROWSER"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "filebrowser.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8888",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "minio",
+      "display_name": "MinIO",
+      "category": "files",
+      "subcategory": null,
+      "path": "services/files/minio/minio.yaml",
+      "description": "S3-compatible object storage",
+      "github": "https://github.com/minio/minio",
+      "docker_image": "minio/minio",
+      "ports": ["PORT_MINIO"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "minio.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:9001",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "matrix-synapse",
+      "display_name": "Matrix Synapse",
+      "category": "communication",
+      "subcategory": null,
+      "path": "services/communication/matrix-synapse/matrix-synapse.yaml",
+      "description": "Matrix homeserver",
+      "github": "https://github.com/element-hq/synapse",
+      "docker_image": "matrixdotorg/synapse",
+      "ports": ["PORT_MATRIX_SYNAPSE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "matrix.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8008",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "ntfy",
+      "display_name": "ntfy",
+      "category": "communication",
+      "subcategory": null,
+      "path": "services/communication/ntfy/ntfy.yaml",
+      "description": "Push notifications",
+      "github": "https://github.com/binwiederhier/ntfy",
+      "docker_image": "binwiederhier/ntfy",
+      "ports": ["PORT_NTFY"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "ntfy.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8840",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "gotify",
+      "display_name": "Gotify",
+      "category": "communication",
+      "subcategory": null,
+      "path": "services/communication/gotify/gotify.yaml",
+      "description": "Self-hosted notifications",
+      "github": "https://github.com/gotify/server",
+      "docker_image": "gotify/server",
+      "ports": ["PORT_GOTIFY"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "gotify.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8850",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "joplin",
+      "display_name": "Joplin Server",
+      "category": "productivity",
+      "subcategory": "notes",
+      "path": "services/productivity/notes/joplin/joplin.yaml",
+      "description": "Note-taking server",
+      "github": "https://github.com/laurent22/joplin",
+      "docker_image": "joplin/server",
+      "ports": ["PORT_JOPLIN"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "joplin.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:22300",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "outline",
+      "display_name": "Outline",
+      "category": "productivity",
+      "subcategory": "notes",
+      "path": "services/productivity/notes/outline/outline.yaml",
+      "description": "Wiki and notes",
+      "github": "https://github.com/outline/outline",
+      "docker_image": "outlinewiki/outline",
+      "ports": ["PORT_OUTLINE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "outline.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3900",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "memos",
+      "display_name": "Memos",
+      "category": "productivity",
+      "subcategory": "notes",
+      "path": "services/productivity/notes/memos/memos.yaml",
+      "description": "Memo/journal",
+      "github": "https://github.com/usememos/memos",
+      "docker_image": "neosmemo/memos",
+      "ports": ["PORT_MEMOS"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "memos.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:5230",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "linkwarden",
+      "display_name": "Linkwarden",
+      "category": "productivity",
+      "subcategory": "bookmarks",
+      "path": "services/productivity/bookmarks/linkwarden/linkwarden.yaml",
+      "description": "Bookmark manager",
+      "github": "https://github.com/linkwarden/linkwarden",
+      "docker_image": "ghcr.io/linkwarden/linkwarden",
+      "ports": ["PORT_LINKWARDEN"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "linkwarden.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3300",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "wallabag",
+      "display_name": "Wallabag",
+      "category": "productivity",
+      "subcategory": "bookmarks",
+      "path": "services/productivity/bookmarks/wallabag/wallabag.yaml",
+      "description": "Read-later service",
+      "github": "https://github.com/wallabag/wallabag",
+      "docker_image": "wallabag/wallabag",
+      "ports": ["PORT_WALLABAG"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "wallabag.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8760",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "vikunja",
+      "display_name": "Vikunja",
+      "category": "productivity",
+      "subcategory": "tasks",
+      "path": "services/productivity/tasks/vikunja/vikunja.yaml",
+      "description": "Task manager",
+      "github": "https://github.com/go-vikunja/vikunja",
+      "docker_image": "vikunja/vikunja",
+      "ports": ["PORT_VIKUNJA"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "vikunja.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3456",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "plane",
+      "display_name": "Plane",
+      "category": "productivity",
+      "subcategory": "tasks",
+      "path": "services/productivity/tasks/plane/plane.yaml",
+      "description": "Project management",
+      "github": "https://github.com/makeplane/plane",
+      "docker_image": "makeplane/plane-frontend",
+      "ports": ["PORT_PLANE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "plane.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8970",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "homepage",
+      "display_name": "Homepage",
+      "category": "server",
+      "subcategory": "dashboards",
+      "path": "services/server/dashboards/homepage/homepage.yaml",
+      "description": "Service dashboard",
+      "github": "https://github.com/gethomepage/homepage",
+      "docker_image": "ghcr.io/gethomepage/homepage",
+      "ports": ["PORT_HOMEPAGE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "homepage.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3050",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "homarr",
+      "display_name": "Homarr",
+      "category": "server",
+      "subcategory": "dashboards",
+      "path": "services/server/dashboards/homarr/homarr.yaml",
+      "description": "App dashboard",
+      "github": "https://github.com/ajnart/homarr",
+      "docker_image": "ghcr.io/ajnart/homarr",
+      "ports": ["PORT_HOMARR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "homarr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:7575",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "portainer",
+      "display_name": "Portainer",
+      "category": "server",
+      "subcategory": "dashboards",
+      "path": "services/server/dashboards/portainer/portainer.yaml",
+      "description": "Docker management UI",
+      "github": "https://github.com/portainer/portainer",
+      "docker_image": "portainer/portainer-ce",
+      "ports": ["PORT_PORTAINER"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "portainer.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:9000",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "watchtower",
+      "display_name": "Watchtower",
+      "category": "server",
+      "subcategory": "management",
+      "path": "services/server/management/watchtower/watchtower.yaml",
+      "description": "Auto container updates",
+      "github": "https://github.com/containrrr/watchtower",
+      "docker_image": "containrrr/watchtower",
+      "ports": [],
+      "requires": [],
+      "exposes_http": false,
+      "reverse_proxy": null,
+      "healthcheck": null,
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "dozzle",
+      "display_name": "Dozzle",
+      "category": "server",
+      "subcategory": "management",
+      "path": "services/server/management/dozzle/dozzle.yaml",
+      "description": "Container log viewer",
+      "github": "https://github.com/amir20/dozzle",
+      "docker_image": "amir20/dozzle",
+      "ports": ["PORT_DOZZLE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "dozzle.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8940",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "authelia",
+      "display_name": "Authelia",
+      "category": "server",
+      "subcategory": "auth",
+      "path": "services/server/auth/authelia/authelia.yaml",
+      "description": "Authentication portal",
+      "github": "https://github.com/authelia/authelia",
+      "docker_image": "authelia/authelia",
+      "ports": ["PORT_AUTHELIA"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "auth.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:9091",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "qbittorrent",
+      "display_name": "qBittorrent",
+      "category": "misc",
+      "subcategory": null,
+      "path": "services/misc/qbittorrent/qbittorrent.yaml",
+      "description": "BitTorrent client",
+      "github": "https://github.com/qbittorrent/qBittorrent",
+      "docker_image": "linuxserver/qbittorrent",
+      "ports": ["PORT_QBITTORRENT"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "qbittorrent.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8085",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "sabnzbd",
+      "display_name": "SABnzbd",
+      "category": "misc",
+      "subcategory": null,
+      "path": "services/misc/sabnzbd/sabnzbd.yaml",
+      "description": "Usenet downloader",
+      "github": "https://github.com/sabnzbd/sabnzbd",
+      "docker_image": "linuxserver/sabnzbd",
+      "ports": ["PORT_SABNZBD"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "sabnzbd.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8080",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "autobrr",
+      "display_name": "Autobrr",
+      "category": "misc",
+      "subcategory": null,
+      "path": "services/misc/autobrr/autobrr.yaml",
+      "description": "Automatic download",
+      "github": "https://github.com/autobrr/autobrr",
+      "docker_image": "ghcr.io/autobrr/autobrr",
+      "ports": ["PORT_AUTOBRR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "autobrr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:7474",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "recyclarr",
+      "display_name": "Recyclarr",
+      "category": "misc",
+      "subcategory": null,
+      "path": "services/misc/recyclarr/recyclarr.yaml",
+      "description": "Quality profiles sync",
+      "github": "https://github.com/recyclarr/recyclarr",
+      "docker_image": "ghcr.io/recyclarr/recyclarr",
+      "ports": [],
+      "requires": [],
+      "exposes_http": false,
+      "reverse_proxy": null,
+      "healthcheck": null,
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "flaresolverr",
+      "display_name": "FlareSolverr",
+      "category": "misc",
+      "subcategory": null,
+      "path": "services/misc/flaresolverr/flaresolverr.yaml",
+      "description": "Cloudflare bypass proxy",
+      "github": "https://github.com/FlareSolverr/FlareSolverr",
+      "docker_image": "ghcr.io/flaresolverr/flaresolverr",
+      "ports": ["PORT_FLARESOLVERR"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "flaresolverr.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8191",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    }
+  ]
+}

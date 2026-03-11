@@ -1,0 +1,506 @@
+{
+  "generated": "2026-03-11T15:46:15.643815+00:00",
+  "summary": {
+    "total": 50,
+    "passed": 28,
+    "with_warnings": 22,
+    "with_errors": 0,
+    "elapsed_seconds": 0.051
+  },
+  "results": [
+    {
+      "path": "services/ai/anythingllm/anythingllm.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'anythingllm': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "anythingllm"
+      ],
+      "registry_name": "anythingllm"
+    },
+    {
+      "path": "services/ai/n8n/n8n.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'n8n': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "n8n"
+      ],
+      "registry_name": "n8n"
+    },
+    {
+      "path": "services/ai/openwebui/openwebui.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "openwebui"
+      ],
+      "registry_name": "openwebui"
+    },
+    {
+      "path": "services/communication/gotify/gotify.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "gotify"
+      ],
+      "registry_name": "gotify"
+    },
+    {
+      "path": "services/communication/matrix-synapse/matrix-synapse.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'matrix-synapse': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "matrix-synapse"
+      ],
+      "registry_name": "matrix-synapse"
+    },
+    {
+      "path": "services/communication/ntfy/ntfy.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "ntfy"
+      ],
+      "registry_name": "ntfy"
+    },
+    {
+      "path": "services/development/code-server/code-server.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "code-server"
+      ],
+      "registry_name": "code-server"
+    },
+    {
+      "path": "services/development/gitea/gitea.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "gitea"
+      ],
+      "registry_name": "gitea"
+    },
+    {
+      "path": "services/development/semaphore/semaphore.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "semaphore"
+      ],
+      "registry_name": "semaphore"
+    },
+    {
+      "path": "services/files/filebrowser/filebrowser.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "filebrowser"
+      ],
+      "registry_name": "filebrowser"
+    },
+    {
+      "path": "services/files/minio/minio.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "minio"
+      ],
+      "registry_name": "minio"
+    },
+    {
+      "path": "services/files/nextcloud/nextcloud.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "nextcloud"
+      ],
+      "registry_name": "nextcloud"
+    },
+    {
+      "path": "services/media/images/piwigo/piwigo.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "piwigo"
+      ],
+      "registry_name": "piwigo"
+    },
+    {
+      "path": "services/media/movies-tv/bazarr/bazarr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'bazarr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "bazarr"
+      ],
+      "registry_name": "bazarr"
+    },
+    {
+      "path": "services/media/movies-tv/jellyfin/jellyfin.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'jellyfin': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "jellyfin"
+      ],
+      "registry_name": "jellyfin"
+    },
+    {
+      "path": "services/media/movies-tv/jellyseerr/jellyseerr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'jellyseerr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "jellyseerr"
+      ],
+      "registry_name": "jellyseerr"
+    },
+    {
+      "path": "services/media/movies-tv/maintainerr/maintainerr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'maintainerr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "maintainerr"
+      ],
+      "registry_name": "maintainerr"
+    },
+    {
+      "path": "services/media/movies-tv/prowlarr/prowlarr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'prowlarr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "prowlarr"
+      ],
+      "registry_name": "prowlarr"
+    },
+    {
+      "path": "services/media/movies-tv/radarr/radarr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'radarr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "radarr"
+      ],
+      "registry_name": "radarr"
+    },
+    {
+      "path": "services/media/movies-tv/sonarr/sonarr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'sonarr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "sonarr"
+      ],
+      "registry_name": "sonarr"
+    },
+    {
+      "path": "services/media/music/lidarr/lidarr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'lidarr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "lidarr"
+      ],
+      "registry_name": "lidarr"
+    },
+    {
+      "path": "services/media/music/slskd/slskd.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'slskd': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "slskd"
+      ],
+      "registry_name": "slskd"
+    },
+    {
+      "path": "services/misc/autobrr/autobrr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'autobrr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "autobrr"
+      ],
+      "registry_name": "autobrr"
+    },
+    {
+      "path": "services/misc/flaresolverr/flaresolverr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'flaresolverr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "flaresolverr"
+      ],
+      "registry_name": "flaresolverr"
+    },
+    {
+      "path": "services/misc/qbittorrent/qbittorrent.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'qbittorrent': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "qbittorrent"
+      ],
+      "registry_name": "qbittorrent"
+    },
+    {
+      "path": "services/misc/recyclarr/recyclarr.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "recyclarr"
+      ],
+      "registry_name": "recyclarr"
+    },
+    {
+      "path": "services/misc/sabnzbd/sabnzbd.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "sabnzbd"
+      ],
+      "registry_name": "sabnzbd"
+    },
+    {
+      "path": "services/networking/dns/adguard/adguard.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "adguard"
+      ],
+      "registry_name": "adguard"
+    },
+    {
+      "path": "services/networking/dns/pihole/pihole.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "pihole"
+      ],
+      "registry_name": "pihole"
+    },
+    {
+      "path": "services/networking/dns/unbound/unbound.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "unbound"
+      ],
+      "registry_name": "unbound"
+    },
+    {
+      "path": "services/networking/monitoring/beszel/beszel.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'beszel': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "beszel"
+      ],
+      "registry_name": "beszel"
+    },
+    {
+      "path": "services/networking/monitoring/uptime-kuma/uptime-kuma.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'uptime-kuma': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "uptime-kuma"
+      ],
+      "registry_name": "uptime-kuma"
+    },
+    {
+      "path": "services/networking/reverse-proxy/nginx-proxy-manager/nginx-proxy-manager.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "nginx-proxy-manager"
+      ],
+      "registry_name": "nginx-proxy-manager"
+    },
+    {
+      "path": "services/networking/reverse-proxy/traefik/traefik.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "traefik"
+      ],
+      "registry_name": "traefik"
+    },
+    {
+      "path": "services/networking/vpn/gluetun/gluetun.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "gluetun"
+      ],
+      "registry_name": "gluetun"
+    },
+    {
+      "path": "services/networking/vpn/headscale/headscale.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "headscale"
+      ],
+      "registry_name": "headscale"
+    },
+    {
+      "path": "services/networking/vpn/wireguard/wireguard.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "wireguard"
+      ],
+      "registry_name": "wireguard"
+    },
+    {
+      "path": "services/productivity/bookmarks/linkwarden/linkwarden.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "linkwarden"
+      ],
+      "registry_name": "linkwarden"
+    },
+    {
+      "path": "services/productivity/bookmarks/wallabag/wallabag.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "wallabag"
+      ],
+      "registry_name": "wallabag"
+    },
+    {
+      "path": "services/productivity/notes/joplin/joplin.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'joplin': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "joplin"
+      ],
+      "registry_name": "joplin"
+    },
+    {
+      "path": "services/productivity/notes/memos/memos.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'memos': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "memos"
+      ],
+      "registry_name": "memos"
+    },
+    {
+      "path": "services/productivity/notes/outline/outline.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "outline"
+      ],
+      "registry_name": "outline"
+    },
+    {
+      "path": "services/productivity/tasks/plane/plane.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "plane"
+      ],
+      "registry_name": "plane"
+    },
+    {
+      "path": "services/productivity/tasks/vikunja/vikunja.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'vikunja': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "vikunja"
+      ],
+      "registry_name": "vikunja"
+    },
+    {
+      "path": "services/server/auth/authelia/authelia.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'authelia': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "authelia"
+      ],
+      "registry_name": "authelia"
+    },
+    {
+      "path": "services/server/dashboards/homarr/homarr.yaml",
+      "errors": [],
+      "warnings": [
+        "Service 'homarr': registry says exposes_http=true but no common HTTP port found in compose (checked: [80, 443, 3000, 5000, 8000, 8080, 8443, 8888, 9000])"
+      ],
+      "service_names": [
+        "homarr"
+      ],
+      "registry_name": "homarr"
+    },
+    {
+      "path": "services/server/dashboards/homepage/homepage.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "homepage"
+      ],
+      "registry_name": "homepage"
+    },
+    {
+      "path": "services/server/dashboards/portainer/portainer.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "portainer"
+      ],
+      "registry_name": "portainer"
+    },
+    {
+      "path": "services/server/management/dozzle/dozzle.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "dozzle"
+      ],
+      "registry_name": "dozzle"
+    },
+    {
+      "path": "services/server/management/watchtower/watchtower.yaml",
+      "errors": [],
+      "warnings": [],
+      "service_names": [
+        "watchtower"
+      ],
+      "registry_name": "watchtower"
+    }
+  ]
+}

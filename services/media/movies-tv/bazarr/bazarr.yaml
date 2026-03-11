@@ -1,0 +1,30 @@
+# BAZARR
+# GitHub: https://github.com/morpheus65535/bazarr
+# Image: lscr.io/linuxserver/bazarr
+# Docs: https://wiki.bazarr.media/
+#
+# Companion application to Sonarr and Radarr that manages and downloads subtitles
+# based on your requirements. Integrates with multiple subtitle providers.
+
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    hostname: bazarr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+    volumes:
+      - ${DOCKER_DATA}/media/bazarr/config:/config
+      # - /path/to/movies:/movies                              # Movies library (must match Radarr)
+      # - /path/to/tvseries:/tv                                # TV library (must match Sonarr)
+
+    ports:
+      - ${PORT_BAZARR:-6767}:6767
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

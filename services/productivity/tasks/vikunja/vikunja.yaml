@@ -1,0 +1,30 @@
+# VIKUNJA
+# GitHub: https://github.com/go-vikunja/vikunja
+# Image: vikunja/vikunja
+# Docs: https://vikunja.io/docs/
+#
+# Self-hosted open-source todo app. Manage projects, tasks, and teams with
+# Kanban boards, Gantt charts, and rich task management features.
+
+services:
+  vikunja:
+    image: vikunja/vikunja:latest
+    container_name: vikunja
+    hostname: vikunja
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - VIKUNJA_SERVICE_PUBLICURL=https://tasks.${BASE_DOMAIN}/ # Public URL
+      # - VIKUNJA_SERVICE_JWTSECRET=${JWT_SECRET}                # JWT secret key
+      # - VIKUNJA_DATABASE_TYPE=sqlite                           # Database type
+      # - VIKUNJA_SERVICE_ENABLEREGISTRATION=true                # Allow new registrations
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/vikunja/config:/app/vikunja/files
+
+    ports:
+      - ${PORT_VIKUNJA:-3456}:3456
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

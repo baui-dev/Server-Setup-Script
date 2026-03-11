@@ -1,0 +1,33 @@
+# CODE SERVER
+# GitHub: https://github.com/coder/code-server
+# Image: lscr.io/linuxserver/code-server
+# Docs: https://docs.linuxserver.io/images/docker-code-server/
+#
+# VS Code running in the browser. Access your development environment from anywhere.
+# Full-featured IDE with extensions, terminal, and git integration.
+
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: code-server
+    hostname: code-server
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - PASSWORD=changeme                                    # Web UI password
+      # - HASHED_PASSWORD=                                     # Bcrypt-hashed password (takes precedence)
+      # - SUDO_PASSWORD=changeme                               # Sudo password in container
+      # - PROXY_DOMAIN=code.${BASE_DOMAIN}                    # Domain for proxy headers
+
+    volumes:
+      - ${DOCKER_DATA}/development/code-server/config:/config
+      # - /path/to/projects:/projects                          # Project files directory
+
+    ports:
+      - ${PORT_CODE_SERVER:-8443}:8443
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

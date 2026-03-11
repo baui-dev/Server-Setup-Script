@@ -1,0 +1,31 @@
+# TRAEFIK
+# GitHub: https://github.com/traefik/traefik
+# Image: traefik
+# Docs: https://doc.traefik.io/traefik/
+#
+# Cloud-native application proxy. Automatically discovers services and configures
+# itself. Supports Let's Encrypt, Docker, Kubernetes, and many other providers.
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    hostname: traefik
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}                 # Cloudflare API token (for DNS challenge)
+
+    volumes:
+      - ${DOCKER_DATA}/networking/traefik/config:/etc/traefik
+      - ${DOCKER_DATA}/networking/traefik/letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro            # Docker socket (read-only)
+
+    ports:
+      - ${PORT_TRAEFIK_HTTP:-80}:80                            # HTTP entrypoint
+      - ${PORT_TRAEFIK_HTTPS:-443}:443                         # HTTPS entrypoint
+      - ${PORT_TRAEFIK_DASHBOARD:-8080}:8080                   # Dashboard (disable in prod)
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

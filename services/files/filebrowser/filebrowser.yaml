@@ -1,0 +1,30 @@
+# FILEBROWSER
+# GitHub: https://github.com/filebrowser/filebrowser
+# Image: filebrowser/filebrowser
+# Docs: https://filebrowser.org/
+#
+# A web file manager. Browse, upload, create, delete, and share files through a
+# clean web interface. Supports multiple users and permissions.
+
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    hostname: filebrowser
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}                                         # User ID for file permissions
+      # - PGID=${PGID}                                         # Group ID for file permissions
+
+    volumes:
+      - ${DOCKER_DATA}/files/filebrowser/config:/config
+      - ${DOCKER_DATA}/files/filebrowser/database:/database
+      # - /path/to/files:/srv                                  # Root directory to browse
+
+    ports:
+      - ${PORT_FILEBROWSER:-8888}:80
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

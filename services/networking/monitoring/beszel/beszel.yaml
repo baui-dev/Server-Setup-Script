@@ -1,0 +1,26 @@
+# BESZEL
+# GitHub: https://github.com/henrygd/beszel
+# Image: henrygd/beszel
+# Docs: https://beszel.dev/
+#
+# Lightweight server monitoring hub with historical data, Docker stats, and alerts.
+# Simple, fast, and easy to set up with agent-based monitoring.
+
+services:
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    hostname: beszel
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+
+    volumes:
+      - ${DOCKER_DATA}/networking/beszel/config:/beszel_data
+
+    ports:
+      - ${PORT_BESZEL:-8090}:8090
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

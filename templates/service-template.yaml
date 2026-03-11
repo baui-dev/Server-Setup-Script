@@ -1,0 +1,53 @@
+# SERVICE NAME
+# GitHub: https://github.com/org/repo
+# Image: image/name:tag
+# Docs: https://docs.example.com/
+#
+# Short description of what this service does.
+# Additional context about the service.
+
+services:
+  servicename:
+    image: image/name:latest
+    container_name: servicename
+    hostname: servicename
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Optional environment variables (uncomment to use):
+      # - SERVICE_VAR=value                              # Description of the variable
+
+    volumes:
+      - ${DOCKER_DATA}/category/servicename/config:/config
+      # Optional volumes (uncomment to use):
+      # - ${DOCKER_DATA}/category/servicename/data:/data  # Data directory
+
+    ports:
+      - ${PORT_SERVICENAME:-XXXX}:XXXX
+      # Optional additional ports:
+      # - ${PORT_SERVICENAME_EXTRA:-YYYY}:YYYY           # Description
+
+    # Optional: Override the default network
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+    # Optional: Health check
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:XXXX/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+
+    # Optional: Resource limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512m
+
+# Optional: Define networks if needed
+# networks:
+#   servicename_net:
+#     driver: bridge

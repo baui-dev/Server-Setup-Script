@@ -1,0 +1,557 @@
+version: '3.8'
+services:
+  jellyfin:
+    extends:
+      file: ../services/media/movies-tv/jellyfin/jellyfin.yaml
+      service: jellyfin
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.jellyfin.rule: Host(`jellyfin.myserver.com`)
+      traefik.http.routers.jellyfin.entrypoints: websecure
+      traefik.http.routers.jellyfin.tls.certresolver: letsencrypt
+      traefik.http.services.jellyfin.loadbalancer.server.port: '8096'
+    networks:
+    - ${DEFAULT_NETWORK}
+  sonarr:
+    extends:
+      file: ../services/media/movies-tv/sonarr/sonarr.yaml
+      service: sonarr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.sonarr.rule: Host(`sonarr.myserver.com`)
+      traefik.http.routers.sonarr.entrypoints: websecure
+      traefik.http.routers.sonarr.tls.certresolver: letsencrypt
+      traefik.http.services.sonarr.loadbalancer.server.port: '8989'
+    networks:
+    - ${DEFAULT_NETWORK}
+  radarr:
+    extends:
+      file: ../services/media/movies-tv/radarr/radarr.yaml
+      service: radarr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.radarr.rule: Host(`radarr.myserver.com`)
+      traefik.http.routers.radarr.entrypoints: websecure
+      traefik.http.routers.radarr.tls.certresolver: letsencrypt
+      traefik.http.services.radarr.loadbalancer.server.port: '7878'
+    networks:
+    - ${DEFAULT_NETWORK}
+  bazarr:
+    extends:
+      file: ../services/media/movies-tv/bazarr/bazarr.yaml
+      service: bazarr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.bazarr.rule: Host(`bazarr.myserver.com`)
+      traefik.http.routers.bazarr.entrypoints: websecure
+      traefik.http.routers.bazarr.tls.certresolver: letsencrypt
+      traefik.http.services.bazarr.loadbalancer.server.port: '6767'
+    networks:
+    - ${DEFAULT_NETWORK}
+  jellyseerr:
+    extends:
+      file: ../services/media/movies-tv/jellyseerr/jellyseerr.yaml
+      service: jellyseerr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.jellyseerr.rule: Host(`jellyseerr.myserver.com`)
+      traefik.http.routers.jellyseerr.entrypoints: websecure
+      traefik.http.routers.jellyseerr.tls.certresolver: letsencrypt
+      traefik.http.services.jellyseerr.loadbalancer.server.port: '5055'
+    networks:
+    - ${DEFAULT_NETWORK}
+  prowlarr:
+    extends:
+      file: ../services/media/movies-tv/prowlarr/prowlarr.yaml
+      service: prowlarr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.prowlarr.rule: Host(`prowlarr.myserver.com`)
+      traefik.http.routers.prowlarr.entrypoints: websecure
+      traefik.http.routers.prowlarr.tls.certresolver: letsencrypt
+      traefik.http.services.prowlarr.loadbalancer.server.port: '9696'
+    networks:
+    - ${DEFAULT_NETWORK}
+  maintainerr:
+    extends:
+      file: ../services/media/movies-tv/maintainerr/maintainerr.yaml
+      service: maintainerr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.maintainerr.rule: Host(`maintainerr.myserver.com`)
+      traefik.http.routers.maintainerr.entrypoints: websecure
+      traefik.http.routers.maintainerr.tls.certresolver: letsencrypt
+      traefik.http.services.maintainerr.loadbalancer.server.port: '6246'
+    networks:
+    - ${DEFAULT_NETWORK}
+  lidarr:
+    extends:
+      file: ../services/media/music/lidarr/lidarr.yaml
+      service: lidarr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.lidarr.rule: Host(`lidarr.myserver.com`)
+      traefik.http.routers.lidarr.entrypoints: websecure
+      traefik.http.routers.lidarr.tls.certresolver: letsencrypt
+      traefik.http.services.lidarr.loadbalancer.server.port: '8686'
+    networks:
+    - ${DEFAULT_NETWORK}
+  slskd:
+    extends:
+      file: ../services/media/music/slskd/slskd.yaml
+      service: slskd
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.slskd.rule: Host(`slskd.myserver.com`)
+      traefik.http.routers.slskd.entrypoints: websecure
+      traefik.http.routers.slskd.tls.certresolver: letsencrypt
+      traefik.http.services.slskd.loadbalancer.server.port: '5030'
+    networks:
+    - ${DEFAULT_NETWORK}
+  piwigo:
+    extends:
+      file: ../services/media/images/piwigo/piwigo.yaml
+      service: piwigo
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.piwigo.rule: Host(`piwigo.myserver.com`)
+      traefik.http.routers.piwigo.entrypoints: websecure
+      traefik.http.routers.piwigo.tls.certresolver: letsencrypt
+      traefik.http.services.piwigo.loadbalancer.server.port: '8101'
+    networks:
+    - ${DEFAULT_NETWORK}
+  adguard:
+    extends:
+      file: ../services/networking/dns/adguard/adguard.yaml
+      service: adguard
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.adguard.rule: Host(`adguard.myserver.com`)
+      traefik.http.routers.adguard.entrypoints: websecure
+      traefik.http.routers.adguard.tls.certresolver: letsencrypt
+      traefik.http.services.adguard.loadbalancer.server.port: '3000'
+    networks:
+    - ${DEFAULT_NETWORK}
+  pihole:
+    extends:
+      file: ../services/networking/dns/pihole/pihole.yaml
+      service: pihole
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.pihole.rule: Host(`pihole.myserver.com`)
+      traefik.http.routers.pihole.entrypoints: websecure
+      traefik.http.routers.pihole.tls.certresolver: letsencrypt
+      traefik.http.services.pihole.loadbalancer.server.port: '8080'
+    networks:
+    - ${DEFAULT_NETWORK}
+  nginx-proxy-manager:
+    extends:
+      file: ../services/networking/reverse-proxy/nginx-proxy-manager/nginx-proxy-manager.yaml
+      service: nginx-proxy-manager
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.nginx-proxy-manager.rule: Host(`nginx-proxy-manager.myserver.com`)
+      traefik.http.routers.nginx-proxy-manager.entrypoints: websecure
+      traefik.http.routers.nginx-proxy-manager.tls.certresolver: letsencrypt
+      traefik.http.services.nginx-proxy-manager.loadbalancer.server.port: '81'
+    networks:
+    - ${DEFAULT_NETWORK}
+  traefik:
+    extends:
+      file: ../services/networking/reverse-proxy/traefik/traefik.yaml
+      service: traefik
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.traefik.rule: Host(`traefik.myserver.com`)
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.tls.certresolver: letsencrypt
+      traefik.http.services.traefik.loadbalancer.server.port: '8080'
+    networks:
+    - ${DEFAULT_NETWORK}
+  beszel:
+    extends:
+      file: ../services/networking/monitoring/beszel/beszel.yaml
+      service: beszel
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.beszel.rule: Host(`beszel.myserver.com`)
+      traefik.http.routers.beszel.entrypoints: websecure
+      traefik.http.routers.beszel.tls.certresolver: letsencrypt
+      traefik.http.services.beszel.loadbalancer.server.port: '8090'
+    networks:
+    - ${DEFAULT_NETWORK}
+  uptime-kuma:
+    extends:
+      file: ../services/networking/monitoring/uptime-kuma/uptime-kuma.yaml
+      service: uptime-kuma
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.uptime-kuma.rule: Host(`uptime-kuma.myserver.com`)
+      traefik.http.routers.uptime-kuma.entrypoints: websecure
+      traefik.http.routers.uptime-kuma.tls.certresolver: letsencrypt
+      traefik.http.services.uptime-kuma.loadbalancer.server.port: '3001'
+    networks:
+    - ${DEFAULT_NETWORK}
+  gluetun:
+    extends:
+      file: ../services/networking/vpn/gluetun/gluetun.yaml
+      service: gluetun
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.gluetun.rule: Host(`gluetun.myserver.com`)
+      traefik.http.routers.gluetun.entrypoints: websecure
+      traefik.http.routers.gluetun.tls.certresolver: letsencrypt
+      traefik.http.services.gluetun.loadbalancer.server.port: '8888'
+    networks:
+    - ${DEFAULT_NETWORK}
+  headscale:
+    extends:
+      file: ../services/networking/vpn/headscale/headscale.yaml
+      service: headscale
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.headscale.rule: Host(`headscale.myserver.com`)
+      traefik.http.routers.headscale.entrypoints: websecure
+      traefik.http.routers.headscale.tls.certresolver: letsencrypt
+      traefik.http.services.headscale.loadbalancer.server.port: '8080'
+    networks:
+    - ${DEFAULT_NETWORK}
+  openwebui:
+    extends:
+      file: ../services/ai/openwebui/openwebui.yaml
+      service: openwebui
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.openwebui.rule: Host(`openwebui.myserver.com`)
+      traefik.http.routers.openwebui.entrypoints: websecure
+      traefik.http.routers.openwebui.tls.certresolver: letsencrypt
+      traefik.http.services.openwebui.loadbalancer.server.port: '3000'
+    networks:
+    - ${DEFAULT_NETWORK}
+  n8n:
+    extends:
+      file: ../services/ai/n8n/n8n.yaml
+      service: n8n
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.n8n.rule: Host(`n8n.myserver.com`)
+      traefik.http.routers.n8n.entrypoints: websecure
+      traefik.http.routers.n8n.tls.certresolver: letsencrypt
+      traefik.http.services.n8n.loadbalancer.server.port: '5678'
+    networks:
+    - ${DEFAULT_NETWORK}
+  anythingllm:
+    extends:
+      file: ../services/ai/anythingllm/anythingllm.yaml
+      service: anythingllm
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.anythingllm.rule: Host(`anythingllm.myserver.com`)
+      traefik.http.routers.anythingllm.entrypoints: websecure
+      traefik.http.routers.anythingllm.tls.certresolver: letsencrypt
+      traefik.http.services.anythingllm.loadbalancer.server.port: '3020'
+    networks:
+    - ${DEFAULT_NETWORK}
+  gitea:
+    extends:
+      file: ../services/development/gitea/gitea.yaml
+      service: gitea
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.gitea.rule: Host(`gitea.myserver.com`)
+      traefik.http.routers.gitea.entrypoints: websecure
+      traefik.http.routers.gitea.tls.certresolver: letsencrypt
+      traefik.http.services.gitea.loadbalancer.server.port: '3000'
+    networks:
+    - ${DEFAULT_NETWORK}
+  code-server:
+    extends:
+      file: ../services/development/code-server/code-server.yaml
+      service: code-server
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.code-server.rule: Host(`code-server.myserver.com`)
+      traefik.http.routers.code-server.entrypoints: websecure
+      traefik.http.routers.code-server.tls.certresolver: letsencrypt
+      traefik.http.services.code-server.loadbalancer.server.port: '8443'
+    networks:
+    - ${DEFAULT_NETWORK}
+  semaphore:
+    extends:
+      file: ../services/development/semaphore/semaphore.yaml
+      service: semaphore
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.semaphore.rule: Host(`semaphore.myserver.com`)
+      traefik.http.routers.semaphore.entrypoints: websecure
+      traefik.http.routers.semaphore.tls.certresolver: letsencrypt
+      traefik.http.services.semaphore.loadbalancer.server.port: '3000'
+    networks:
+    - ${DEFAULT_NETWORK}
+  nextcloud:
+    extends:
+      file: ../services/files/nextcloud/nextcloud.yaml
+      service: nextcloud
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.nextcloud.rule: Host(`nextcloud.myserver.com`)
+      traefik.http.routers.nextcloud.entrypoints: websecure
+      traefik.http.routers.nextcloud.tls.certresolver: letsencrypt
+      traefik.http.services.nextcloud.loadbalancer.server.port: '8880'
+    networks:
+    - ${DEFAULT_NETWORK}
+  filebrowser:
+    extends:
+      file: ../services/files/filebrowser/filebrowser.yaml
+      service: filebrowser
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.filebrowser.rule: Host(`filebrowser.myserver.com`)
+      traefik.http.routers.filebrowser.entrypoints: websecure
+      traefik.http.routers.filebrowser.tls.certresolver: letsencrypt
+      traefik.http.services.filebrowser.loadbalancer.server.port: '8888'
+    networks:
+    - ${DEFAULT_NETWORK}
+  minio:
+    extends:
+      file: ../services/files/minio/minio.yaml
+      service: minio
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.minio.rule: Host(`minio.myserver.com`)
+      traefik.http.routers.minio.entrypoints: websecure
+      traefik.http.routers.minio.tls.certresolver: letsencrypt
+      traefik.http.services.minio.loadbalancer.server.port: '9001'
+    networks:
+    - ${DEFAULT_NETWORK}
+  matrix-synapse:
+    extends:
+      file: ../services/communication/matrix-synapse/matrix-synapse.yaml
+      service: matrix-synapse
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.matrix-synapse.rule: Host(`matrix.myserver.com`)
+      traefik.http.routers.matrix-synapse.entrypoints: websecure
+      traefik.http.routers.matrix-synapse.tls.certresolver: letsencrypt
+      traefik.http.services.matrix-synapse.loadbalancer.server.port: '8008'
+    networks:
+    - ${DEFAULT_NETWORK}
+  ntfy:
+    extends:
+      file: ../services/communication/ntfy/ntfy.yaml
+      service: ntfy
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.ntfy.rule: Host(`ntfy.myserver.com`)
+      traefik.http.routers.ntfy.entrypoints: websecure
+      traefik.http.routers.ntfy.tls.certresolver: letsencrypt
+      traefik.http.services.ntfy.loadbalancer.server.port: '8840'
+    networks:
+    - ${DEFAULT_NETWORK}
+  gotify:
+    extends:
+      file: ../services/communication/gotify/gotify.yaml
+      service: gotify
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.gotify.rule: Host(`gotify.myserver.com`)
+      traefik.http.routers.gotify.entrypoints: websecure
+      traefik.http.routers.gotify.tls.certresolver: letsencrypt
+      traefik.http.services.gotify.loadbalancer.server.port: '8850'
+    networks:
+    - ${DEFAULT_NETWORK}
+  joplin:
+    extends:
+      file: ../services/productivity/notes/joplin/joplin.yaml
+      service: joplin
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.joplin.rule: Host(`joplin.myserver.com`)
+      traefik.http.routers.joplin.entrypoints: websecure
+      traefik.http.routers.joplin.tls.certresolver: letsencrypt
+      traefik.http.services.joplin.loadbalancer.server.port: '22300'
+    networks:
+    - ${DEFAULT_NETWORK}
+  outline:
+    extends:
+      file: ../services/productivity/notes/outline/outline.yaml
+      service: outline
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.outline.rule: Host(`outline.myserver.com`)
+      traefik.http.routers.outline.entrypoints: websecure
+      traefik.http.routers.outline.tls.certresolver: letsencrypt
+      traefik.http.services.outline.loadbalancer.server.port: '3900'
+    networks:
+    - ${DEFAULT_NETWORK}
+  memos:
+    extends:
+      file: ../services/productivity/notes/memos/memos.yaml
+      service: memos
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.memos.rule: Host(`memos.myserver.com`)
+      traefik.http.routers.memos.entrypoints: websecure
+      traefik.http.routers.memos.tls.certresolver: letsencrypt
+      traefik.http.services.memos.loadbalancer.server.port: '5230'
+    networks:
+    - ${DEFAULT_NETWORK}
+  linkwarden:
+    extends:
+      file: ../services/productivity/bookmarks/linkwarden/linkwarden.yaml
+      service: linkwarden
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.linkwarden.rule: Host(`linkwarden.myserver.com`)
+      traefik.http.routers.linkwarden.entrypoints: websecure
+      traefik.http.routers.linkwarden.tls.certresolver: letsencrypt
+      traefik.http.services.linkwarden.loadbalancer.server.port: '3300'
+    networks:
+    - ${DEFAULT_NETWORK}
+  wallabag:
+    extends:
+      file: ../services/productivity/bookmarks/wallabag/wallabag.yaml
+      service: wallabag
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.wallabag.rule: Host(`wallabag.myserver.com`)
+      traefik.http.routers.wallabag.entrypoints: websecure
+      traefik.http.routers.wallabag.tls.certresolver: letsencrypt
+      traefik.http.services.wallabag.loadbalancer.server.port: '8760'
+    networks:
+    - ${DEFAULT_NETWORK}
+  vikunja:
+    extends:
+      file: ../services/productivity/tasks/vikunja/vikunja.yaml
+      service: vikunja
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.vikunja.rule: Host(`vikunja.myserver.com`)
+      traefik.http.routers.vikunja.entrypoints: websecure
+      traefik.http.routers.vikunja.tls.certresolver: letsencrypt
+      traefik.http.services.vikunja.loadbalancer.server.port: '3456'
+    networks:
+    - ${DEFAULT_NETWORK}
+  plane:
+    extends:
+      file: ../services/productivity/tasks/plane/plane.yaml
+      service: plane
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.plane.rule: Host(`plane.myserver.com`)
+      traefik.http.routers.plane.entrypoints: websecure
+      traefik.http.routers.plane.tls.certresolver: letsencrypt
+      traefik.http.services.plane.loadbalancer.server.port: '8970'
+    networks:
+    - ${DEFAULT_NETWORK}
+  homepage:
+    extends:
+      file: ../services/server/dashboards/homepage/homepage.yaml
+      service: homepage
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.homepage.rule: Host(`homepage.myserver.com`)
+      traefik.http.routers.homepage.entrypoints: websecure
+      traefik.http.routers.homepage.tls.certresolver: letsencrypt
+      traefik.http.services.homepage.loadbalancer.server.port: '3050'
+    networks:
+    - ${DEFAULT_NETWORK}
+  homarr:
+    extends:
+      file: ../services/server/dashboards/homarr/homarr.yaml
+      service: homarr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.homarr.rule: Host(`homarr.myserver.com`)
+      traefik.http.routers.homarr.entrypoints: websecure
+      traefik.http.routers.homarr.tls.certresolver: letsencrypt
+      traefik.http.services.homarr.loadbalancer.server.port: '7575'
+    networks:
+    - ${DEFAULT_NETWORK}
+  portainer:
+    extends:
+      file: ../services/server/dashboards/portainer/portainer.yaml
+      service: portainer
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.portainer.rule: Host(`portainer.myserver.com`)
+      traefik.http.routers.portainer.entrypoints: websecure
+      traefik.http.routers.portainer.tls.certresolver: letsencrypt
+      traefik.http.services.portainer.loadbalancer.server.port: '9000'
+    networks:
+    - ${DEFAULT_NETWORK}
+  dozzle:
+    extends:
+      file: ../services/server/management/dozzle/dozzle.yaml
+      service: dozzle
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.dozzle.rule: Host(`dozzle.myserver.com`)
+      traefik.http.routers.dozzle.entrypoints: websecure
+      traefik.http.routers.dozzle.tls.certresolver: letsencrypt
+      traefik.http.services.dozzle.loadbalancer.server.port: '8940'
+    networks:
+    - ${DEFAULT_NETWORK}
+  authelia:
+    extends:
+      file: ../services/server/auth/authelia/authelia.yaml
+      service: authelia
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.authelia.rule: Host(`auth.myserver.com`)
+      traefik.http.routers.authelia.entrypoints: websecure
+      traefik.http.routers.authelia.tls.certresolver: letsencrypt
+      traefik.http.services.authelia.loadbalancer.server.port: '9091'
+    networks:
+    - ${DEFAULT_NETWORK}
+  qbittorrent:
+    extends:
+      file: ../services/misc/qbittorrent/qbittorrent.yaml
+      service: qbittorrent
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.qbittorrent.rule: Host(`qbittorrent.myserver.com`)
+      traefik.http.routers.qbittorrent.entrypoints: websecure
+      traefik.http.routers.qbittorrent.tls.certresolver: letsencrypt
+      traefik.http.services.qbittorrent.loadbalancer.server.port: '8085'
+    networks:
+    - ${DEFAULT_NETWORK}
+  sabnzbd:
+    extends:
+      file: ../services/misc/sabnzbd/sabnzbd.yaml
+      service: sabnzbd
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.sabnzbd.rule: Host(`sabnzbd.myserver.com`)
+      traefik.http.routers.sabnzbd.entrypoints: websecure
+      traefik.http.routers.sabnzbd.tls.certresolver: letsencrypt
+      traefik.http.services.sabnzbd.loadbalancer.server.port: '8080'
+    networks:
+    - ${DEFAULT_NETWORK}
+  autobrr:
+    extends:
+      file: ../services/misc/autobrr/autobrr.yaml
+      service: autobrr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.autobrr.rule: Host(`autobrr.myserver.com`)
+      traefik.http.routers.autobrr.entrypoints: websecure
+      traefik.http.routers.autobrr.tls.certresolver: letsencrypt
+      traefik.http.services.autobrr.loadbalancer.server.port: '7474'
+    networks:
+    - ${DEFAULT_NETWORK}
+  flaresolverr:
+    extends:
+      file: ../services/misc/flaresolverr/flaresolverr.yaml
+      service: flaresolverr
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.flaresolverr.rule: Host(`flaresolverr.myserver.com`)
+      traefik.http.routers.flaresolverr.entrypoints: websecure
+      traefik.http.routers.flaresolverr.tls.certresolver: letsencrypt
+      traefik.http.services.flaresolverr.loadbalancer.server.port: '8191'
+    networks:
+    - ${DEFAULT_NETWORK}
+networks:
+  ${DEFAULT_NETWORK}:
+    external: true

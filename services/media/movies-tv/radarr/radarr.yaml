@@ -1,0 +1,32 @@
+# RADARR
+# GitHub: https://github.com/Radarr/Radarr
+# Image: lscr.io/linuxserver/radarr
+# Docs: https://wiki.servarr.com/radarr
+#
+# A fork of Sonarr to work with movies. Monitors multiple RSS feeds for new movies
+# and interfaces with clients to grab, sort, and rename them.
+
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    hostname: radarr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - UMASK=002                                            # File permissions mask
+      # - DOCKER_MODS=linuxserver/mods:radarr-striptracks      # Strip extra audio tracks mod
+
+    volumes:
+      - ${DOCKER_DATA}/media/radarr/config:/config
+      # - /path/to/movies:/movies                              # Movies library
+      # - /path/to/downloads:/downloads                        # Download client output
+
+    ports:
+      - ${PORT_RADARR:-7878}:7878
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

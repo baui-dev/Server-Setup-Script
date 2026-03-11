@@ -1,0 +1,31 @@
+# WALLABAG
+# GitHub: https://github.com/wallabag/wallabag
+# Image: wallabag/wallabag
+# Docs: https://doc.wallabag.org/
+#
+# Self-hostable read-it-later app. Save web articles to read offline with automatic
+# content extraction. Browser extensions and mobile apps available.
+
+services:
+  wallabag:
+    image: wallabag/wallabag:latest
+    container_name: wallabag
+    hostname: wallabag
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - SYMFONY__ENV__DOMAIN_NAME=https://wallabag.${BASE_DOMAIN} # Public URL
+      # - SYMFONY__ENV__DATABASE_DRIVER=pdo_sqlite              # Database driver
+      # - SYMFONY__ENV__SECRET=${SYMFONY_SECRET}                # App secret key
+      # - SYMFONY__ENV__FOSUSER_REGISTRATION=false              # Disable registration
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/wallabag/config:/var/www/wallabag/data
+      - ${DOCKER_DATA}/productivity/wallabag/images:/var/www/wallabag/web/assets/images
+
+    ports:
+      - ${PORT_WALLABAG:-8760}:80
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

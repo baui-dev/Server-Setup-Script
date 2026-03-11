@@ -1,0 +1,25 @@
+# RECYCLARR
+# GitHub: https://github.com/recyclarr/recyclarr
+# Image: ghcr.io/recyclarr/recyclarr
+# Docs: https://recyclarr.dev/wiki/
+#
+# Automatically synchronizes recommended settings from TRaSH Guides to your
+# Sonarr and Radarr instances. Keeps quality profiles and custom formats up to date.
+
+services:
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:latest
+    container_name: recyclarr
+    hostname: recyclarr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - RECYCLARR_CREATE_CONFIG=true                         # Create default config on first run
+      # - CRON_SCHEDULE=@daily                                 # Sync schedule
+
+    volumes:
+      - ${DOCKER_DATA}/misc/recyclarr/config:/config
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

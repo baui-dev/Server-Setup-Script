@@ -1,0 +1,509 @@
+http:
+  routers:
+    jellyfin:
+      rule: Host(`jellyfin.myserver.com`)
+      entryPoints:
+      - websecure
+      service: jellyfin
+      tls:
+        certResolver: letsencrypt
+    sonarr:
+      rule: Host(`sonarr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: sonarr
+      tls:
+        certResolver: letsencrypt
+    radarr:
+      rule: Host(`radarr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: radarr
+      tls:
+        certResolver: letsencrypt
+    bazarr:
+      rule: Host(`bazarr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: bazarr
+      tls:
+        certResolver: letsencrypt
+    jellyseerr:
+      rule: Host(`jellyseerr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: jellyseerr
+      tls:
+        certResolver: letsencrypt
+    prowlarr:
+      rule: Host(`prowlarr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: prowlarr
+      tls:
+        certResolver: letsencrypt
+    maintainerr:
+      rule: Host(`maintainerr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: maintainerr
+      tls:
+        certResolver: letsencrypt
+    lidarr:
+      rule: Host(`lidarr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: lidarr
+      tls:
+        certResolver: letsencrypt
+    slskd:
+      rule: Host(`slskd.myserver.com`)
+      entryPoints:
+      - websecure
+      service: slskd
+      tls:
+        certResolver: letsencrypt
+    piwigo:
+      rule: Host(`piwigo.myserver.com`)
+      entryPoints:
+      - websecure
+      service: piwigo
+      tls:
+        certResolver: letsencrypt
+    adguard:
+      rule: Host(`adguard.myserver.com`)
+      entryPoints:
+      - websecure
+      service: adguard
+      tls:
+        certResolver: letsencrypt
+    pihole:
+      rule: Host(`pihole.myserver.com`)
+      entryPoints:
+      - websecure
+      service: pihole
+      tls:
+        certResolver: letsencrypt
+    nginx-proxy-manager:
+      rule: Host(`nginx-proxy-manager.myserver.com`)
+      entryPoints:
+      - websecure
+      service: nginx-proxy-manager
+      tls:
+        certResolver: letsencrypt
+    traefik:
+      rule: Host(`traefik.myserver.com`)
+      entryPoints:
+      - websecure
+      service: traefik
+      tls:
+        certResolver: letsencrypt
+    beszel:
+      rule: Host(`beszel.myserver.com`)
+      entryPoints:
+      - websecure
+      service: beszel
+      tls:
+        certResolver: letsencrypt
+    uptime-kuma:
+      rule: Host(`uptime-kuma.myserver.com`)
+      entryPoints:
+      - websecure
+      service: uptime-kuma
+      tls:
+        certResolver: letsencrypt
+    gluetun:
+      rule: Host(`gluetun.myserver.com`)
+      entryPoints:
+      - websecure
+      service: gluetun
+      tls:
+        certResolver: letsencrypt
+    headscale:
+      rule: Host(`headscale.myserver.com`)
+      entryPoints:
+      - websecure
+      service: headscale
+      tls:
+        certResolver: letsencrypt
+    openwebui:
+      rule: Host(`openwebui.myserver.com`)
+      entryPoints:
+      - websecure
+      service: openwebui
+      tls:
+        certResolver: letsencrypt
+    n8n:
+      rule: Host(`n8n.myserver.com`)
+      entryPoints:
+      - websecure
+      service: n8n
+      tls:
+        certResolver: letsencrypt
+    anythingllm:
+      rule: Host(`anythingllm.myserver.com`)
+      entryPoints:
+      - websecure
+      service: anythingllm
+      tls:
+        certResolver: letsencrypt
+    gitea:
+      rule: Host(`gitea.myserver.com`)
+      entryPoints:
+      - websecure
+      service: gitea
+      tls:
+        certResolver: letsencrypt
+    code-server:
+      rule: Host(`code-server.myserver.com`)
+      entryPoints:
+      - websecure
+      service: code-server
+      tls:
+        certResolver: letsencrypt
+    semaphore:
+      rule: Host(`semaphore.myserver.com`)
+      entryPoints:
+      - websecure
+      service: semaphore
+      tls:
+        certResolver: letsencrypt
+    nextcloud:
+      rule: Host(`nextcloud.myserver.com`)
+      entryPoints:
+      - websecure
+      service: nextcloud
+      tls:
+        certResolver: letsencrypt
+    filebrowser:
+      rule: Host(`filebrowser.myserver.com`)
+      entryPoints:
+      - websecure
+      service: filebrowser
+      tls:
+        certResolver: letsencrypt
+    minio:
+      rule: Host(`minio.myserver.com`)
+      entryPoints:
+      - websecure
+      service: minio
+      tls:
+        certResolver: letsencrypt
+    matrix-synapse:
+      rule: Host(`matrix.myserver.com`)
+      entryPoints:
+      - websecure
+      service: matrix-synapse
+      tls:
+        certResolver: letsencrypt
+    ntfy:
+      rule: Host(`ntfy.myserver.com`)
+      entryPoints:
+      - websecure
+      service: ntfy
+      tls:
+        certResolver: letsencrypt
+    gotify:
+      rule: Host(`gotify.myserver.com`)
+      entryPoints:
+      - websecure
+      service: gotify
+      tls:
+        certResolver: letsencrypt
+    joplin:
+      rule: Host(`joplin.myserver.com`)
+      entryPoints:
+      - websecure
+      service: joplin
+      tls:
+        certResolver: letsencrypt
+    outline:
+      rule: Host(`outline.myserver.com`)
+      entryPoints:
+      - websecure
+      service: outline
+      tls:
+        certResolver: letsencrypt
+    memos:
+      rule: Host(`memos.myserver.com`)
+      entryPoints:
+      - websecure
+      service: memos
+      tls:
+        certResolver: letsencrypt
+    linkwarden:
+      rule: Host(`linkwarden.myserver.com`)
+      entryPoints:
+      - websecure
+      service: linkwarden
+      tls:
+        certResolver: letsencrypt
+    wallabag:
+      rule: Host(`wallabag.myserver.com`)
+      entryPoints:
+      - websecure
+      service: wallabag
+      tls:
+        certResolver: letsencrypt
+    vikunja:
+      rule: Host(`vikunja.myserver.com`)
+      entryPoints:
+      - websecure
+      service: vikunja
+      tls:
+        certResolver: letsencrypt
+    plane:
+      rule: Host(`plane.myserver.com`)
+      entryPoints:
+      - websecure
+      service: plane
+      tls:
+        certResolver: letsencrypt
+    homepage:
+      rule: Host(`homepage.myserver.com`)
+      entryPoints:
+      - websecure
+      service: homepage
+      tls:
+        certResolver: letsencrypt
+    homarr:
+      rule: Host(`homarr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: homarr
+      tls:
+        certResolver: letsencrypt
+    portainer:
+      rule: Host(`portainer.myserver.com`)
+      entryPoints:
+      - websecure
+      service: portainer
+      tls:
+        certResolver: letsencrypt
+    dozzle:
+      rule: Host(`dozzle.myserver.com`)
+      entryPoints:
+      - websecure
+      service: dozzle
+      tls:
+        certResolver: letsencrypt
+    authelia:
+      rule: Host(`auth.myserver.com`)
+      entryPoints:
+      - websecure
+      service: authelia
+      tls:
+        certResolver: letsencrypt
+    qbittorrent:
+      rule: Host(`qbittorrent.myserver.com`)
+      entryPoints:
+      - websecure
+      service: qbittorrent
+      tls:
+        certResolver: letsencrypt
+    sabnzbd:
+      rule: Host(`sabnzbd.myserver.com`)
+      entryPoints:
+      - websecure
+      service: sabnzbd
+      tls:
+        certResolver: letsencrypt
+    autobrr:
+      rule: Host(`autobrr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: autobrr
+      tls:
+        certResolver: letsencrypt
+    flaresolverr:
+      rule: Host(`flaresolverr.myserver.com`)
+      entryPoints:
+      - websecure
+      service: flaresolverr
+      tls:
+        certResolver: letsencrypt
+  services:
+    jellyfin:
+      loadBalancer:
+        servers:
+        - url: http://jellyfin:8096
+    sonarr:
+      loadBalancer:
+        servers:
+        - url: http://sonarr:8989
+    radarr:
+      loadBalancer:
+        servers:
+        - url: http://radarr:7878
+    bazarr:
+      loadBalancer:
+        servers:
+        - url: http://bazarr:6767
+    jellyseerr:
+      loadBalancer:
+        servers:
+        - url: http://jellyseerr:5055
+    prowlarr:
+      loadBalancer:
+        servers:
+        - url: http://prowlarr:9696
+    maintainerr:
+      loadBalancer:
+        servers:
+        - url: http://maintainerr:6246
+    lidarr:
+      loadBalancer:
+        servers:
+        - url: http://lidarr:8686
+    slskd:
+      loadBalancer:
+        servers:
+        - url: http://slskd:5030
+    piwigo:
+      loadBalancer:
+        servers:
+        - url: http://piwigo:8101
+    adguard:
+      loadBalancer:
+        servers:
+        - url: http://adguard:3000
+    pihole:
+      loadBalancer:
+        servers:
+        - url: http://pihole:8080
+    nginx-proxy-manager:
+      loadBalancer:
+        servers:
+        - url: http://nginx-proxy-manager:81
+    traefik:
+      loadBalancer:
+        servers:
+        - url: http://traefik:8080
+    beszel:
+      loadBalancer:
+        servers:
+        - url: http://beszel:8090
+    uptime-kuma:
+      loadBalancer:
+        servers:
+        - url: http://uptime-kuma:3001
+    gluetun:
+      loadBalancer:
+        servers:
+        - url: http://gluetun:8888
+    headscale:
+      loadBalancer:
+        servers:
+        - url: http://headscale:8080
+    openwebui:
+      loadBalancer:
+        servers:
+        - url: http://openwebui:3000
+    n8n:
+      loadBalancer:
+        servers:
+        - url: http://n8n:5678
+    anythingllm:
+      loadBalancer:
+        servers:
+        - url: http://anythingllm:3020
+    gitea:
+      loadBalancer:
+        servers:
+        - url: http://gitea:3000
+    code-server:
+      loadBalancer:
+        servers:
+        - url: http://code-server:8443
+    semaphore:
+      loadBalancer:
+        servers:
+        - url: http://semaphore:3000
+    nextcloud:
+      loadBalancer:
+        servers:
+        - url: http://nextcloud:8880
+    filebrowser:
+      loadBalancer:
+        servers:
+        - url: http://filebrowser:8888
+    minio:
+      loadBalancer:
+        servers:
+        - url: http://minio:9001
+    matrix-synapse:
+      loadBalancer:
+        servers:
+        - url: http://matrix-synapse:8008
+    ntfy:
+      loadBalancer:
+        servers:
+        - url: http://ntfy:8840
+    gotify:
+      loadBalancer:
+        servers:
+        - url: http://gotify:8850
+    joplin:
+      loadBalancer:
+        servers:
+        - url: http://joplin:22300
+    outline:
+      loadBalancer:
+        servers:
+        - url: http://outline:3900
+    memos:
+      loadBalancer:
+        servers:
+        - url: http://memos:5230
+    linkwarden:
+      loadBalancer:
+        servers:
+        - url: http://linkwarden:3300
+    wallabag:
+      loadBalancer:
+        servers:
+        - url: http://wallabag:8760
+    vikunja:
+      loadBalancer:
+        servers:
+        - url: http://vikunja:3456
+    plane:
+      loadBalancer:
+        servers:
+        - url: http://plane:8970
+    homepage:
+      loadBalancer:
+        servers:
+        - url: http://homepage:3050
+    homarr:
+      loadBalancer:
+        servers:
+        - url: http://homarr:7575
+    portainer:
+      loadBalancer:
+        servers:
+        - url: http://portainer:9000
+    dozzle:
+      loadBalancer:
+        servers:
+        - url: http://dozzle:8940
+    authelia:
+      loadBalancer:
+        servers:
+        - url: http://authelia:9091
+    qbittorrent:
+      loadBalancer:
+        servers:
+        - url: http://qbittorrent:8085
+    sabnzbd:
+      loadBalancer:
+        servers:
+        - url: http://sabnzbd:8080
+    autobrr:
+      loadBalancer:
+        servers:
+        - url: http://autobrr:7474
+    flaresolverr:
+      loadBalancer:
+        servers:
+        - url: http://flaresolverr:8191

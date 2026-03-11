@@ -1,0 +1,32 @@
+# SEMAPHORE
+# GitHub: https://github.com/semaphoreui/semaphore
+# Image: semaphoreui/semaphore
+# Docs: https://docs.semaphoreui.com/
+#
+# Modern UI for Ansible, Terraform, OpenTofu, Bash, and Pulumi. Manage your
+# infrastructure automation tasks with a clean web interface.
+
+services:
+  semaphore:
+    image: semaphoreui/semaphore:latest
+    container_name: semaphore
+    hostname: semaphore
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - SEMAPHORE_DB_DIALECT=bolt                              # Database type (bolt for embedded)
+      # - SEMAPHORE_ADMIN=admin                                # Admin username
+      # - SEMAPHORE_ADMIN_PASSWORD=changeme                    # Admin password
+      # - SEMAPHORE_ADMIN_NAME=Admin                           # Admin display name
+      # - SEMAPHORE_ADMIN_EMAIL=admin@example.com              # Admin email
+
+    volumes:
+      - ${DOCKER_DATA}/development/semaphore/config:/etc/semaphore
+      - ${DOCKER_DATA}/development/semaphore/data:/var/lib/semaphore
+
+    ports:
+      - ${PORT_SEMAPHORE:-3000}:3000
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

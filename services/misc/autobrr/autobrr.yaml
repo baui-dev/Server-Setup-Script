@@ -1,0 +1,28 @@
+# AUTOBRR
+# GitHub: https://github.com/autobrr/autobrr
+# Image: ghcr.io/autobrr/autobrr
+# Docs: https://autobrr.com/installation/docker
+#
+# Modern download automation tool for torrents and Usenet. Monitors IRC announce
+# channels and filters releases based on your rules, then sends to download clients.
+
+services:
+  autobrr:
+    image: ghcr.io/autobrr/autobrr:latest
+    container_name: autobrr
+    hostname: autobrr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}                                         # User ID for file permissions
+      # - PGID=${PGID}                                         # Group ID for file permissions
+
+    volumes:
+      - ${DOCKER_DATA}/misc/autobrr/config:/config
+
+    ports:
+      - ${PORT_AUTOBRR:-7474}:7474
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

@@ -1,0 +1,32 @@
+# N8N
+# GitHub: https://github.com/n8n-io/n8n
+# Image: n8nio/n8n
+# Docs: https://docs.n8n.io/
+#
+# Workflow automation tool. Connects apps, APIs, and services with a visual editor.
+# Self-hostable alternative to Zapier and Make.
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    hostname: n8n
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - N8N_BASIC_AUTH_ACTIVE=true                           # Enable basic auth
+      # - N8N_BASIC_AUTH_USER=admin                            # Basic auth username
+      # - N8N_BASIC_AUTH_PASSWORD=changeme                     # Basic auth password
+      # - N8N_HOST=n8n.${BASE_DOMAIN}                          # External hostname
+      # - WEBHOOK_URL=https://n8n.${BASE_DOMAIN}/              # Webhook base URL
+      # - GENERIC_TIMEZONE=${TZ}                               # Timezone for workflows
+
+    volumes:
+      - ${DOCKER_DATA}/ai/n8n/config:/home/node/.n8n
+
+    ports:
+      - ${PORT_N8N:-5678}:5678
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

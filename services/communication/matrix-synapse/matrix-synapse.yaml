@@ -1,0 +1,29 @@
+# MATRIX SYNAPSE
+# GitHub: https://github.com/element-hq/synapse
+# Image: matrixdotorg/synapse
+# Docs: https://element-hq.github.io/synapse/latest/
+#
+# Reference Matrix homeserver. Matrix is an open standard for interoperable,
+# real-time communication. Synapse powers federated, end-to-end encrypted messaging.
+
+services:
+  matrix-synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: matrix-synapse
+    hostname: matrix-synapse
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - SYNAPSE_SERVER_NAME=matrix.${BASE_DOMAIN}            # Your Matrix server domain
+      # - SYNAPSE_REPORT_STATS=no                              # Report anonymous stats
+      # - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml            # Config file path
+
+    volumes:
+      - ${DOCKER_DATA}/communication/matrix-synapse/config:/data
+
+    ports:
+      - ${PORT_MATRIX_SYNAPSE:-8008}:8008                      # HTTP federation/client API
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

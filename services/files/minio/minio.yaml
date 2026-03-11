@@ -1,0 +1,33 @@
+# MINIO
+# GitHub: https://github.com/minio/minio
+# Image: minio/minio
+# Docs: https://min.io/docs/minio/container/index.html
+#
+# High-performance, S3-compatible object storage. Ideal for storing backups,
+# large files, and as a backend for other self-hosted services.
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    hostname: minio
+    restart: unless-stopped
+
+    command: server /data --console-address ":9001"
+
+    environment:
+      - TZ=${TZ}
+      # - MINIO_ROOT_USER=admin                                # Admin username (min 3 chars)
+      # - MINIO_ROOT_PASSWORD=changeme                         # Admin password (min 8 chars)
+      # - MINIO_BROWSER_REDIRECT_URL=https://minio.${BASE_DOMAIN} # Console redirect URL
+      # - MINIO_SERVER_URL=https://s3.${BASE_DOMAIN}           # S3 API URL
+
+    volumes:
+      - ${DOCKER_DATA}/files/minio/data:/data
+
+    ports:
+      - ${PORT_MINIO:-9000}:9000                               # S3 API
+      - ${PORT_MINIO_CONSOLE:-9001}:9001                       # Web console
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

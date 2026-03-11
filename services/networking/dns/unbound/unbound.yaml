@@ -1,0 +1,27 @@
+# UNBOUND
+# GitHub: https://github.com/MatthewVance/unbound-docker
+# Image: mvance/unbound
+# Docs: https://unbound.docs.nlnetlabs.nl/
+#
+# A validating, recursive, caching DNS resolver. Often used alongside Pi-hole or
+# AdGuard Home as the upstream DNS resolver for full DNSSEC validation.
+
+services:
+  unbound:
+    image: mvance/unbound:latest
+    container_name: unbound
+    hostname: unbound
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+
+    volumes:
+      - ${DOCKER_DATA}/networking/unbound/config:/opt/unbound/etc/unbound
+
+    ports:
+      - ${PORT_UNBOUND:-5335}:53/tcp                           # DNS over TCP
+      - ${PORT_UNBOUND:-5335}:53/udp                           # DNS over UDP
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

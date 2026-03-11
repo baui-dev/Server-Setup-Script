@@ -1,0 +1,27 @@
+# JELLYSEERR
+# GitHub: https://github.com/Fallenbagel/jellyseerr
+# Image: fallenbagel/jellyseerr
+# Docs: https://docs.jellyseerr.dev/
+#
+# Free and open source media request and discovery tool for Jellyfin.
+# Allows users to request movies and TV shows, integrates with Sonarr and Radarr.
+
+services:
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    hostname: jellyseerr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      # - LOG_LEVEL=debug                                      # Log verbosity (debug, info, warn, error)
+
+    volumes:
+      - ${DOCKER_DATA}/media/jellyseerr/config:/app/config
+
+    ports:
+      - ${PORT_JELLYSEERR:-5055}:5055
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
