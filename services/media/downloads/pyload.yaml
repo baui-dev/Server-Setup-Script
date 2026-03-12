@@ -1,0 +1,27 @@
+# PYLOAD-NG
+# GitHub: https://github.com/pyload/pyload
+# Image: https://hub.docker.com/r/linuxserver/pyload-ng
+# Docs: https://github.com/pyload/pyload#docker-images
+#
+# Lightweight download manager for direct-download hosters and click'n'load
+# workflows, with a web UI and persistent queue state.
+
+services:
+  pyload:
+    image: lscr.io/linuxserver/pyload-ng:latest
+    container_name: pyload
+    hostname: pyload
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+    volumes:
+      - ${DOCKER_DATA}/media/downloads/pyload/config:/config
+      - ${DOCKER_DATA}/media/downloads/pyload/downloads:/downloads
+
+    ports:
+      - ${PORT_PYLOAD:-8001}:8000
+      - ${PORT_PYLOAD_CLICKNLOAD:-9666}:9666

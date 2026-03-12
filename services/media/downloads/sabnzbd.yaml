@@ -1,0 +1,27 @@
+# SABNZBD
+# GitHub: https://github.com/sabnzbd/sabnzbd
+# Image: https://hub.docker.com/r/linuxserver/sabnzbd
+# Docs: https://sabnzbd.org/wiki/installation/install-unix
+#
+# Popular Usenet downloader with a web UI, queue management, unpacking, and
+# strong integration with the wider arr media stack.
+
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    hostname: sabnzbd
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+    volumes:
+      - ${DOCKER_DATA}/media/downloads/sabnzbd/config:/config
+      - ${DOCKER_DATA}/media/downloads/sabnzbd/downloads:/downloads
+      - ${DOCKER_DATA}/media/downloads/sabnzbd/incomplete:/incomplete-downloads
+
+    ports:
+      - ${PORT_SABNZBD:-8080}:8080

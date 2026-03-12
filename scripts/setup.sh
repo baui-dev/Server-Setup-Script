@@ -35,7 +35,6 @@ print_dim()     { echo -e "\033[2m$1${RESET}"; }
 check_dependencies() {
     local missing=()
     command -v jq      &>/dev/null || missing+=("jq")
-    command -v python3 &>/dev/null || missing+=("python3")
 
     if [[ ${#missing[@]} -gt 0 ]]; then
         print_error "Missing required tools: ${missing[*]}"
@@ -338,7 +337,7 @@ generate_stacks() {
     fi
 
     print_info "Running stack generator..."
-    if python3 "${SCRIPT_DIR}/generate-stacks.py" --services "${selected_list}"; then
+    if bash "${SCRIPT_DIR}/generate-stacks.sh" --services "${selected_list}"; then
         print_success "Stacks generated in: ${STACKS_DIR}/"
     else
         print_error "Stack generation failed. Check output above."
@@ -406,13 +405,12 @@ offer_reverse_proxy() {
     backend="${backend:-godoxy}"
 
     print_info "Running reverse proxy configurator (backend: ${backend})..."
-    local domain_arg=""
+    local domain_arg=()
     if [[ -n "${BASE_DOMAIN:-}" ]]; then
-        domain_arg="--domain ${BASE_DOMAIN}"
+        domain_arg=(--domain "${BASE_DOMAIN}")
     fi
-    # shellcheck disable=SC2086
-    if python3 "${SCRIPT_DIR}/reverse-proxy-configurator.py" \
-        --backend "${backend}" ${domain_arg}; then
+    if bash "${SCRIPT_DIR}/reverse-proxy-configurator.sh" \
+        --backend "${backend}" "${domain_arg[@]+${domain_arg[@]}}"; then
         print_success "Reverse proxy configuration generated."
     else
         print_error "Reverse proxy configuration failed."
@@ -425,7 +423,7 @@ offer_dependency_graph() {
         return
     fi
     print_info "Running dependency graph generator..."
-    if python3 "${SCRIPT_DIR}/generate-dependency-graph.py"; then
+    if bash "${SCRIPT_DIR}/generate-dependency-graph.sh"; then
         print_success "Dependency graph generated in: ${REPO_ROOT}/graphs/"
     else
         print_error "Dependency graph generation failed."

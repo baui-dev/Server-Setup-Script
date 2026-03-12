@@ -1,0 +1,23 @@
+# RECYCLARR
+# GitHub: https://github.com/recyclarr/recyclarr
+# Image: https://ghcr.io/recyclarr/recyclarr
+# Docs: https://recyclarr.dev/wiki/
+#
+# Synchronizes TRaSH Guide quality profiles and custom formats to Sonarr and
+# Radarr so media quality settings stay consistent over time.
+
+services:
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:latest
+    container_name: recyclarr
+    hostname: recyclarr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - CRON_SCHEDULE=@daily # Override the default sync schedule
+
+    volumes:
+      - ${DOCKER_DATA}/media/automation/recyclarr/config:/config

@@ -18,6 +18,9 @@ bash scripts/setup.sh
 - [Media - Movies & TV](#media---movies--tv)
 - [Media - Music](#media---music)
 - [Media - Images](#media---images)
+- [Media - Downloads](#media---downloads)
+- [Media - Automation](#media---automation)
+- [Media - Utilities](#media---utilities)
 - [Networking - DNS](#networking---dns)
 - [Networking - Monitoring](#networking---monitoring)
 - [Networking - Reverse Proxy](#networking---reverse-proxy)
@@ -28,7 +31,6 @@ bash scripts/setup.sh
 - [Server - Auth](#server---auth)
 - [Server - Dashboards](#server---dashboards)
 - [Server - Management](#server---management)
-- [Miscellaneous](#miscellaneous)
 
 ---
 
@@ -853,6 +855,36 @@ uptime-kuma
 
 ---
 
+### changedetection.io
+
+Website and API change monitor for page diffs, restock alerts, and notification workflows.
+
+- **Category**: Networking / Monitoring
+- **GitHub**: https://github.com/dgtlmoon/changedetection.io
+- **Docker Image**: `dgtlmoon/changedetection.io`
+- **Default Port**: 5001
+- **Key Features**:
+  - Monitors websites, JSON APIs, and PDFs for content changes
+  - Supports browser-based fetches, filters, and conditional alerts
+  - Sends notifications to Discord, Slack, email, Telegram, and more
+  - Useful for release tracking, docs changes, and price watches
+  - Includes an API for automation and bulk management
+- **Advantages**:
+  - More capable than basic uptime-only monitors
+  - Very active upstream and strong ecosystem
+  - Works well for both homelab and automation tasks
+- **Disadvantages/Limitations**:
+  - Heavier when JavaScript rendering is enabled
+  - Rich feature set means more initial setup work
+  - Some sites need careful filtering to avoid noisy alerts
+
+**Deploy**:
+```
+changedetection
+```
+
+---
+
 ## Networking - Reverse Proxy
 
 ### Nginx Proxy Manager
@@ -1316,6 +1348,36 @@ homarr
 
 ---
 
+### Glance
+
+Fast, configurable homelab dashboard focused on feeds, status widgets, and a clean start page.
+
+- **Category**: Server / Dashboards
+- **GitHub**: https://github.com/glanceapp/glance
+- **Docker Image**: `ghcr.io/glanceapp/glance`
+- **Default Port**: 8084
+- **Key Features**:
+  - RSS, Reddit, YouTube, weather, market, and status widgets
+  - Lightweight rendering with low resource use
+  - Mobile-friendly themes and layouts
+  - Multi-page YAML configuration for dashboards and landing pages
+  - Docker and server status widgets for homelab overviews
+- **Advantages**:
+  - Lighter than most dashboard alternatives
+  - Polished look with minimal setup
+  - Great for read-mostly dashboards and shared homepages
+- **Disadvantages/Limitations**:
+  - YAML-configured rather than GUI-driven
+  - Focuses on display rather than active service management
+  - Some widgets depend on external feeds or APIs
+
+**Deploy**:
+```
+glance
+```
+
+---
+
 ### Portainer
 
 Full-featured web UI for managing Docker containers, images, networks, and volumes.
@@ -1408,13 +1470,13 @@ dozzle
 
 ---
 
-## Miscellaneous
+## Media - Downloads
 
 ### qBittorrent
 
 Full-featured, open source BitTorrent client with a web UI.
 
-- **Category**: Miscellaneous
+- **Category**: Media / Downloads
 - **GitHub**: https://github.com/qbittorrent/qBittorrent
 - **Docker Image**: `linuxserver/qbittorrent`
 - **Default Port**: 8085
@@ -1443,7 +1505,7 @@ qbittorrent
 
 Usenet binary downloader with web-based management.
 
-- **Category**: Miscellaneous
+- **Category**: Media / Downloads
 - **GitHub**: https://github.com/sabnzbd/sabnzbd
 - **Docker Image**: `linuxserver/sabnzbd`
 - **Default Port**: 8080
@@ -1469,11 +1531,73 @@ sabnzbd
 
 ---
 
+### JDownloader
+
+Browser-accessible direct-download manager for hosters, archives, and manual queue control.
+
+- **Category**: Media / Downloads
+- **GitHub**: https://github.com/jlesage/docker-jdownloader-2
+- **Docker Image**: `jlesage/jdownloader-2`
+- **Default Port**: 5800
+- **Key Features**:
+  - Web-based GUI without installing a local client
+  - Handles hosters, archives, link decryption, and queue automation
+  - Supports MyJDownloader remote access
+  - Persistent state through mounted config and download volumes
+  - Good complement to torrent and Usenet clients
+- **Advantages**:
+  - Mature downloader with broad hoster support
+  - Convenient browser UI via the jlesage image
+  - Useful for mixed manual and automated download workflows
+- **Disadvantages/Limitations**:
+  - Heavier than simpler headless download managers
+  - GUI-oriented workflow is not as minimal as API-first tools
+  - Some hosters still need manual account configuration
+
+**Deploy**:
+```
+jdownloader
+```
+
+---
+
+### pyLoad-NG
+
+Lightweight direct-download manager with a web UI and click'n'load support.
+
+- **Category**: Media / Downloads
+- **GitHub**: https://github.com/pyload/pyload
+- **Docker Image**: `linuxserver/pyload-ng`
+- **Default Port**: 8001
+- **Key Features**:
+  - Browser-based download management
+  - Plugin ecosystem for hosters and decrypters
+  - Click'n'load support for quick browser handoff
+  - Lower resource usage than larger download suites
+  - Persistent queue and config state in a simple container
+- **Advantages**:
+  - Good lightweight alternative to JDownloader
+  - Simple server and NAS deployment model
+  - Upstream development is active again
+- **Disadvantages/Limitations**:
+  - Smaller ecosystem and polish than JDownloader
+  - Some plugins need more hands-on troubleshooting
+  - Best suited to direct-download workflows, not torrents
+
+**Deploy**:
+```
+pyload
+```
+
+---
+
+## Media - Automation
+
 ### Autobrr
 
 Automated download client triggered by IRC announce channels.
 
-- **Category**: Miscellaneous
+- **Category**: Media / Automation
 - **GitHub**: https://github.com/autobrr/autobrr
 - **Docker Image**: `ghcr.io/autobrr/autobrr`
 - **Default Port**: 7474
@@ -1503,7 +1627,7 @@ autobrr
 
 Syncs TRaSH Guides quality profiles and custom formats to Sonarr and Radarr automatically.
 
-- **Category**: Miscellaneous
+- **Category**: Media / Automation
 - **GitHub**: https://github.com/recyclarr/recyclarr
 - **Docker Image**: `ghcr.io/recyclarr/recyclarr`
 - **Default Port**: None
@@ -1529,11 +1653,13 @@ recyclarr
 
 ---
 
+## Media - Utilities
+
 ### FlareSolverr
 
 Proxy server for bypassing Cloudflare and DDoS-Guard protection, used by indexers.
 
-- **Category**: Miscellaneous
+- **Category**: Media / Utilities
 - **GitHub**: https://github.com/FlareSolverr/FlareSolverr
 - **Docker Image**: `ghcr.io/flaresolverr/flaresolverr`
 - **Default Port**: 8191

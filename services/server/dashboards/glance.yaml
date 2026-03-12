@@ -1,0 +1,23 @@
+# GLANCE
+# GitHub: https://github.com/glanceapp/glance
+# Image: https://github.com/glanceapp/glance/pkgs/container/glance
+# Docs: https://github.com/glanceapp/glance/blob/main/docs/configuration.md#configuring-glance
+#
+# Lightweight, modern homelab dashboard that pulls feeds, status widgets, and
+# custom cards into a fast mobile-friendly landing page.
+
+services:
+  glance:
+    image: ghcr.io/glanceapp/glance:latest
+    container_name: glance
+    hostname: glance
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+
+    volumes:
+      - ${DOCKER_DATA}/server/dashboards/glance/config:/app/config
+
+    ports:
+      - ${PORT_GLANCE:-8084}:8080

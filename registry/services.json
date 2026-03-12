@@ -1176,6 +1176,35 @@
       }
     },
     {
+      "name": "glance",
+      "display_name": "Glance",
+      "category": "server",
+      "subcategory": "dashboards",
+      "path": "services/server/dashboards/glance.yaml",
+      "description": "Fast homelab dashboard",
+      "github": "https://github.com/glanceapp/glance",
+      "docker_image": "ghcr.io/glanceapp/glance",
+      "ports": ["PORT_GLANCE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "glance.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8084",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
       "name": "portainer",
       "display_name": "Portainer",
       "category": "server",
@@ -1284,15 +1313,44 @@
       }
     },
     {
+      "name": "changedetection",
+      "display_name": "changedetection.io",
+      "category": "networking",
+      "subcategory": "monitoring",
+      "path": "services/networking/monitoring/changedetection.yaml",
+      "description": "Website and API change monitor",
+      "github": "https://github.com/dgtlmoon/changedetection.io",
+      "docker_image": "dgtlmoon/changedetection.io",
+      "ports": ["PORT_CHANGEDETECTION"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "changedetection.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:5001",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
       "name": "qbittorrent",
       "display_name": "qBittorrent",
-      "category": "misc",
-      "subcategory": null,
-      "path": "services/misc/qbittorrent/qbittorrent.yaml",
+      "category": "media",
+      "subcategory": "downloads",
+      "path": "services/media/downloads/qbittorrent.yaml",
       "description": "BitTorrent client",
       "github": "https://github.com/qbittorrent/qBittorrent",
       "docker_image": "linuxserver/qbittorrent",
-      "ports": ["PORT_QBITTORRENT"],
+      "ports": ["PORT_QBITTORRENT", "PORT_QBITTORRENT_TORRENT"],
       "requires": [],
       "exposes_http": true,
       "reverse_proxy": {
@@ -1315,9 +1373,9 @@
     {
       "name": "sabnzbd",
       "display_name": "SABnzbd",
-      "category": "misc",
-      "subcategory": null,
-      "path": "services/misc/sabnzbd/sabnzbd.yaml",
+      "category": "media",
+      "subcategory": "downloads",
+      "path": "services/media/downloads/sabnzbd.yaml",
       "description": "Usenet downloader",
       "github": "https://github.com/sabnzbd/sabnzbd",
       "docker_image": "linuxserver/sabnzbd",
@@ -1342,11 +1400,69 @@
       }
     },
     {
+      "name": "jdownloader",
+      "display_name": "JDownloader",
+      "category": "media",
+      "subcategory": "downloads",
+      "path": "services/media/downloads/jdownloader.yaml",
+      "description": "Direct-download manager",
+      "github": "https://github.com/jlesage/docker-jdownloader-2",
+      "docker_image": "jlesage/jdownloader-2",
+      "ports": ["PORT_JDOWNLOADER"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "jdownloader.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:5800",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "pyload",
+      "display_name": "pyLoad-NG",
+      "category": "media",
+      "subcategory": "downloads",
+      "path": "services/media/downloads/pyload.yaml",
+      "description": "Download manager for direct links",
+      "github": "https://github.com/pyload/pyload",
+      "docker_image": "linuxserver/pyload-ng",
+      "ports": ["PORT_PYLOAD", "PORT_PYLOAD_CLICKNLOAD"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "pyload.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:8001",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
       "name": "autobrr",
       "display_name": "Autobrr",
-      "category": "misc",
-      "subcategory": null,
-      "path": "services/misc/autobrr/autobrr.yaml",
+      "category": "media",
+      "subcategory": "automation",
+      "path": "services/media/automation/autobrr.yaml",
       "description": "Automatic download",
       "github": "https://github.com/autobrr/autobrr",
       "docker_image": "ghcr.io/autobrr/autobrr",
@@ -1373,9 +1489,9 @@
     {
       "name": "recyclarr",
       "display_name": "Recyclarr",
-      "category": "misc",
-      "subcategory": null,
-      "path": "services/misc/recyclarr/recyclarr.yaml",
+      "category": "media",
+      "subcategory": "automation",
+      "path": "services/media/automation/recyclarr.yaml",
       "description": "Quality profiles sync",
       "github": "https://github.com/recyclarr/recyclarr",
       "docker_image": "ghcr.io/recyclarr/recyclarr",
@@ -1394,9 +1510,9 @@
     {
       "name": "flaresolverr",
       "display_name": "FlareSolverr",
-      "category": "misc",
-      "subcategory": null,
-      "path": "services/misc/flaresolverr/flaresolverr.yaml",
+      "category": "media",
+      "subcategory": "utilities",
+      "path": "services/media/utilities/flaresolverr.yaml",
       "description": "Cloudflare bypass proxy",
       "github": "https://github.com/FlareSolverr/FlareSolverr",
       "docker_image": "ghcr.io/flaresolverr/flaresolverr",

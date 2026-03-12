@@ -1,0 +1,27 @@
+# JDOWNLOADER
+# GitHub: https://github.com/jlesage/docker-jdownloader-2
+# Image: https://hub.docker.com/r/jlesage/jdownloader-2
+# Docs: https://github.com/jlesage/docker-jdownloader-2#readme
+#
+# Browser-accessible JDownloader 2 container for direct-download hosters,
+# archive handling, and general-purpose download queue management.
+
+services:
+  jdownloader:
+    image: jlesage/jdownloader-2:latest
+    container_name: jdownloader
+    hostname: jdownloader
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - USER_ID=${PUID}
+      - GROUP_ID=${PGID}
+      # - WEB_AUTHENTICATION=1 # Enable the built-in login page for the web UI
+
+    volumes:
+      - ${DOCKER_DATA}/media/downloads/jdownloader/config:/config
+      - ${DOCKER_DATA}/media/downloads/jdownloader/downloads:/output
+
+    ports:
+      - ${PORT_JDOWNLOADER:-5800}:5800

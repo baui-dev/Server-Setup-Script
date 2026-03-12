@@ -1,0 +1,25 @@
+# CHANGEDETECTION.IO
+# GitHub: https://github.com/dgtlmoon/changedetection.io
+# Image: https://hub.docker.com/r/dgtlmoon/changedetection.io
+# Docs: https://github.com/dgtlmoon/changedetection.io/wiki
+#
+# Web page and API change monitor for uptime-adjacent tracking, alerts, price
+# watches, and automation hooks when content changes.
+
+services:
+  changedetection:
+    image: dgtlmoon/changedetection.io:latest
+    container_name: changedetection
+    hostname: changedetection
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+    volumes:
+      - ${DOCKER_DATA}/networking/monitoring/changedetection/data:/datastore
+
+    ports:
+      - ${PORT_CHANGEDETECTION:-5001}:5000
