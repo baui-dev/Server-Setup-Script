@@ -1,0 +1,30 @@
+# PAIRDROP
+# GitHub: https://github.com/schlagmichdoch/PairDrop
+# Image: https://hub.docker.com/r/linuxserver/pairdrop
+# Docs: https://github.com/schlagmichdoch/PairDrop/blob/master/docs/host-your-own.md
+#
+# Browser-based peer-to-peer file transfer inspired by AirDrop. Share files and
+# text between devices on the same network, with optional public room support.
+
+services:
+  pairdrop:
+    image: lscr.io/linuxserver/pairdrop:latest
+    container_name: pairdrop
+    hostname: pairdrop
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - RATE_LIMIT=true # Enable API rate limiting for public-facing deployments
+
+    volumes:
+      - ${DOCKER_DATA}/files/sharing/pairdrop/config:/config
+      - ${DOCKER_DATA}/files/sharing/pairdrop/data:/data
+
+    ports:
+      - ${PORT_PAIRDROP:-${AUTO_PORT_PAIRDROP}}:3000
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

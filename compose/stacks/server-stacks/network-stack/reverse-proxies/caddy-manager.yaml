@@ -3,20 +3,20 @@
 # Image: lucaslorentz/caddy-docker-proxy:latest
 
 services:
-	caddy-manager:
-		image: lucaslorentz/caddy-docker-proxy:latest
-		container_name: caddy-manager
-		hostname: caddy-manager
-		restart: unless-stopped
-		environment:
-			- TZ=${TZ}
-			- CADDY_INGRESS_NETWORKS=${DOCKER_NETWORK:-proxy}
-		volumes:
-			- /var/run/docker.sock:/var/run/docker.sock
-			- ${BASE_DATA}/caddy-manager/data:/data
-			- ${BASE_DATA}/caddy-manager/config:/config
-		ports:
-			- 80:80
-			- 443:443
-			- ${PORT_CADDY_MANAGER_ADMIN:-2019}:2019
+  caddy-manager:
+    image: lucaslorentz/caddy-docker-proxy:latest
+    container_name: caddy-manager
+    hostname: caddy-manager
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - CADDY_INGRESS_NETWORKS=${DOCKER_NETWORK:-proxy}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${BASE_DATA}/caddy-manager/data:/data
+      - ${BASE_DATA}/caddy-manager/config:/config
+    ports:
+      - 80:80
+      - 443:443
+      - ${PORT_CADDY_MANAGER_ADMIN:-2019}:2019
 

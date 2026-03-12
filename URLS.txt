@@ -1,3 +1,6 @@
+https://selfh.st/apps/
+
+
 https://awesome-docker-compose.com/
 https://github.com/cynegeirus/linux-initialization-script
 https://github.com/l0n3m4n/github-vps
@@ -10,3 +13,9 @@ https://github.com/golift/starr?tab=readme-ov-file
 
 https://awesome-selfhosted.net/index.html
 https://awesome-docker-compose.com/
+https://github.com/geekau/mediastack
+https://github.com/TechSquidTV/UltimateHomeServer
+https://github.com/I-am-PUID-0/DUMB
+https://github.com/frierun/frierun
+https://github.com/Ravencentric/awesome-arr
+https://github.com/kinduff/pirate

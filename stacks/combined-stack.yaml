@@ -724,6 +724,29 @@ services:
     # networks:
     #   - ${DEFAULT_NETWORK}
 
+  # ── pairdrop (services/files/sharing/pairdrop/pairdrop.yaml)
+  pairdrop:
+    image: lscr.io/linuxserver/pairdrop:latest
+    container_name: pairdrop
+    hostname: pairdrop
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - RATE_LIMIT=true # Enable API rate limiting for public-facing deployments
+
+    volumes:
+      - ${DOCKER_DATA}/files/sharing/pairdrop/config:/config
+      - ${DOCKER_DATA}/files/sharing/pairdrop/data:/data
+
+    ports:
+      - ${PORT_PAIRDROP:-${AUTO_PORT_PAIRDROP}}:3000
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
   # ── matrix-synapse (services/communication/matrix-synapse/matrix-synapse.yaml)
   matrix-synapse:
     image: matrixdotorg/synapse:latest
@@ -963,6 +986,29 @@ services:
     # networks:
     #   - ${DEFAULT_NETWORK}
 
+  # ── actual-budget (services/productivity/finance/actual-budget/actual-budget.yaml)
+  actual-budget:
+    image: actualbudget/actual-server:latest
+    container_name: actual-budget
+    hostname: actual-budget
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - ACTUAL_OPENID_DISCOVERY_URL=${ACTUAL_OPENID_DISCOVERY_URL} # Optional OIDC SSO provider
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/finance/actual-budget/config:/config
+      - ${DOCKER_DATA}/productivity/finance/actual-budget/data:/data
+
+    ports:
+      - ${PORT_ACTUAL_BUDGET:-${AUTO_PORT_ACTUAL_BUDGET}}:5006
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
   # ── homepage (services/server/dashboards/homepage/homepage.yaml)
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
@@ -1086,6 +1132,30 @@ services:
 
     ports:
       - ${PORT_DOZZLE:-8940}:8080
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  # ── dockge (services/server/management/dockge/dockge.yaml)
+  dockge:
+    image: louislam/dockge:1
+    container_name: dockge
+    hostname: dockge
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - DOCKGE_STACKS_DIR=${DOCKER_DATA}/server/management/dockge/stacks
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_DATA}/server/management/dockge/config:/app/data
+      - ${DOCKER_DATA}/server/management/dockge/stacks:${DOCKER_DATA}/server/management/dockge/stacks
+
+    ports:
+      - ${PORT_DOCKGE:-${AUTO_PORT_DOCKGE}}:5001
 
     # networks:
     #   - ${DEFAULT_NETWORK}

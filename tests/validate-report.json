@@ -96,6 +96,14 @@
 }
 ,
 {
+  "file": "services/files/sharing/pairdrop/pairdrop.yaml",
+  "name": "pairdrop",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/media/automation/autobrr.yaml",
   "name": "autobrr",
   "status": "ok",
@@ -336,6 +344,14 @@
 }
 ,
 {
+  "file": "services/productivity/finance/actual-budget/actual-budget.yaml",
+  "name": "actual-budget",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/productivity/notes/joplin/joplin.yaml",
   "name": "joplin",
   "status": "ok",
@@ -410,6 +426,14 @@
 {
   "file": "services/server/dashboards/portainer/portainer.yaml",
   "name": "portainer",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/management/dockge/dockge.yaml",
+  "name": "dockge",
   "status": "ok",
   "errors": [],
   "warnings": []

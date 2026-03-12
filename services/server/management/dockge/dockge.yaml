@@ -1,0 +1,31 @@
+# DOCKGE
+# GitHub: https://github.com/louislam/dockge
+# Image: https://hub.docker.com/r/louislam/dockge
+# Docs: https://github.com/louislam/dockge#-how-to-install
+#
+# Stack-oriented Docker Compose manager with an in-browser editor, terminal, and
+# deployment logs. Useful for managing multiple compose projects from one UI.
+
+services:
+  dockge:
+    image: louislam/dockge:1
+    container_name: dockge
+    hostname: dockge
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - DOCKGE_STACKS_DIR=${DOCKER_DATA}/server/management/dockge/stacks
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_DATA}/server/management/dockge/config:/app/data
+      - ${DOCKER_DATA}/server/management/dockge/stacks:${DOCKER_DATA}/server/management/dockge/stacks
+
+    ports:
+      - ${PORT_DOCKGE:-${AUTO_PORT_DOCKGE}}:5001
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

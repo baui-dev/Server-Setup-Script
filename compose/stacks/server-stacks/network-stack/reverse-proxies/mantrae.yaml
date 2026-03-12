@@ -3,19 +3,19 @@
 # Image: nginxproxy/nginx-proxy:latest
 
 services:
-	mantrae:
-		image: nginxproxy/nginx-proxy:latest
-		container_name: mantrae
-		hostname: mantrae
-		restart: unless-stopped
-		environment:
-			- TZ=${TZ}
-		volumes:
-			- /var/run/docker.sock:/tmp/docker.sock:ro
-			- ${BASE_DATA}/mantrae/certs:/etc/nginx/certs
-			- ${BASE_DATA}/mantrae/vhost:/etc/nginx/vhost.d
-			- ${BASE_DATA}/mantrae/html:/usr/share/nginx/html
-		ports:
-			- 80:80
-			- 443:443
+  mantrae:
+    image: nginxproxy/nginx-proxy:latest
+    container_name: mantrae
+    hostname: mantrae
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ${BASE_DATA}/mantrae/certs:/etc/nginx/certs
+      - ${BASE_DATA}/mantrae/vhost:/etc/nginx/vhost.d
+      - ${BASE_DATA}/mantrae/html:/usr/share/nginx/html
+    ports:
+      - 80:80
+      - 443:443
 

@@ -828,6 +828,35 @@
       }
     },
     {
+      "name": "pairdrop",
+      "display_name": "PairDrop",
+      "category": "files",
+      "subcategory": "sharing",
+      "path": "services/files/sharing/pairdrop/pairdrop.yaml",
+      "description": "Peer-to-peer file transfer in browser",
+      "github": "https://github.com/schlagmichdoch/PairDrop",
+      "docker_image": "linuxserver/pairdrop",
+      "ports": ["PORT_PAIRDROP"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "pairdrop.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:3000",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
       "name": "matrix-synapse",
       "display_name": "Matrix Synapse",
       "category": "communication",
@@ -1118,6 +1147,35 @@
       }
     },
     {
+      "name": "actual-budget",
+      "display_name": "Actual Budget",
+      "category": "productivity",
+      "subcategory": "finance",
+      "path": "services/productivity/finance/actual-budget/actual-budget.yaml",
+      "description": "Self-hosted personal budgeting app",
+      "github": "https://github.com/actualbudget/actual",
+      "docker_image": "actualbudget/actual-server",
+      "ports": ["PORT_ACTUAL_BUDGET"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "budget.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:5006",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
       "name": "homepage",
       "display_name": "Homepage",
       "category": "server",
@@ -1273,6 +1331,35 @@
       },
       "healthcheck": {
         "url": "http://localhost:8940",
+        "interval_seconds": 10,
+        "timeout_seconds": 5
+      },
+      "compatibility": {
+        "architectures": ["amd64", "arm64"],
+        "minimum_docker_version": "20.10",
+        "requires_privileged": false,
+        "conflicts_with": []
+      }
+    },
+    {
+      "name": "dockge",
+      "display_name": "Dockge",
+      "category": "server",
+      "subcategory": "management",
+      "path": "services/server/management/dockge/dockge.yaml",
+      "description": "Compose stack manager",
+      "github": "https://github.com/louislam/dockge",
+      "docker_image": "louislam/dockge",
+      "ports": ["PORT_DOCKGE"],
+      "requires": [],
+      "exposes_http": true,
+      "reverse_proxy": {
+        "preferred": "godoxy",
+        "host": "dockge.${BASE_DOMAIN}",
+        "path": "/"
+      },
+      "healthcheck": {
+        "url": "http://localhost:5001",
         "interval_seconds": 10,
         "timeout_seconds": 5
       },

@@ -1,0 +1,31 @@
+# ACTUAL BUDGET
+# GitHub: https://github.com/actualbudget/actual
+# Image: https://hub.docker.com/r/actualbudget/actual-server
+# Docs: https://actualbudget.org/docs/install/docker
+#
+# Open-source personal finance app focused on local-first budgeting and full
+# data ownership. Supports envelope budgeting, bank sync integrations, and
+# encrypted sync between clients.
+
+services:
+  actual-budget:
+    image: actualbudget/actual-server:latest
+    container_name: actual-budget
+    hostname: actual-budget
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - ACTUAL_OPENID_DISCOVERY_URL=${ACTUAL_OPENID_DISCOVERY_URL} # Optional OIDC SSO provider
+
+    volumes:
+      - ${DOCKER_DATA}/productivity/finance/actual-budget/config:/config
+      - ${DOCKER_DATA}/productivity/finance/actual-budget/data:/data
+
+    ports:
+      - ${PORT_ACTUAL_BUDGET:-${AUTO_PORT_ACTUAL_BUDGET}}:5006
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
