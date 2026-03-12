@@ -3,3 +3,10 @@ https://github.com/cynegeirus/linux-initialization-script
 https://github.com/l0n3m4n/github-vps
 https://github.com/cybershadowvps/FreeVPS
 https://github.com/cloudcommunity/Cloud-Free-Tier-Comparison
+https://www.reddit.com/r/selfhosted/comments/1rcbqzh/guide_use_soulseek_as_a_download_client_for_lidarr/
+re-command
+https://github.com/joshdev8/AutoPlexx
+https://github.com/golift/starr?tab=readme-ov-file
+
+https://awesome-selfhosted.net/index.html
+https://awesome-docker-compose.com/

@@ -1,6 +1,9 @@
 # lidarr-on-steroids
 # Restored scaffold generated from repository conventions.
 # Replace image/ports/volumes with the real upstream service details if needed.
+# https://github.com/hotio/lidarr/pkgs/container/lidarr
+# https://github.com/TrevTV/Lidarr.Plugin.Deezer
+
 
 services:
   lidarr-on-steroids:
