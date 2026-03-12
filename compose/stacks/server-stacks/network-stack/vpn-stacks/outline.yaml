@@ -1,0 +1,27 @@
+# OUTLINE VPN SERVER
+# GitHub: https://github.com/Jigsaw-Code/outline-server
+# Image: quay.io/outline/shadowbox:stable
+# Docs: https://developers.google.com/outline/docs/guides/service-providers
+#
+# Outline Server (Shadowbox) provides a self-hosted Shadowsocks-based VPN
+# with an API for managing access keys.
+
+services:
+	outline-server:
+		image: quay.io/outline/shadowbox:stable
+		container_name: outline-server
+		hostname: outline-server
+		restart: unless-stopped
+		network_mode: host
+		environment:
+			- TZ=${TZ}
+			- SB_API_PORT=${OUTLINE_API_PORT:-8081}
+			- SB_API_PREFIX=${OUTLINE_API_PREFIX:-secret}
+			- SB_CERTIFICATE_FILE=/data/shadowbox.crt
+			- SB_PRIVATE_KEY_FILE=/data/shadowbox.key
+		volumes:
+			- ${BASE_DATA}/outline/data:/data
+			- /etc/localtime:/etc/localtime:ro
+		cap_add:
+			- NET_ADMIN
+

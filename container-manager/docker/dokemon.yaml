@@ -1,0 +1,20 @@
+# DOKEMON
+# GitHub: https://github.com/productiveops/dokemon
+# Image: productiveops/dokemon:latest
+# Docs: https://github.com/productiveops/dokemon
+#
+# Dokemon is a Docker container management GUI with support for
+# compose projects, containers, images, volumes, and networks.
+
+services:
+	dokemon:
+		image: productiveops/dokemon:latest
+		container_name: dokemon
+		hostname: dokemon
+		restart: unless-stopped
+		ports:
+			- ${PORT_DOKEMON:-9090}:9090
+		volumes:
+			- ${BASE_DATA}/dokemon/data:/data
+			- /var/run/docker.sock:/var/run/docker.sock
+

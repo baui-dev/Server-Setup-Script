@@ -1,0 +1,33 @@
+# CRONMASTER
+# GitHub: https://github.com/fccview/cronmaster
+# Image: ghcr.io/fccview/cronmaster:latest
+# Docs: https://github.com/fccview/cronmaster/tree/main/howto
+#
+# CronMaster provides a web UI for managing host cron jobs, scripts,
+# and run history. It needs elevated access to read/write host crontabs.
+
+services:
+	cronmaster:
+		image: ghcr.io/fccview/cronmaster:latest
+		container_name: cronmaster
+		hostname: cronmaster
+		user: "root"
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+			- NODE_ENV=production
+			- DOCKER=true
+			- AUTH_PASSWORD=${CRONMASTER_AUTH_PASSWORD:-changeme}
+			- HOST_CRONTAB_USER=${CRONMASTER_HOST_USER:-root}
+			- NEXT_PUBLIC_CLOCK_UPDATE_INTERVAL=${CRONMASTER_CLOCK_INTERVAL:-30000}
+		volumes:
+			- /var/run/docker.sock:/var/run/docker.sock
+			- ${BASE_DATA}/cronmaster/scripts:/app/scripts
+			- ${BASE_DATA}/cronmaster/data:/app/data
+			- ${BASE_DATA}/cronmaster/snippets:/app/snippets
+		ports:
+			- ${PORT_CRONMASTER:-40123}:3000
+		pid: host
+		privileged: true
+		init: true
+

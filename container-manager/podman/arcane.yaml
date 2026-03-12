@@ -1,0 +1,28 @@
+# ARCANE
+# GitHub: https://github.com/ofkm/arcane
+# Image: ghcr.io/ofkm/arcane:latest
+# Docs: https://arcane.ofkm.dev/docs/getting-started/quickstart
+#
+# Arcane is a compose-first container management UI.
+
+services:
+	arcane:
+		image: ghcr.io/ofkm/arcane:latest
+		container_name: arcane
+		hostname: arcane
+		restart: unless-stopped
+		ports:
+			- ${PORT_ARCANE:-3552}:3552
+		environment:
+			- APP_ENV=production
+			- PUBLIC_SESSION_SECRET=${ARCANE_SESSION_SECRET}
+			- PUID=${PUID:-1000}
+			- PGID=${PGID:-1000}
+			# Optional if Arcane cannot access the runtime group:
+			# - DOCKER_GID=998
+		volumes:
+			- ${BASE_DATA}/arcane/data:/app/data
+			- /var/run/docker.sock:/var/run/docker.sock
+			# Podman socket alternative (use this instead of docker.sock if needed):
+			# - /run/user/1000/podman/podman.sock:/var/run/docker.sock
+

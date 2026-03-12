@@ -1,0 +1,21 @@
+# TUNN (Cloudflare Tunnel)
+# GitHub: https://github.com/cloudflare/cloudflared
+# Image: cloudflare/cloudflared:latest
+# Docs: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
+#
+# Lightweight tunnel connector to expose internal services through
+# Cloudflare without opening inbound firewall ports.
+
+services:
+	tunn:
+		image: cloudflare/cloudflared:latest
+		container_name: tunn
+		hostname: tunn
+		restart: unless-stopped
+		command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+		environment:
+			- TZ=${TZ}
+		# Config-file mode alternative (instead of token mode):
+		# volumes:
+		#   - ${BASE_DATA}/tunn:/etc/cloudflared
+		# command: tunnel --config /etc/cloudflared/config.yml run

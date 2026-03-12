@@ -1,0 +1,17 @@
+version: "3"
+services:
+	suggestarr:
+		image: ciuse99/suggestarr:latest
+		container_name: suggestarr
+		hostname: suggestarr
+		restart: unless-stopped
+		ports:
+			- "5000:5000"                          # Web UI/API port
+		environment:
+			- SUGGESTARR_PORT=5000                  # Internal service port
+			# Optional:
+			# - LOG_LEVEL=info                      # Extra logging for troubleshooting
+			# - TZ=Etc/UTC                          # Timezone
+		volumes:
+			- ${APPDATA}/suggestarr:/app/config/config_files # Persistent app config/database
+
