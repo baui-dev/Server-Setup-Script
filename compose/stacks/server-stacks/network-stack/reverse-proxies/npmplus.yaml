@@ -1,0 +1,20 @@
+# NPMPLUS (Replacement: Nginx Proxy Manager)
+# GitHub: https://github.com/NginxProxyManager/nginx-proxy-manager
+# Image: jc21/nginx-proxy-manager:latest
+
+services:
+	npmplus:
+		image: jc21/nginx-proxy-manager:latest
+		container_name: npmplus
+		hostname: npmplus
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+		volumes:
+			- ${BASE_DATA}/npmplus/data:/data
+			- ${BASE_DATA}/npmplus/letsencrypt:/etc/letsencrypt
+		ports:
+			- 80:80
+			- 443:443
+			- ${PORT_NPMPLUS_ADMIN:-82}:81
+

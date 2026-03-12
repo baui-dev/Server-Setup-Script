@@ -1,33 +1,24 @@
-# DEQ
-# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
-# GitHub github.com/nicholaswilde/deq → no such repository found
-# GHCR image ghcr.io/nicholaswilde/deq → does NOT exist
-# Documentation URL nicholaswilde.io/deq → does not correspond to any known page
-# Note: nicholaswilde is a real GitHub user but has no "deq" Docker project
+# DEQ (Replacement: Dashdot)
+# GitHub: https://github.com/MauriceNino/dashdot
+# Image: mauricenino/dashdot:latest
+# Docs: https://getdashdot.com/
 #
-# ✅ Verified alternatives for self-hosted server dashboards:
-#   - Homepage:    https://github.com/gethomepage/homepage         (highly configurable dashboard)
-#                  Image: ghcr.io/gethomepage/homepage
-#   - Homarr:      https://github.com/ajnart/homarr               (homelab dashboard)
-#                  Image: ghcr.io/ajnart/homarr
-#   - Flame:       https://github.com/pawelmalak/flame             (simple bookmark dashboard)
-#                  Image: pawelmalak/flame
-#   - Dashdot:     https://github.com/MauriceNino/dashdot          (server info dashboard)
-#                  Image: mauricenino/dashdot
-#
-# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
-# Replace with a verified dashboard or remove this file.
+# The original DEQ project/image could not be verified.
+# This replacement provides a maintained system metrics dashboard.
 
-# services:
-#   deq:
-#     image: ghcr.io/nicholaswilde/deq:latest  # ← DOES NOT EXIST
-#     container_name: deq
-#     hostname: deq
-#     restart: unless-stopped
-#     environment:
-#       - TZ=${TZ}
-#     volumes:
-#       - ${BASE_DATA}/deq/config:/config
-#       - /var/run/docker.sock:/var/run/docker.sock:ro
-#     ports:
-#       - ${PORT_DEQ:-3000}:3000
+services:
+	deq:
+		image: mauricenino/dashdot:latest
+		container_name: deq
+		hostname: deq
+		restart: unless-stopped
+		privileged: true
+		environment:
+			- TZ=${TZ}
+			- DASHDOT_ENABLE_CPU_TEMPS=true
+			- DASHDOT_ENABLE_STORAGE_SPLIT_VIEW=true
+		volumes:
+			- /:/mnt/host:ro
+		ports:
+			- ${PORT_DEQ:-3001}:3001
+

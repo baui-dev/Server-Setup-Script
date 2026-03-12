@@ -1,0 +1,25 @@
+# SWAG
+# GitHub: https://github.com/linuxserver/docker-swag
+# Image: lscr.io/linuxserver/swag:latest
+
+services:
+	swag:
+		image: lscr.io/linuxserver/swag:latest
+		container_name: swag
+		hostname: swag
+		restart: unless-stopped
+		cap_add:
+			- NET_ADMIN
+		environment:
+			- PUID=${PUID:-1000}
+			- PGID=${PGID:-1000}
+			- TZ=${TZ}
+			- URL=${BASE_DOMAIN}
+			- VALIDATION=http
+			- SUBDOMAINS=wildcard
+		volumes:
+			- ${BASE_DATA}/swag:/config
+		ports:
+			- 80:80
+			- 443:443
+

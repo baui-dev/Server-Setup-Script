@@ -1,0 +1,19 @@
+# DASHWISE-NEXT (Replacement: Homarr)
+# GitHub: https://github.com/ajnart/homarr
+# Image: ghcr.io/ajnart/homarr:latest
+
+services:
+	dashwise-next:
+		image: ghcr.io/ajnart/homarr:latest
+		container_name: dashwise-next
+		hostname: dashwise-next
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+			- SECRET_ENCRYPTION_KEY=${HOMARR_ENCRYPTION_KEY}
+		volumes:
+			- ${BASE_DATA}/dashwise-next/data:/app/data
+			- /var/run/docker.sock:/var/run/docker.sock:ro
+		ports:
+			- ${PORT_DASHWISE_NEXT:-7576}:7575
+

@@ -1,0 +1,26 @@
+# TRAEFIK
+# GitHub: https://github.com/traefik/traefik
+# Image: traefik:v3.0
+
+services:
+	traefik:
+		image: traefik:v3.0
+		container_name: traefik
+		hostname: traefik
+		restart: unless-stopped
+		command:
+			- --providers.docker=true
+			- --providers.docker.exposedbydefault=false
+			- --entrypoints.web.address=:80
+			- --entrypoints.websecure.address=:443
+			- --api.dashboard=true
+		environment:
+			- TZ=${TZ}
+		volumes:
+			- /var/run/docker.sock:/var/run/docker.sock:ro
+			- ${BASE_DATA}/traefik/letsencrypt:/letsencrypt
+		ports:
+			- 80:80
+			- 443:443
+			- ${PORT_TRAEFIK_DASHBOARD:-8081}:8080
+

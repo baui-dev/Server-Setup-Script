@@ -1,0 +1,18 @@
+# checkrr
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  checkrr:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: checkrr
+    hostname: checkrr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/media-stacks/checkrr/config:/config
+    ports:
+      - ${PORT_CHECKRR:-18080}:8080

@@ -1,0 +1,52 @@
+# OpenCloud (formerly ownCloud Infinite Scale / oCIS)
+# GitHub: https://github.com/opencloud-eu/opencloud
+# Image: opencloudeu/opencloud-rolling:latest
+# Docs: https://doc.opencloud.eu
+#
+# Next-generation, cloud-native file sync and share platform — the spiritual
+# successor to ownCloud. Built in Go, it runs as a single binary or container
+# with no external database dependency (uses an embedded key-value store).
+# Provides desktop sync clients, mobile apps, WebDAV, and a modern web UI.
+
+services:
+  opencloud:
+    image: opencloudeu/opencloud-rolling:latest
+    container_name: opencloud
+    hostname: opencloud
+    restart: unless-stopped
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        opencloud init || true
+        opencloud server
+    environment:
+      - TZ=${TZ}
+      # Set the admin password on first run
+      - OC_ADMIN_USER=admin
+      - OC_ADMIN_PASSWORD=${OPENCLOUD_ADMIN_PASSWORD:-changeme}
+      # Public-facing URL — REQUIRED for correct redirect URLs
+      - OC_URL=https://opencloud.${DOMAIN}
+      # Disable TLS inside the container (terminate at reverse proxy)
+      - PROXY_TLS=false
+      # Log settings
+      - OC_LOG_LEVEL=error
+      - OC_LOG_COLOR=false
+      # Insecure mode (disable cert checks for internal services — needed behind a proxy)
+      - OC_INSECURE=false
+      # Demo users (remove in production)
+      - IDM_CREATE_DEMO_USERS=false
+      # Storage driver: ocis (local posix), s3ng, or others
+      - STORAGE_USERS_DRIVER=ocis
+    volumes:
+      # Persistent config and data directory
+      - ${BASE_DATA}/opencloud/config:/etc/opencloud
+      - ${BASE_DATA}/opencloud/data:/var/lib/opencloud
+    ports:
+      - ${PORT_OPENCLOUD:-9200}:9200
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

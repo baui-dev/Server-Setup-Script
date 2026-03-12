@@ -1,0 +1,81 @@
+# Seafile
+# GitHub: https://github.com/haiwen/seafile
+# Image: seafileltd/seafile-mc:latest
+# Docs: https://manual.seafile.com/docker/deploy_seafile_with_docker/
+#
+# High-performance, self-hosted file sync and share platform. Supports desktop
+# sync clients (Windows, macOS, Linux), mobile apps, WebDAV, and a web UI with
+# online editing. Uses delta sync for efficient transfers. The -mc (multi-client)
+# image includes Seahub (web UI), SeafDav, and file-server in a single container.
+# Requires MySQL/MariaDB and Memcached.
+
+services:
+  seafile:
+    image: seafileltd/seafile-mc:latest
+    container_name: seafile
+    hostname: seafile
+    restart: unless-stopped
+    depends_on:
+      seafile-db:
+        condition: service_healthy
+      seafile-memcached:
+        condition: service_started
+    environment:
+      - TZ=${TZ}
+      # Database host and root password
+      - DB_HOST=seafile-db
+      - DB_ROOT_PASSWD=${MYSQL_ROOT_PASSWORD}
+      # Admin credentials for initial setup
+      - SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL:-admin@example.com}
+      - SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD:-changeme}
+      # Server name shown in the web UI
+      - SEAFILE_SERVER_NAME=Seafile
+      # Internal hostname (used for building SERVICE_URL)
+      - SEAFILE_SERVER_HOSTNAME=seafile.${DOMAIN}
+      # Let's Encrypt (disabled — terminate TLS at reverse proxy)
+      - SEAFILE_SERVER_LETSENCRYPT=false
+      # Force HTTPS for all internal links
+      - FORCE_HTTPS_IN_CONF=false
+      # Public service URLs
+      - SERVICE_URL=https://seafile.${DOMAIN}
+      - FILE_SERVER_ROOT=https://seafile.${DOMAIN}/seafhttp
+    volumes:
+      - ${BASE_DATA}/seafile/data:/shared
+    ports:
+      - ${PORT_SEAFILE}:80
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  seafile-db:
+    image: mariadb:10.11
+    container_name: seafile-db
+    hostname: seafile-db
+    restart: unless-stopped
+    command: --innodb_log_file_size=256M --transaction-isolation=READ-COMMITTED
+    environment:
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_LOG_BIN=1
+    volumes:
+      - ${BASE_DATA}/seafile/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  seafile-memcached:
+    image: memcached:1.6-alpine
+    container_name: seafile-memcached
+    hostname: seafile-memcached
+    restart: unless-stopped
+    # Seafile recommends at least 128 MB of memcached
+    command: memcached -m 256
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

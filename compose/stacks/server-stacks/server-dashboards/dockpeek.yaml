@@ -1,0 +1,20 @@
+# DOCKPEEK (Replacement: Dockge)
+# GitHub: https://github.com/louislam/dockge
+# Image: louislam/dockge:1
+
+services:
+	dockpeek:
+		image: louislam/dockge:1
+		container_name: dockpeek
+		hostname: dockpeek
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+			- DOCKGE_STACKS_DIR=${BASE_DATA}/dockpeek/stacks
+		volumes:
+			- /var/run/docker.sock:/var/run/docker.sock
+			- ${BASE_DATA}/dockpeek/data:/app/data
+			- ${BASE_DATA}/dockpeek/stacks:${BASE_DATA}/dockpeek/stacks
+		ports:
+			- ${PORT_DOCKPEEK:-5001}:5001
+

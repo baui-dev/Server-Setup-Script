@@ -1,0 +1,34 @@
+# CopyParty — File Sharing
+# GitHub: https://github.com/9001/copyparty
+# Image: ghcr.io/9001/copyparty:latest
+# Docs: https://github.com/9001/copyparty/wiki
+#
+# Feature-rich, self-hosted HTTP file server and file-sharing platform.
+# Supports drag-and-drop uploads, resumable transfers, shareable links,
+# in-browser media playback, image gallery, WebDAV, and optional password
+# protection per directory. No external database required (uses SQLite).
+
+services:
+  copyparty:
+    image: ghcr.io/9001/copyparty:latest
+    container_name: copyparty-sharing
+    hostname: copyparty-sharing
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${BASE_DATA}/copyparty/config:/cfg
+      # Shared files root directory
+      - ${BASE_DATA}/copyparty/files:/files
+    ports:
+      - ${PORT_COPYPARTY}:3923
+    # Optional: pass CopyParty arguments via command (accounts, volumes, permissions)
+    # command: --cfg /cfg/copyparty.conf
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,20 @@
+# CADDY
+# GitHub: https://github.com/caddyserver/caddy
+# Image: caddy:latest
+
+services:
+	caddy:
+		image: caddy:latest
+		container_name: caddy
+		hostname: caddy
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+		volumes:
+			- ${BASE_DATA}/caddy/Caddyfile:/etc/caddy/Caddyfile
+			- ${BASE_DATA}/caddy/data:/data
+			- ${BASE_DATA}/caddy/config:/config
+		ports:
+			- 80:80
+			- 443:443
+

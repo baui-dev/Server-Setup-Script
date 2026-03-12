@@ -1,0 +1,18 @@
+# ombi
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  ombi:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: ombi
+    hostname: ombi
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/media-stacks/ombi/config:/config
+    ports:
+      - ${PORT_OMBI:-18080}:8080

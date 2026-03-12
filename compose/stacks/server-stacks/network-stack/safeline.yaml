@@ -1,0 +1,115 @@
+# SAFELINE WAF
+# GitHub: https://github.com/chaitin/SafeLine
+# Image: chaitin/safeline-mgt:latest  (+ tengine, mario, fvm, pg)
+# Docs: https://docs.waf-ce.chaitin.cn/en/
+#
+# Community Edition Web Application Firewall (WAF) built on top of Nginx/Tengine.
+# Inspects HTTP/HTTPS traffic using a machine-learning detection engine (mario)
+# and blocks common attacks (SQLi, XSS, RCE, path traversal, etc.).
+# Architecture:
+#   safeline-pg       — PostgreSQL backing store for WAF rules and events
+#   safeline-mgt      — Management API + Web UI (port 9443)
+#   safeline-tengine  — Reverse-proxy WAF engine (ports 80 / 443)
+#   safeline-mario    — AI/ML traffic detection engine
+#   safeline-fvm      — Frequency & velocity rule engine
+
+services:
+  safeline-pg:
+    image: postgres:15-alpine
+    container_name: safeline-pg
+    hostname: safeline-pg
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=safeline-ce
+      - POSTGRES_DB=safeline-ce
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/safeline/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U safeline-ce -d safeline-ce"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  safeline-mgt:
+    image: chaitin/safeline-mgt:latest
+    container_name: safeline-mgt
+    hostname: safeline-mgt
+    restart: unless-stopped
+    depends_on:
+      safeline-pg:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # PostgreSQL DSN
+      - MGT_PG=host=safeline-pg port=5432 user=safeline-ce password=${POSTGRES_PASSWORD} dbname=safeline-ce sslmode=disable
+      # Detection engine endpoint
+      - MARIO_URL=http://safeline-mario:80/
+      # WAF proxy management socket
+      - TENGINE_URL=http://safeline-tengine:9001
+      # FVM rule engine endpoint
+      - FVM_URL=http://safeline-fvm:9004
+      # Initial admin password (set on first boot only)
+      # - ADMIN_PASSWORD=${SECRET_KEY}
+    volumes:
+      - ${BASE_DATA}/safeline/mgt:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      # Management Web UI — access via https://HOST:PORT_SAFELINE
+      - ${PORT_SAFELINE}:1443
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  safeline-tengine:
+    image: chaitin/safeline-tengine:latest
+    container_name: safeline-tengine
+    hostname: safeline-tengine
+    restart: unless-stopped
+    depends_on:
+      - safeline-mgt
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/safeline/tengine/config:/etc/nginx
+      - ${BASE_DATA}/safeline/tengine/logs:/var/log/nginx
+      - ${BASE_DATA}/safeline/tengine/cache:/var/cache/nginx
+    ports:
+      # Public HTTP/HTTPS ports — traffic routed through the WAF
+      - 80:80
+      - 443:443
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  safeline-mario:
+    image: chaitin/safeline-mario:latest
+    container_name: safeline-mario
+    hostname: safeline-mario
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Log verbosity: debug, info, warn, error
+      # - LOG_LEVEL=info
+    volumes:
+      - ${BASE_DATA}/safeline/mario:/app/data
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  safeline-fvm:
+    image: chaitin/safeline-fvm:latest
+    container_name: safeline-fvm
+    hostname: safeline-fvm
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/safeline/fvm:/app/data
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

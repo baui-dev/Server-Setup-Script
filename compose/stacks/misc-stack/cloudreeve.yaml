@@ -1,0 +1,72 @@
+# Cloudreve
+# GitHub: https://github.com/cloudreve/Cloudreve
+# Image: cloudreve/cloudreve:latest
+# Docs: https://docs.cloudreve.org
+#
+# Self-hosted personal cloud storage supporting local disk, OneDrive, S3,
+# Qiniu, Upyun, and OSS backends. Features file sharing with links, online
+# media playback, WebDAV, multiple users with quota management, and an
+# admin dashboard. Uses SQLite by default; MySQL supported for larger deployments.
+
+services:
+  cloudreve:
+    image: cloudreve/cloudreve:latest
+    container_name: cloudreve
+    hostname: cloudreve
+    restart: unless-stopped
+    depends_on:
+      cloudreve-db:
+        condition: service_healthy
+      cloudreve-redis:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_DATA}/cloudreve/uploads:/cloudreve/uploads
+      - ${BASE_DATA}/cloudreve/avatar:/cloudreve/avatar
+      # The conf.ini is generated on first run inside /cloudreve
+      - ${BASE_DATA}/cloudreve/config:/cloudreve
+      # Aria2 downloads directory (optional)
+      # - ${BASE_DATA}/cloudreve/downloads:/downloads
+    ports:
+      - ${PORT_CLOUDREVE:-5212}:5212
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  cloudreve-db:
+    image: mariadb:11
+    container_name: cloudreve-db
+    hostname: cloudreve-db
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=cloudreve
+      - MYSQL_USER=${MYSQL_USER:-cloudreve}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/cloudreve/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+  cloudreve-redis:
+    image: redis:7-alpine
+    container_name: cloudreve-redis
+    hostname: cloudreve-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

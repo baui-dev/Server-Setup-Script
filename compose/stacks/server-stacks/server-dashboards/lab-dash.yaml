@@ -1,32 +1,22 @@
-# LAB-DASH
-# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
-# GitHub github.com/labdash/lab-dash → no "labdash" organization exists on GitHub
-# GHCR image ghcr.io/labdash/lab-dash → does NOT exist
+# LAB-DASH (Replacement: Flame)
+# GitHub: https://github.com/pawelmalak/flame
+# Image: pawelmalak/flame:latest
+# Docs: https://github.com/pawelmalak/flame
 #
-# ✅ Verified alternatives for homelab dashboards:
-#   - Homepage:    https://github.com/gethomepage/homepage         (highly configurable dashboard)
-#                  Image: ghcr.io/gethomepage/homepage
-#   - Homarr:      https://github.com/ajnart/homarr               (homelab dashboard)
-#                  Image: ghcr.io/ajnart/homarr
-#   - Flame:       https://github.com/pawelmalak/flame             (simple bookmark dashboard)
-#                  Image: pawelmalak/flame
-#   - Dashdot:     https://github.com/MauriceNino/dashdot          (server info/stats dashboard)
-#                  Image: mauricenino/dashdot
-#   - Heimdall:    https://github.com/linuxserver/Heimdall         (application dashboard)
-#                  Image: lscr.io/linuxserver/heimdall
-#
-# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
-# Replace with Homepage or another verified dashboard or remove this file.
+# The original Labdash project/image could not be verified.
+# This replacement provides a lightweight bookmark/app dashboard.
 
-# services:
-#   lab-dash:
-#     image: ghcr.io/labdash/lab-dash:latest  # ← DOES NOT EXIST
-#     container_name: lab-dash
-#     hostname: lab-dash
-#     restart: unless-stopped
-#     environment:
-#       - TZ=${TZ}
-#     volumes:
-#       - ${BASE_DATA}/lab-dash/config:/config
-#     ports:
-#       - ${PORT_LAB_DASH:-3000}:3000
+services:
+	lab-dash:
+		image: pawelmalak/flame:latest
+		container_name: lab-dash
+		hostname: lab-dash
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+			- PASSWORD=${FLAME_PASSWORD:-changeme}
+		volumes:
+			- ${BASE_DATA}/lab-dash/data:/app/data
+			- /var/run/docker.sock:/var/run/docker.sock
+		ports:
+			- ${PORT_LAB_DASH:-5005}:5005

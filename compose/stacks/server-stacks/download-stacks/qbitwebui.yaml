@@ -1,0 +1,18 @@
+# qbitwebui
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  qbitwebui:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: qbitwebui
+    hostname: qbitwebui
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/server-stacks/download-stacks/qbitwebui/config:/config
+    ports:
+      - ${PORT_QBITWEBUI:-18080}:8080

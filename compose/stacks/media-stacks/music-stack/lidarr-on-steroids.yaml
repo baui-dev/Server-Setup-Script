@@ -1,0 +1,18 @@
+# lidarr-on-steroids
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  lidarr-on-steroids:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: lidarr-on-steroids
+    hostname: lidarr-on-steroids
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/media-stacks/music-stack/lidarr-on-steroids/config:/config
+    ports:
+      - ${PORT_LIDARR_ON_STEROIDS:-18080}:8080

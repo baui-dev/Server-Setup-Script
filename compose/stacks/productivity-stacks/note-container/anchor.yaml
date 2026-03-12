@@ -1,0 +1,18 @@
+# anchor
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  anchor:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: anchor
+    hostname: anchor
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/productivity-stacks/note-container/anchor/config:/config
+    ports:
+      - ${PORT_ANCHOR:-18080}:8080

@@ -1,0 +1,18 @@
+# cleanupper
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  cleanupper:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: cleanupper
+    hostname: cleanupper
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/server-stacks/download-stacks/cleanupper/config:/config
+    ports:
+      - ${PORT_CLEANUPPER:-18080}:8080

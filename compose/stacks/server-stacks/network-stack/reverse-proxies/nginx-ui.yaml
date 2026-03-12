@@ -1,0 +1,21 @@
+# NGINX UI
+# GitHub: https://github.com/0xJacky/nginx-ui
+# Image: uozi/nginx-ui:latest
+
+services:
+	nginx-ui:
+		image: uozi/nginx-ui:latest
+		container_name: nginx-ui
+		hostname: nginx-ui
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+		volumes:
+			- ${BASE_DATA}/nginx-ui:/etc/nginx-ui
+			- ${BASE_DATA}/nginx-ui/nginx:/etc/nginx
+			- ${BASE_DATA}/nginx-ui/www:/var/www
+		ports:
+			- ${PORT_NGINX_UI:-9002}:9002
+			- 80:80
+			- 443:443
+

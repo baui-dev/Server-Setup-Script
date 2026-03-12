@@ -1,0 +1,19 @@
+# MANDO (Replacement: Heimdall)
+# GitHub: https://github.com/linuxserver/Heimdall
+# Image: lscr.io/linuxserver/heimdall:latest
+
+services:
+	mando:
+		image: lscr.io/linuxserver/heimdall:latest
+		container_name: mando
+		hostname: mando
+		restart: unless-stopped
+		environment:
+			- PUID=${PUID:-1000}
+			- PGID=${PGID:-1000}
+			- TZ=${TZ}
+		volumes:
+			- ${BASE_DATA}/mando/config:/config
+		ports:
+			- ${PORT_MANDO:-8085}:80
+

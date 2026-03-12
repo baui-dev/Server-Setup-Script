@@ -1,31 +1,22 @@
-# ARCANA
-# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
-# GitHub github.com/nicholaswilde/arcana → no such repository found
-# GHCR image ghcr.io/nicholaswilde/arcana → does NOT exist
-# Documentation URL nicholaswilde.io/arcana → does not correspond to any known page
-# Note: nicholaswilde is a real GitHub user but has no "arcana" Docker project
-# This is one of several hallucinated projects attributed to this real user
+# ARCANA (Replacement: Homepage)
+# GitHub: https://github.com/gethomepage/homepage
+# Image: ghcr.io/gethomepage/homepage:latest
+# Docs: https://gethomepage.dev/latest/
 #
-# ✅ Verified alternatives for server dashboards:
-#   - Homepage:    https://github.com/gethomepage/homepage         (highly configurable dashboard)
-#                  Image: ghcr.io/gethomepage/homepage
-#   - Homarr:      https://github.com/ajnart/homarr               (homelab dashboard)
-#                  Image: ghcr.io/ajnart/homarr
-#   - Flame:       https://github.com/pawelmalak/flame             (simple bookmark dashboard)
-#                  Image: pawelmalak/flame
-#
-# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
-# Replace with a verified dashboard or remove this file.
+# The original Arcana project/image could not be verified.
+# This replacement provides a maintained dashboard with widget integrations.
 
-# services:
-#   arcana:
-#     image: ghcr.io/nicholaswilde/arcana:latest  # ← DOES NOT EXIST
-#     container_name: arcana
-#     hostname: arcana
-#     restart: unless-stopped
-#     environment:
-#       - TZ=${TZ}
-#     volumes:
-#       - ${BASE_DATA}/arcana/config:/config
-#     ports:
-#       - ${PORT_ARCANA:-3000}:3000
+services:
+	arcana:
+		image: ghcr.io/gethomepage/homepage:latest
+		container_name: arcana
+		hostname: arcana
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+		volumes:
+			- ${BASE_DATA}/arcana/config:/app/config
+			- /var/run/docker.sock:/var/run/docker.sock:ro
+		ports:
+			- ${PORT_ARCANA:-3000}:3000
+

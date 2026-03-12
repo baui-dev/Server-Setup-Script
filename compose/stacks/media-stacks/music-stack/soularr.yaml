@@ -1,0 +1,18 @@
+# soularr
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  soularr:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: soularr
+    hostname: soularr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/media-stacks/music-stack/soularr/config:/config
+    ports:
+      - ${PORT_SOULARR:-18080}:8080

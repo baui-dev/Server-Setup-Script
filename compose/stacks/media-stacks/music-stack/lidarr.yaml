@@ -1,0 +1,31 @@
+# LIDARR
+# GitHub: https://github.com/Lidarr/Lidarr
+# Image: lscr.io/linuxserver/lidarr
+# Docs: https://wiki.servarr.com/lidarr
+#
+# Music collection manager for Usenet and BitTorrent users. Monitors RSS feeds
+# and automatically grabs, sorts, and renames music albums.
+
+services:
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    hostname: lidarr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - UMASK=002                                            # File permissions mask
+
+    volumes:
+      - ${DOCKER_DATA}/media/lidarr/config:/config
+      # - /path/to/music:/music                                # Music library
+      # - /path/to/downloads:/downloads                        # Download client output
+
+    ports:
+      - ${PORT_LIDARR:-8686}:8686
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}

@@ -1,0 +1,19 @@
+# ROAMPAGE (Replacement: Flame)
+# GitHub: https://github.com/pawelmalak/flame
+# Image: pawelmalak/flame:latest
+
+services:
+	roampage:
+		image: pawelmalak/flame:latest
+		container_name: roampage
+		hostname: roampage
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+			- PASSWORD=${ROAMPAGE_PASSWORD:-changeme}
+		volumes:
+			- ${BASE_DATA}/roampage/data:/app/data
+			- /var/run/docker.sock:/var/run/docker.sock
+		ports:
+			- ${PORT_ROAMPAGE:-5006}:5005
+

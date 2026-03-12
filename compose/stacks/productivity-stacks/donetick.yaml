@@ -1,0 +1,53 @@
+# DoneTick
+# GitHub: https://github.com/donetick/donetick
+# Image: donetick/donetick:latest
+# Docs: https://donetick.com/docs
+#
+# Self-hosted chore and task management app with assignees, due dates, recurring
+# tasks, notification reminders, and a companion mobile app. Designed for
+# household chore tracking and shared task lists. Uses SQLite by default.
+
+services:
+  donetick:
+    image: donetick/donetick:latest
+    container_name: donetick
+    hostname: donetick
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Application environment
+      - DT_ENV=production
+      # Database (SQLite by default, stored in the data volume)
+      # - DT_DB_TYPE=sqlite   # sqlite or postgres
+      # - DT_DB_HOST=donetick-postgres
+      # - DT_DB_PORT=5432
+      # - DT_DB_NAME=donetick
+      # - DT_DB_USER=${POSTGRES_USER}
+      # - DT_DB_PASSWORD=${POSTGRES_PASSWORD}
+      # JWT / session secret
+      - DT_JWT_SECRET=${DONETICK_JWT_SECRET:-changeme_generate_a_real_secret}
+      # Server configuration
+      - DT_PORT=3000
+      # Optional: disable user registration
+      # - DT_DISABLE_REGISTRATION=true
+      # Optional: Telegram bot notifications
+      # - DT_TELEGRAM_BOT_TOKEN=${DONETICK_TELEGRAM_TOKEN}
+      # Optional: Pushover notifications
+      # - DT_PUSHOVER_USER=${DONETICK_PUSHOVER_USER}
+      # - DT_PUSHOVER_TOKEN=${DONETICK_PUSHOVER_TOKEN}
+      # Optional: SMTP for email reminders
+      # - DT_EMAIL_HOST=smtp.${DOMAIN}
+      # - DT_EMAIL_PORT=587
+      # - DT_EMAIL_FROM=donetick@${DOMAIN}
+      # - DT_EMAIL_USER=${DONETICK_SMTP_USER}
+      # - DT_EMAIL_PASSWORD=${DONETICK_SMTP_PASSWORD}
+    volumes:
+      - ${BASE_DATA}/donetick/data:/donetick/data
+    ports:
+      - ${PORT_DONETICK:-3000}:3000
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

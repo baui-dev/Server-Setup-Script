@@ -1,0 +1,17 @@
+# ORBITDASH (Replacement: Glance)
+# GitHub: https://github.com/glanceapp/glance
+# Image: ghcr.io/glanceapp/glance:latest
+
+services:
+	orbitdash:
+		image: ghcr.io/glanceapp/glance:latest
+		container_name: orbitdash
+		hostname: orbitdash
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+		volumes:
+			- ${BASE_DATA}/orbitdash/glance.yml:/app/glance.yml
+		ports:
+			- ${PORT_ORBITDASH:-8082}:8080
+

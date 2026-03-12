@@ -1,29 +1,23 @@
-# LABDASH-NEXT
-# ⚠️  STATUS: NOT FOUND - Docker image and GitHub repository could not be confirmed
-# GitHub github.com/labdash/labdash-next → no "labdash" organization exists on GitHub
-# GHCR image ghcr.io/labdash/labdash-next → does NOT exist
-# This is the same hallucinated organization as lab-dash above
+# LABDASH-NEXT (Replacement: Homarr)
+# GitHub: https://github.com/ajnart/homarr
+# Image: ghcr.io/ajnart/homarr:latest
+# Docs: https://homarr.dev/docs/
 #
-# ✅ Verified alternatives for homelab dashboards:
-#   - Homepage:    https://github.com/gethomepage/homepage         (highly configurable dashboard)
-#                  Image: ghcr.io/gethomepage/homepage
-#   - Homarr:      https://github.com/ajnart/homarr               (homelab dashboard)
-#                  Image: ghcr.io/ajnart/homarr
-#   - Dashdot:     https://github.com/MauriceNino/dashdot          (server info/stats dashboard)
-#                  Image: mauricenino/dashdot
-#
-# This file is kept as a placeholder. DO NOT deploy as-is — the image does not exist.
-# Replace with Homepage or another verified dashboard or remove this file.
+# The original Labdash Next project/image could not be verified.
+# This replacement provides a maintained homelab dashboard.
 
-# services:
-#   labdash-next:
-#     image: ghcr.io/labdash/labdash-next:latest  # ← DOES NOT EXIST
-#     container_name: labdash-next
-#     hostname: labdash-next
-#     restart: unless-stopped
-#     environment:
-#       - TZ=${TZ}
-#     volumes:
-#       - ${BASE_DATA}/labdash-next/config:/config
-#     ports:
-#       - ${PORT_LABDASH_NEXT:-3000}:3000
+services:
+	labdash-next:
+		image: ghcr.io/ajnart/homarr:latest
+		container_name: labdash-next
+		hostname: labdash-next
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+			- SECRET_ENCRYPTION_KEY=${HOMARR_ENCRYPTION_KEY}
+		volumes:
+			- ${BASE_DATA}/labdash-next/data:/app/data
+			- /var/run/docker.sock:/var/run/docker.sock:ro
+		ports:
+			- ${PORT_LABDASH_NEXT:-7575}:7575
+

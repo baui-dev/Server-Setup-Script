@@ -1,0 +1,19 @@
+# ORGANIZR
+# GitHub: https://github.com/causefx/Organizr
+# Image: lscr.io/linuxserver/organizr:latest
+
+services:
+	organizr:
+		image: lscr.io/linuxserver/organizr:latest
+		container_name: organizr
+		hostname: organizr
+		restart: unless-stopped
+		environment:
+			- PUID=${PUID:-1000}
+			- PGID=${PGID:-1000}
+			- TZ=${TZ}
+		volumes:
+			- ${BASE_DATA}/organizr/config:/config
+		ports:
+			- ${PORT_ORGANIZR:-9983}:80
+

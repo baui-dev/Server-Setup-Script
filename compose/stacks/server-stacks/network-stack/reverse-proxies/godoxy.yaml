@@ -1,0 +1,26 @@
+# GODOXY (Replacement: Traefik)
+# GitHub: https://github.com/traefik/traefik
+# Image: traefik:v3.0
+
+services:
+	godoxy:
+		image: traefik:v3.0
+		container_name: godoxy
+		hostname: godoxy
+		restart: unless-stopped
+		command:
+			- --providers.docker=true
+			- --providers.docker.exposedbydefault=false
+			- --entrypoints.web.address=:80
+			- --entrypoints.websecure.address=:443
+			- --api.dashboard=true
+		environment:
+			- TZ=${TZ}
+		volumes:
+			- /var/run/docker.sock:/var/run/docker.sock:ro
+			- ${BASE_DATA}/godoxy/traefik:/etc/traefik
+		ports:
+			- 80:80
+			- 443:443
+			- ${PORT_GODOXY_DASHBOARD:-8080}:8080
+

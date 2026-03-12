@@ -1,0 +1,18 @@
+# chithi
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  chithi:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: chithi
+    hostname: chithi
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/files-stack/file-sharing-stacks/chithi/config:/config
+    ports:
+      - ${PORT_CHITHI:-18080}:8080

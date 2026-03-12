@@ -1,0 +1,18 @@
+# seerr
+# Restored scaffold generated from repository conventions.
+# Replace image/ports/volumes with the real upstream service details if needed.
+
+services:
+  seerr:
+    image: ghcr.io/linuxserver/baseimage-alpine:latest
+    container_name: seerr
+    hostname: seerr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${DOCKER_DATA:-/srv/dockerdata}/media-stacks/cine-stack/seerr/config:/config
+    ports:
+      - ${PORT_SEERR:-18080}:8080

@@ -1,0 +1,43 @@
+# Unison File Synchronizer
+# GitHub: https://github.com/bcpierce00/unison
+# Image: eugenmayer/unison:latest
+# Docs: https://www.cis.upenn.edu/~bcpierce/unison/docs.html
+#
+# Bidirectional file synchroniser for Unix and Windows. Syncs two directory
+# trees (local or remote via SSH/socket) while preserving metadata. Unlike
+# rsync, Unison propagates changes in both directions and detects conflicts.
+# The Docker image runs a Unison server daemon; connect to it with a Unison
+# client on the same machine or a remote host.
+
+services:
+  unison:
+    image: eugenmayer/unison:latest
+    container_name: unison
+    hostname: unison
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Unison listens on this port for incoming client connections
+      - UNISON_PORT=5000
+      # Optional: SSH public key for client authentication
+      # - SSH_AUTH_KEYS=ssh-rsa AAAA...
+      # Optional: log verbosity
+      # - UNISON_DEBUG=1
+    volumes:
+      # Primary sync directory
+      - ${BASE_DATA}/unison/sync:/data/sync
+      # Unison profile and state directory
+      - ${BASE_DATA}/unison/config:/root/.unison
+    ports:
+      # Unison native socket port
+      - ${PORT_UNISON:-5001}:5000
+      # SSH port (for SSH transport)
+      - ${PORT_UNISON_SSH:-2222}:22
+    # networks:
+    #   - ${DOCKER_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

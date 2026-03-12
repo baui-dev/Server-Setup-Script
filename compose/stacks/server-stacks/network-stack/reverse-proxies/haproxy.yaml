@@ -1,0 +1,20 @@
+# HAPROXY
+# GitHub: https://github.com/haproxy/haproxy
+# Image: haproxy:alpine
+
+services:
+	haproxy:
+		image: haproxy:alpine
+		container_name: haproxy
+		hostname: haproxy
+		restart: unless-stopped
+		environment:
+			- TZ=${TZ}
+		volumes:
+			- ${BASE_DATA}/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+			- ${BASE_DATA}/haproxy/certs:/usr/local/etc/haproxy/certs:ro
+		ports:
+			- 80:80
+			- 443:443
+			- ${PORT_HAPROXY_STATS:-8404}:8404
+
