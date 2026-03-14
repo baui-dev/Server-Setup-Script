@@ -1,0 +1,43 @@
+# Logseq
+# GitHub: https://github.com/logseq/logseq
+# Image: ghcr.io/logseq/logseq-web:latest
+# Docs: https://docs.logseq.com
+#
+# Privacy-first knowledge management and note-taking system based on Markdown
+# and Org-mode. Logseq is primarily a local-first desktop/mobile application.
+#
+# SELF-HOSTING NOTE: Logseq does not currently have an official, stable
+# Docker-based server backend. The recommended self-hosted sync approach is:
+#   1. Use Logseq Desktop/Mobile with a self-hosted file sync (Syncthing,
+#      Nextcloud, etc.) for the graph folder.
+#   2. Use the Logseq DB version (in beta) which may have a self-hosted server.
+#
+# The configuration below provides a web-based viewer/editor if an official
+# Docker image becomes available. Check the GitHub repo for the latest status.
+# Some community members use a static file server to host the Logseq web app.
+
+services:
+  logseq:
+    image: ghcr.io/logseq/logseq-web:latest
+    container_name: logseq
+    hostname: logseq
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      # Mount a local graph directory for the web app to read/write
+      - ${DOCKER_DATA}/logseq/graph:/graph
+      - ${DOCKER_DATA}/logseq/config:/config
+    ports:
+      - ${PORT_LOGSEQ:-3001}:3000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# Alternative: Use Syncthing to sync the Logseq graph folder across devices.
+# See: compose/stacks/misc-stack/files-stack/backup-stacks/ for Syncthing config.
+
+# networks:
+#   proxy:
+#     external: true

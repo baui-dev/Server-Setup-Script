@@ -1,0 +1,26 @@
+# JELLYFIN VUE
+# GitHub: https://github.com/jellyfin/jellyfin-vue
+# Image: ghcr.io/jellyfin/jellyfin-vue:unstable
+# Docs: https://github.com/jellyfin/jellyfin-vue/wiki
+#
+# Jellyfin Vue is an experimental, modern Single Page Application (SPA) web client
+# for Jellyfin built with Vue.js. It provides an alternative to the default Jellyfin
+# web client with a more modern UI. Connects to an existing Jellyfin server instance.
+
+services:
+  jellyfin-vue:
+    image: ghcr.io/jellyfin/jellyfin-vue:unstable
+    container_name: jellyfin-vue
+    hostname: jellyfin-vue
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # - DEFAULT_SERVERS=http://jellyfin:8096   # Optional: pre-configure the Jellyfin server URL
+    ports:
+      - ${PORT_JELLYFIN_VUE:-8097}:80
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

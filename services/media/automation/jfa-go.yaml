@@ -1,0 +1,31 @@
+# JFA-GO
+# GitHub: https://github.com/hrfee/jfa-go
+# Image: hrfee/jfa-go:latest
+# Docs: https://jfa-go.com/docs
+#
+# jfa-go (Jellyfin Accounts) is a user management application for Jellyfin.
+# It provides an invite system, user self-registration with email verification,
+# profile templates, account expiry, Discord/Telegram bots, and admin notifications.
+# Acts as a frontend for managing Jellyfin user accounts without full admin access.
+
+services:
+  jfa-go:
+    image: hrfee/jfa-go:latest
+    container_name: jfa-go
+    hostname: jfa-go
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # jfa-go does not use PUID/PGID; it runs as the user defined in config
+    volumes:
+      - ${DOCKER_DATA}/jfa-go/config:/data         # jfa-go configuration, database, and email templates
+      - ${DOCKER_DATA}/jellyfin/config:/jf:ro      # Jellyfin config directory (read-only, for local Jellyfin detection)
+      # - /etc/localtime:/etc/localtime:ro       # Alternative timezone sync
+    ports:
+      - ${PORT_JFA_GO:-8056}:8056
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

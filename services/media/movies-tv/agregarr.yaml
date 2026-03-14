@@ -1,0 +1,45 @@
+# AGREGARR
+# GitHub: https://github.com/agregarr/agregarr
+# Image: agregarr/agregarr:latest (Docker Hub)
+# Docs: https://github.com/agregarr/agregarr
+#
+# Agregarr is a Plex Collections manager. It keeps your Plex home screen fresh by
+# rotating recommended collections based on configurable rules and schedules (recently
+# added, genre spotlights, trending, etc.). Not an *arr dashboard — it manages
+# Plex library collections only.
+#
+# === QUICK START ===
+# 1. docker compose -f agregarr.yaml up -d
+# 2. Navigate to http://localhost:${PORT_AGREGARR} and complete setup
+# 3. Provide your Plex token and URL during the setup wizard
+
+services:
+  agregarr:
+    image: agregarr/agregarr:latest
+    container_name: agregarr
+    hostname: agregarr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Plex connection (configure via web UI after first start, or set here)
+      # - PLEX_TOKEN=${AGREGARR_PLEX_TOKEN}          # Your Plex auth token
+      # - PLEX_URL=${AGREGARR_PLEX_URL:-http://plex:32400}  # Plex server URL
+    volumes:
+      - ${DOCKER_DATA}/agregarr/config:/config          # Agregarr configuration and state
+    ports:
+      - ${PORT_AGREGARR:-7171}:7171
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.agregarr.rule=Host(`agregarr.${BASE_DOMAIN}`)"
+    #   - "traefik.http.routers.agregarr.entrypoints=websecure"
+    #   - "traefik.http.routers.agregarr.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.agregarr.loadbalancer.server.port=7171"
+
+# networks:
+#   proxy:
+#     external: true

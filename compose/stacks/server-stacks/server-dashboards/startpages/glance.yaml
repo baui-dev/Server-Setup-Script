@@ -1,0 +1,11 @@
+# https://github.com/glanceapp/glance
+
+services:
+  glance:
+    container_name: glance
+    image: glanceapp/glance
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+    ports:
+      - 8080:8080

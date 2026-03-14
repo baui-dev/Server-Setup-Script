@@ -1,0 +1,31 @@
+# ArozOS
+# GitHub: https://github.com/tobychui/arozos
+# Image: tobychui/arozos:latest
+# Docs: https://github.com/tobychui/arozos/wiki
+#
+# ArozOS is a web-based OS platform written in Go. It provides a full
+# multi-user desktop environment accessible from any browser, complete with
+# file management, apps, and system management tools.
+
+services:
+  arozos:
+    image: tobychui/arozos:latest
+    container_name: arozos
+    hostname: arozos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}   # User ID for file permissions
+      # - PGID=${PGID}   # Group ID for file permissions
+    volumes:
+      - ${DOCKER_DATA}/arozos/files:/system/storage     # User file storage
+      - ${DOCKER_DATA}/arozos/conf:/system/conf          # System configuration
+      - ${DOCKER_DATA}/arozos/web:/system/web             # Web modules
+    ports:
+      - ${PORT_AROZOS:-8080}:8080
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,38 @@
+# CLOUDBEAVER
+# GitHub: https://github.com/dbeaver/cloudbeaver
+# Image: dbeaver/cloudbeaver:latest
+# Docs: https://cloudbeaver.io/docs/
+#
+# Cloud-based, web-accessible version of DBeaver. Provides a browser UI for
+# querying and managing databases including PostgreSQL, MySQL, SQLite, Oracle,
+# and many others via JDBC drivers. Stores connection configs and user settings
+# in a persistent workspace directory.
+
+services:
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver
+    hostname: cloudbeaver
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Initial admin credentials (only used on first boot if workspace is empty)
+      # - CB_ADMIN_NAME=admin
+      # - CB_ADMIN_PASSWORD=changeme
+      # Override the server name shown in the UI
+      # - CB_SERVER_NAME=CloudBeaver
+      # Listening port inside the container (default 8978)
+      # - CB_SERVER_PORT=8978
+      # URL prefix when served behind a reverse proxy at a sub-path
+      # - CB_ROOT_URI=/cloudbeaver
+    volumes:
+      # Workspace stores driver configs, connection presets, and user sessions
+      - ${DOCKER_DATA}/cloudbeaver/workspace:/opt/cloudbeaver/workspace
+    ports:
+      - ${PORT_CLOUDBEAVER}:8978
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

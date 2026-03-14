@@ -1,0 +1,40 @@
+# Navidrome
+# GitHub: https://github.com/navidrome/navidrome
+# Image: deluan/navidrome:latest
+# Docs: https://www.navidrome.org/docs
+#
+# Modern, lightweight, self-hosted music streaming server. Fully compatible with
+# the Subsonic/Madsonic API, supporting clients such as Feishin, Symfonium,
+# Ultrasonic, Airsonic, DSub, and many others. Features smart playlists,
+# transcoding, cover art, scrobbling to Last.fm and ListenBrainz, and a built-in
+# web player. Very low resource footprint; no external database required.
+
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    hostname: navidrome
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - ND_MUSICFOLDER=${ND_MUSICFOLDER:-/music}
+      - ND_DATAFOLDER=/data
+      - ND_LOGLEVEL=${ND_LOGLEVEL:-info}
+      - ND_SESSIONTIMEOUT=${ND_SESSIONTIMEOUT:-24h}
+      - ND_BASEURL=${ND_BASEURL:-}
+      - ND_ENABLETRANSCODINGCONFIG=${ND_ENABLETRANSCODINGCONFIG:-false}
+      - ND_TRANSCODINGCACHEFOLDER=/data/cache/transcoding
+      - ND_IMAGECACHEFOLDER=/data/cache/images
+    volumes:
+      - ${DOCKER_DATA}/navidrome/data:/data
+      - ${MUSIC_DIR}:/music:ro
+    ports:
+      - ${PORT_NAVIDROME}:4533
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

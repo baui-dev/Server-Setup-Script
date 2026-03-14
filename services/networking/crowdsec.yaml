@@ -1,0 +1,103 @@
+# CROWDSEC
+# GitHub: https://github.com/crowdsecurity/crowdsec
+# Image: crowdsecurity/crowdsec:latest
+# Docs: https://docs.crowdsec.net/docs/getting_started/install_crowdsec_docker
+#
+# Collaborative, open-source security engine that detects and blocks
+# malicious behavior using behavior analysis and a crowd-sourced threat
+# intelligence network. Works by analyzing logs and triggering bouncers
+# (e.g., Traefik, Nginx, firewall) to block attackers. Uses a central
+# LAPI (Local API) that bouncers connect to.
+
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    hostname: crowdsec
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Registration key for bouncers connecting to this LAPI
+      - BOUNCER_KEY_traefik=${CROWDSEC_BOUNCER_KEY}
+      # Collections to install (comma-separated)
+      # See: https://hub.crowdsec.net/
+      - COLLECTIONS=crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/linux crowdsecurity/sshd
+      # Enroll this instance with CrowdSec Central API (optional, for shared blocklist)
+      # Get your key from: https://app.crowdsec.net
+      # - ENROLL_KEY=${CROWDSEC_ENROLL_KEY}
+      # - ENROLL_INSTANCE_NAME=${HOSTNAME:-homeserver}
+      # Log level: trace, debug, info, warn, error
+      # - GID=${PGID}
+    volumes:
+      # CrowdSec config and database
+      - ${DOCKER_DATA}/crowdsec/config:/etc/crowdsec
+      - ${DOCKER_DATA}/crowdsec/data:/var/lib/crowdsec/data
+      # Log files to analyze (mount relevant log directories)
+      - /var/log:/var/log:ro
+      # Traefik logs (adjust path to your Traefik log location)
+      # - ${DOCKER_DATA}/traefik/logs:/var/log/traefik:ro
+      # Nginx logs
+      # - /var/log/nginx:/var/log/nginx:ro
+      # Auth logs
+      # - /var/log/auth.log:/var/log/auth.log:ro
+    ports:
+      - ${PORT_CROWDSEC:-8080}:8080
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  # CrowdSec Traefik Bouncer (blocks IPs at the proxy level)
+  crowdsec-bouncer-traefik:
+    image: fbonalair/traefik-crowdsec-bouncer:latest
+    container_name: crowdsec-bouncer-traefik
+    hostname: crowdsec-bouncer-traefik
+    restart: unless-stopped
+    depends_on:
+      - crowdsec
+    environment:
+      - TZ=${TZ}
+      # Must match BOUNCER_KEY_traefik above
+      - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_KEY}
+      - CROWDSEC_AGENT_HOST=crowdsec:8080
+      - GIN_MODE=release
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  # CrowdSec Dashboard (Metabase) - optional web UI
+  # crowdsec-dashboard:
+  #   image: metabase/metabase:latest
+  #   container_name: crowdsec-dashboard
+  #   hostname: crowdsec-dashboard
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ${DOCKER_DATA}/crowdsec/metabase:/metabase-data
+  #     - ${DOCKER_DATA}/crowdsec/data/crowdsec.db:/metabase-data/crowdsec.db:ro
+  #   ports:
+  #     - ${PORT_CROWDSEC_DASHBOARD:-3000}:3000
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Traefik bouncer middleware integration:
+# Add to traefik dynamic config or labels:
+#   http:
+#     middlewares:
+#       crowdsec:
+#         forwardAuth:
+#           address: http://crowdsec-bouncer-traefik:8080/api/v1/forwardAuth
+#           trustForwardHeader: true
+#
+# Add bouncer manually if needed:
+#   docker exec crowdsec cscli bouncers add traefik-bouncer
+#   (copy the generated key to CROWDSEC_BOUNCER_KEY)
+#
+# List decisions:
+#   docker exec crowdsec cscli decisions list
+#
+# List alerts:
+#   docker exec crowdsec cscli alerts list
+#
+# Test a scenario:
+#   docker exec crowdsec cscli simulate enable crowdsecurity/http-scan-uniques_404
+# ============================================================

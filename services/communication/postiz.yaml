@@ -1,0 +1,107 @@
+# POSTIZ
+# GitHub: https://github.com/gitroomhq/postiz-app
+# Image: ghcr.io/gitroomhq/postiz-app:latest
+# Docs: https://docs.postiz.com
+#
+# Postiz is an open-source social media scheduling and management platform.
+# It supports scheduling and publishing to Twitter/X, LinkedIn, Instagram,
+# Facebook, TikTok, Reddit, and many other platforms from a single dashboard.
+# Requires PostgreSQL for persistent storage and Redis for job queuing.
+#
+# Setup notes:
+#   - Set MAIN_URL and FRONTEND_URL to your public-facing URL (e.g. https://postiz.example.com)
+#   - NEXT_PUBLIC_BACKEND_URL is the public URL of the API (usually MAIN_URL + /api)
+#   - Generate a strong JWT_SECRET with: openssl rand -hex 32
+#   - Social platform OAuth credentials must be configured in the UI after startup
+#   - On first launch, register the admin account via the signup page
+
+services:
+  postiz:
+    image: ghcr.io/gitroomhq/postiz-app:latest
+    container_name: postiz
+    hostname: postiz
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - MAIN_URL=https://postiz.${BASE_DOMAIN}              # Public URL of the Postiz app (no trailing slash)
+      - FRONTEND_URL=https://postiz.${BASE_DOMAIN}          # Same as MAIN_URL for monolithic deploys
+      - NEXT_PUBLIC_BACKEND_URL=https://postiz.${BASE_DOMAIN}/api  # Public URL of the backend API
+      - BACKEND_INTERNAL_URL=${POSTIZ_BACKEND_INTERNAL_URL}    # Internal URL for frontend->backend calls
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postiz-postgres:5432/postiz
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@postiz-redis:6379
+      - JWT_SECRET=${POSTIZ_SECRET}                    # JWT signing secret; generate with: openssl rand -hex 32
+      # --- Optional storage settings ---
+      # - STORAGE_PROVIDER=local                        # Storage backend: local, s3, cloudflare
+      # - UPLOAD_DIRECTORY=/uploads                     # Path for local file uploads (inside container)
+      # - NEXT_PUBLIC_UPLOAD_DIRECTORY=/uploads         # Same path exposed to the Next.js frontend
+      # - CLOUDFLARE_ACCOUNT_ID=                        # Cloudflare R2 account ID (if STORAGE_PROVIDER=cloudflare)
+      # - CLOUDFLARE_ACCESS_KEY=                        # Cloudflare R2 access key
+      # - CLOUDFLARE_SECRET_ACCESS_KEY=                 # Cloudflare R2 secret key
+      # - CLOUDFLARE_BUCKETNAME=postiz                  # Cloudflare R2 bucket name
+      # - CLOUDFLARE_BUCKET_URL=                        # Public URL of the R2 bucket
+      # - IS_GENERAL=true                               # Set true for public/open registration mode
+      # - DISABLE_REGISTRATION=false                    # Set true to close public registration
+      # - OPENAI_API_KEY=                               # OpenAI API key for AI caption generation
+      # - RESEND_API_KEY=                               # Resend API key for transactional emails
+      # - EMAIL_FROM_NAME=Postiz                        # Sender name for transactional emails
+      # - EMAIL_FROM_ADDRESS=no-reply@example.com       # Sender email address
+    volumes:
+      - ${DOCKER_DATA}/postiz/uploads:/uploads             # User-uploaded media files (local storage)
+      - ${DOCKER_DATA}/postiz/config:/config               # Application config and runtime data
+    ports:
+      - "${PORT_POSTIZ}:3000"                            # Postiz web UI (Next.js frontend)
+      # - "5000:5000"                                    # Backend API (if running split/separate)
+    depends_on:
+      postiz-postgres:
+        condition: service_healthy
+      postiz-redis:
+        condition: service_healthy
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  postiz-postgres:
+    image: postgres:16-alpine
+    container_name: postiz-postgres
+    hostname: postiz-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=postiz
+    volumes:
+      - ${DOCKER_DATA}/postiz/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d postiz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  postiz-redis:
+    image: redis:7-alpine
+    container_name: postiz-redis
+    hostname: postiz-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - ${DOCKER_DATA}/postiz/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

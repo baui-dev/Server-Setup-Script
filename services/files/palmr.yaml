@@ -1,0 +1,62 @@
+# Palmr
+# GitHub: https://github.com/kyantech/Palmr
+# Image: ghcr.io/kyantech/palmr:latest
+# Docs: https://github.com/kyantech/Palmr#readme
+#
+# Modern, self-hosted file sharing platform with a clean UI. Create shareable
+# links with optional password protection and expiry dates. Supports large file
+# uploads, user management, and an admin dashboard. Backed by PostgreSQL.
+
+services:
+  palmr:
+    image: ghcr.io/kyantech/palmr:latest
+    container_name: palmr
+    hostname: palmr
+    restart: unless-stopped
+    depends_on:
+      palmr-db:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Database
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-palmr}:${POSTGRES_PASSWORD}@palmr-db:5432/palmr
+      # Application secret (change to a long random string)
+      - SECRET_KEY=${PALMR_SECRET:-changeme_use_a_long_random_string}
+      # Public-facing URL
+      - APP_URL=https://palmr.${BASE_DOMAIN}
+      # Max upload size (bytes)
+      # - MAX_UPLOAD_SIZE=5368709120
+      # Disable registration (true/false)
+      - DISABLE_REGISTRATION=false
+    volumes:
+      - ${DOCKER_DATA}/palmr/uploads:/app/uploads
+    ports:
+      - ${PORT_PALMR}:3000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  palmr-db:
+    image: postgres:16-alpine
+    container_name: palmr-db
+    hostname: palmr-db
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=${POSTGRES_USER:-palmr}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=palmr
+    volumes:
+      - ${DOCKER_DATA}/palmr/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-palmr} -d palmr"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

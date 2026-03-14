@@ -1,0 +1,36 @@
+# FLEXGET
+# GitHub: https://github.com/Flexget/Flexget
+# Image: wiserain/flexget:latest
+# Docs: https://flexget.com/Documentation
+#
+# FlexGet is a powerful automation tool for media content. It monitors RSS feeds,
+# torrent sites, newsgroups, and other sources; filters content using a rich set
+# of conditions; and triggers downloads through clients like qBittorrent, Deluge,
+# SABnzbd, and more. Highly extensible via plugins with a YAML-based config.
+
+services:
+  flexget:
+    image: wiserain/flexget:latest
+    container_name: flexget
+    hostname: flexget
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - FG_WEBUI_PASSWD=${FLEXGET_WEBUI_PASSWORD:-changeme}  # Web UI password (required)
+      # - FG_LOG_LEVEL=info                      # Logging level: debug, info, warning, error, critical
+      # - FG_LOG_FILE=/config/flexget.log        # Log file path inside container
+    volumes:
+      - ${DOCKER_DATA}/flexget/config:/config      # FlexGet config.yml and plugin data
+      - ${DOWNLOADS_DIR}:/downloads              # Output directory for completed downloads
+      - ${MOVIES_DIR}:/movies                    # Movie library (for post-processing move tasks)
+      - ${TV_DIR}:/tv                            # TV show library (for post-processing move tasks)
+    ports:
+      - ${PORT_FLEXGET:-5050}:5050               # Web UI (FlexGet built-in web server)
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

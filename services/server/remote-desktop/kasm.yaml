@@ -1,0 +1,42 @@
+# KASM WORKSPACES
+# GitHub: https://github.com/kasmtech/KasmVNC
+# Image: lscr.io/linuxserver/kasm:latest
+# Docs: https://kasmweb.com/docs/latest/index.html
+#
+# Kasm Workspaces is a container-based streaming platform that delivers
+# browser-accessible desktops, applications, and development environments
+# via WebRTC/VNC over HTTPS. Each session runs in an isolated container.
+#
+# SECURITY NOTE: Change the admin password immediately after first login.
+# Default credentials: admin / admin (or set via KASM_USER_PASSWORD below).
+# Kasm requires elevated privileges to spawn child workspace containers.
+
+services:
+  kasm:
+    image: lscr.io/linuxserver/kasm:latest
+    container_name: kasm
+    hostname: kasm
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Password for the built-in admin user (set on first run)
+      - KASM_PORT=443
+      # Optional: override default user password
+      # - KASM_USER_PASSWORD=${SECRET_KEY}
+    volumes:
+      - ${DOCKER_DATA}/kasm/data:/opt
+      - ${DOCKER_DATA}/kasm/profiles:/profiles
+      # Optional: persist workspace user home directories
+      # - ${DOCKER_DATA}/kasm/persistent:/persistent
+    ports:
+      # Kasm web UI and workspace streaming (HTTPS)
+      - ${PORT_KASM}:3000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

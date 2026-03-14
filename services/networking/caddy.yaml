@@ -1,0 +1,23 @@
+# CADDY
+# GitHub: https://github.com/caddyserver/caddy
+# Image: caddy
+# Docs: https://caddyserver.com/docs/
+#
+# Fast, production-ready HTTP/HTTPS server with automatic Let's Encrypt TLS.
+
+services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    hostname: caddy
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_DATA}/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ${DOCKER_DATA}/caddy/data:/data
+      - ${DOCKER_DATA}/caddy/config:/config
+    ports:
+      - 80:80
+      - 443:443
+

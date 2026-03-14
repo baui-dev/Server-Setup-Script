@@ -1,0 +1,37 @@
+# NEXTERM (Nextterm)
+# GitHub: https://github.com/gnmyt/nexterm
+# Image: ghcr.io/gnmyt/nexterm:latest
+# Docs: https://github.com/gnmyt/nexterm#readme
+#
+# Modern, self-hosted server connection manager supporting SSH, VNC, and RDP
+# connections through a clean web interface. Stores connection credentials and
+# session data in SQLite — no external database required.
+#
+# NOTE: This file uses "nexterm" (github.com/gnmyt/nexterm). If the project
+# intended here is "next-terminal" (github.com/dushixiang/next-terminal), adjust
+# the image to dushixiang/next-terminal:latest and add a guacd sidecar.
+#
+# Add PORT_NEXTTERM to config.env — default port: 6989.
+
+services:
+  nextterm:
+    image: ghcr.io/gnmyt/nexterm:latest
+    container_name: nextterm
+    hostname: nextterm
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - DEVELOPMENT_MODE=false               # Set true to enable hot-reload (dev only)
+      # - DISABLE_AUTH=false                   # Set true to bypass login (DANGER: for trusted networks only)
+    volumes:
+      - ${DOCKER_DATA}/nextterm/config:/app/data  # SQLite database, saved connections, and settings
+    ports:
+      - ${PORT_NEXTTERM:-6989}:6989
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

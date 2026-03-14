@@ -1,0 +1,63 @@
+# RDTCLIENT (Real-Debrid Torrent Client)
+# GitHub: https://github.com/rogerfar/rdt-client
+# Image: rogerfar/rdtclient:latest
+# Docs: https://github.com/rogerfar/rdt-client/wiki
+#
+# Self-hosted client for Real-Debrid, AllDebrid, Premiumize, and TorBox
+# that acts as a fake qBittorrent API endpoint. Enables *arr apps (Sonarr,
+# Radarr, Lidarr) to use premium link hosting for torrent downloads by
+# pretending to be a regular qBittorrent client. Downloads are handled
+# by Real-Debrid and then pulled to your server via HTTP.
+
+services:
+  rdtclient:
+    image: rogerfar/rdtclient:latest
+    container_name: rdtclient
+    hostname: rdtclient
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # PUID/PGID for file ownership
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      # Application config and database (SQLite)
+      - ${DOCKER_DATA}/rdtclient/config:/data/db
+      # Download directory - must match the path used by Sonarr/Radarr
+      - ${DOWNLOADS_DIR:-/downloads}:/data/downloads
+    ports:
+      # Web UI and fake qBittorrent API endpoint
+      - ${PORT_RDTCLIENT:-6500}:6500
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# Access:
+#   http://your-server:${PORT_RDTCLIENT:-6500}
+#   Default login: admin / admin (change immediately)
+#
+# First-time setup:
+# 1. Access the web UI and login
+# 2. Go to Settings -> Providers
+# 3. Select your provider (Real-Debrid, AllDebrid, etc.)
+# 4. Enter your provider API key:
+#    - Real-Debrid: https://real-debrid.com/apitoken
+#    - AllDebrid: https://alldebrid.com/apikeys
+# 5. Go to Settings -> Download Client
+#    - Set download location to: /data/downloads
+#    - Configure concurrent download limits
+# 6. Configure Sonarr/Radarr to use rdtclient as their qBittorrent:
+#    Settings -> Download Clients -> qBittorrent:
+#    - Host: rdtclient (or server IP)
+#    - Port: 6500
+#    - Category: tv (for Sonarr) / movies (for Radarr)
+#    - Username/Password: (set in rdtclient settings)
+#
+# Prowlarr integration:
+#   Add indexers to Prowlarr normally - rdtclient handles the download
+#   via Real-Debrid after Sonarr/Radarr grabs the torrent.
+# ============================================================

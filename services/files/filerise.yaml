@@ -1,0 +1,31 @@
+# FileRise
+# GitHub: https://github.com/error311/FileRise
+# Image: error311/filerise:latest
+# Docs: https://github.com/error311/FileRise#readme
+#
+# Lightweight, self-hosted file manager with a clean web UI. Supports folder
+# creation, file uploads, downloads, renaming, moving, and basic user
+# authentication. Single-container deployment; stores files directly on the
+# host filesystem with no external database dependency.
+
+services:
+  filerise:
+    image: error311/filerise:latest
+    container_name: filerise
+    hostname: filerise
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${DOCKER_DATA}/filerise/config:/var/www/html/config
+      - ${DOCKER_DATA}/filerise/uploads:/var/www/html/uploads
+    ports:
+      - ${PORT_FILERISE}:80
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

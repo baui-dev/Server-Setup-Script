@@ -1,0 +1,70 @@
+# TIRRENO
+# GitHub: https://github.com/TirrenoTechnologies/tirreno
+# Image: ghcr.io/tirrenotechnologies/tirreno:latest
+# Docs: https://tirreno.com/docs/
+#
+# Open-source user behaviour analytics and fraud detection platform. Analyses
+# authentication events, API calls, and user sessions to surface anomalies,
+# brute-force attempts, credential stuffing, and account takeover risks.
+# PHP/Nginx application backed by PostgreSQL.
+
+services:
+  tirreno:
+    image: ghcr.io/tirrenotechnologies/tirreno:latest
+    container_name: tirreno
+    hostname: tirreno
+    restart: unless-stopped
+    depends_on:
+      tirreno-postgres:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # PostgreSQL connection details
+      - DB_HOST=tirreno-postgres
+      - DB_PORT=5432
+      - DB_NAME=tirreno
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      # Application secret for signing sessions/tokens
+      - APP_SECRET=${SECRET_KEY}
+      # Full public URL (used for callback and link generation)
+      # - APP_URL=https://tirreno.${BASE_DOMAIN}
+      # Admin account credentials set on first boot
+      # - ADMIN_EMAIL=admin@${BASE_DOMAIN}
+      # - ADMIN_PASSWORD=changeme
+      # Log level: debug, info, warning, error
+      # - LOG_LEVEL=info
+    volumes:
+      - ${DOCKER_DATA}/tirreno/config:/app/config
+      - ${DOCKER_DATA}/tirreno/data:/app/data
+    ports:
+      - ${PORT_TIRRENO}:80
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  tirreno-postgres:
+    image: postgres:16-alpine
+    container_name: tirreno-postgres
+    hostname: tirreno-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=tirreno
+    volumes:
+      - ${DOCKER_DATA}/tirreno/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d tirreno"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

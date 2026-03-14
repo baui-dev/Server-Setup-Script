@@ -1,0 +1,36 @@
+# Trilium Notes (TriliumNext)
+# GitHub: https://github.com/TriliumNext/Notes
+# Image: triliumnext/notes:latest
+# Docs: https://github.com/TriliumNext/Notes/wiki
+#
+# Hierarchical note-taking application with rich text editing, code blocks,
+# relation maps, link maps, scripting, and a powerful REST API. Originally
+# created by zadam (github.com/zadam/trilium), now maintained as TriliumNext.
+# Stores data in SQLite. Supports client-server sync and desktop app.
+#
+# On first run, you will be prompted to create an admin account.
+# The original zadam image (zadam/trilium:latest) is also compatible if preferred.
+
+services:
+  trilium:
+    image: triliumnext/notes:latest
+    container_name: trilium
+    hostname: trilium
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Optional: set the timezone for note timestamps
+      - TRILIUM_DATA_DIR=/home/node/trilium-data
+      # Optional: disable update check notifications
+      # - TRILIUM_NO_AUTHENTICATION=false
+    volumes:
+      # Persists the SQLite database and all note attachments
+      - ${DOCKER_DATA}/trilium/data:/home/node/trilium-data
+    ports:
+      - ${PORT_TRILIUM:-8080}:8080
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

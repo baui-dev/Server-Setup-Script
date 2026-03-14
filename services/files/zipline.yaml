@@ -1,0 +1,77 @@
+# Zipline
+# GitHub: https://github.com/diced/zipline
+# Image: ghcr.io/diced/zipline:latest
+# Docs: https://zipline.diced.sh/docs
+#
+# Feature-rich, self-hosted ShareX/file upload server. Supports image, video,
+# audio, and text file uploads with direct links, custom domains, expiry,
+# password protection, and an admin dashboard. Backed by PostgreSQL and supports
+# local or S3-compatible storage.
+
+services:
+  zipline:
+    image: ghcr.io/diced/zipline:latest
+    container_name: zipline
+    hostname: zipline
+    restart: unless-stopped
+    depends_on:
+      zipline-db:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Application secret — MUST be a long, random string
+      - CORE_SECRET=${ZIPLINE_SECRET}
+      # PostgreSQL connection
+      - CORE_DATABASE_URL=postgresql://${POSTGRES_USER:-zipline}:${POSTGRES_PASSWORD}@zipline-db/zipline
+      # Host and port
+      - CORE_HOST=0.0.0.0
+      - CORE_PORT=3000
+      # Storage: local or s3
+      - DATASOURCE_TYPE=local
+      - DATASOURCE_LOCAL_DIRECTORY=/zipline/uploads
+      # Optionally use S3-compatible storage
+      # - DATASOURCE_TYPE=s3
+      # - DATASOURCE_S3_BUCKET=zipline
+      # - DATASOURCE_S3_ACCESS_KEY_ID=
+      # - DATASOURCE_S3_SECRET_ACCESS_KEY=
+      # - DATASOURCE_S3_REGION=us-east-1
+      # - DATASOURCE_S3_ENDPOINT=
+      # Public-facing URL
+      - CORE_RETURN_HTTPS=true
+      # Max upload size (bytes, default: 100 MB)
+      # - UPLOADER_MAX_SIZE=104857600
+      # Allow user registration
+      - FEATURES_INVITES=true
+      - FEATURES_ROBOTS_TXT=false
+      - FEATURES_USER_REGISTRATION=false
+    volumes:
+      - ${DOCKER_DATA}/zipline/uploads:/zipline/uploads
+      - ${DOCKER_DATA}/zipline/public:/zipline/public
+    ports:
+      - ${PORT_ZIPLINE}:3000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  zipline-db:
+    image: postgres:16-alpine
+    container_name: zipline-db
+    hostname: zipline-db
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=${POSTGRES_USER:-zipline}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=zipline
+    volumes:
+      - ${DOCKER_DATA}/zipline/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zipline} -d zipline"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,33 @@
+# RUSTPAD
+# GitHub: https://github.com/ekzhang/rustpad
+# Image: ekzhang/rustpad:latest
+# Docs: https://github.com/ekzhang/rustpad#readme
+#
+# Efficient, self-hosted collaborative text editor built on operational
+# transformation. Multiple users can edit the same document simultaneously
+# in real time — similar to Google Docs but fully self-hosted. Documents
+# are stored in-memory and expire after a configurable number of days.
+# No external database or storage backend required.
+
+services:
+  rustpad:
+    image: ekzhang/rustpad:latest
+    container_name: rustpad
+    hostname: rustpad
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - PORT=3030                            # Internal HTTP listen port (default: 3030)
+      # - EXPIRY_DAYS=1                        # Days before an idle document is automatically deleted (default: 1)
+      # - RUST_LOG=info                        # Log verbosity: error | warn | info | debug | trace
+      # - ORIGIN=https://pad.example.com       # Allowed CORS origin for WebSocket connections (set to public URL)
+    ports:
+      - ${PORT_RUSTPAD}:3030
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

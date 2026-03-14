@@ -1,0 +1,49 @@
+# DISPATCHARR
+# GitHub: https://github.com/Dispatcharr/Dispatcharr
+# Image: ghcr.io/dispatcharr/dispatcharr:latest
+# Docs: https://github.com/Dispatcharr/Dispatcharr
+#
+# Dispatcharr is an IPTV and live stream management platform. It acts as an HDHomeRun
+# emulator that aggregates IPTV streams from multiple sources and serves them to media
+# players like Plex, Emby, Jellyfin, and Channels DVR. Features include EPG (electronic
+# program guide) management, stream multiplexing, VOD support, and FFmpeg/VLC/Streamlink
+# integration for stream health and re-encoding.
+#
+# License: CC BY-NC-SA 4.0 (non-commercial, share-alike)
+#
+# NOTE: This is NOT a webhook dispatcher for the *arr stack — it is an IPTV stream manager.
+# Webhook/notification support is planned but not yet implemented.
+#
+# === QUICK START ===
+# 1. docker compose -f dispatcharr.yaml up -d
+# 2. Navigate to http://localhost:${PORT_DISPATCHARR}
+# 3. Configure IPTV sources (M3U playlists) and EPG sources in the web UI
+
+services:
+  dispatcharr:
+    image: ghcr.io/dispatcharr/dispatcharr:latest
+    container_name: dispatcharr
+    hostname: dispatcharr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - LOG_LEVEL=info                             # Logging verbosity: debug, info, warning, error
+    volumes:
+      - ${DOCKER_DATA}/dispatcharr/config:/config      # Configuration, database, EPG cache
+    ports:
+      - ${PORT_DISPATCHARR:-9191}:9191
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.dispatcharr.rule=Host(`dispatcharr.${BASE_DOMAIN}`)"
+    #   - "traefik.http.routers.dispatcharr.entrypoints=websecure"
+    #   - "traefik.http.routers.dispatcharr.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.dispatcharr.loadbalancer.server.port=9191"
+
+# networks:
+#   proxy:
+#     external: true

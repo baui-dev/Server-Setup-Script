@@ -88,13 +88,58 @@ else
 fi
 
 [[ "${#FILES[@]}" -eq 0 ]] && die "No YAML files found in: ${SERVICES_DIR}"
-echo -e "\n${BOLD}Validating ${#FILES[@]} service file(s) …${RESET}\n"
 
 # ─── Tracking ────────────────────────────────────────────────────────────────
 declare -A USED_PORTS=()      # port → first file that claimed it
 declare -a RESULTS=()         # JSON object strings for report
 ERRORS=0
 WARNINGS=0
+
+# ─── Pre-flight: kebab-case naming check ─────────────────────────────────────
+echo -e "\n${BOLD}Checking naming conventions …${RESET}"
+NAMING_ERRORS=0
+for f in "${FILES[@]}"; do
+    rel="${f#"${REPO_ROOT}/"}"
+    stem="$(basename "${f}" .yaml)"
+    # Check file stem (service name) for uppercase or underscores
+    if [[ "${stem}" =~ [A-Z] ]]; then
+        warn "Uppercase in filename: ${rel}"
+        NAMING_ERRORS=$(( NAMING_ERRORS + 1 ))
+    fi
+    if [[ "${stem}" =~ _ ]]; then
+        warn "Underscore in filename (use kebab-case): ${rel}"
+        NAMING_ERRORS=$(( NAMING_ERRORS + 1 ))
+    fi
+    # Check parent directories (only under services/) for same violations
+    IFS='/' read -ra path_parts <<< "${rel}"
+    for part in "${path_parts[@]}"; do
+        [[ "${part}" == *.yaml ]] && continue
+        if [[ "${part}" =~ [A-Z] ]]; then
+            warn "Uppercase in directory name: ${rel}  (dir: ${part})"
+            NAMING_ERRORS=$(( NAMING_ERRORS + 1 ))
+        fi
+        if [[ "${part}" =~ _ ]]; then
+            warn "Underscore in directory name (use kebab-case): ${rel}  (dir: ${part})"
+            NAMING_ERRORS=$(( NAMING_ERRORS + 1 ))
+        fi
+    done
+done
+[[ "${NAMING_ERRORS}" -eq 0 ]] && ok "All paths use kebab-case."
+ERRORS=$(( ERRORS + NAMING_ERRORS ))
+
+# ─── Pre-flight: duplicate service names in registry ────────────────────────
+echo -e "\n${BOLD}Checking registry for duplicate service names …${RESET}"
+DUPE_ERRORS=0
+while IFS= read -r dname; do
+    warn "Duplicate registry name: ${dname}"
+    DUPE_ERRORS=$(( DUPE_ERRORS + 1 ))
+done < <(jq -r '.services[].name' "${REGISTRY}" | sort | uniq -d)
+[[ "${DUPE_ERRORS}" -eq 0 ]] && ok "No duplicate service names in registry."
+ERRORS=$(( ERRORS + DUPE_ERRORS ))
+
+echo -e "\n${BOLD}Validating ${#FILES[@]} service file(s) …${RESET}\n"
+
+# ─── Per-file Tracking (reset any counters for file loop) ───────────────────
 
 # ─── Check a single file ─────────────────────────────────────────────────────
 check_file() {

@@ -1,0 +1,30 @@
+# KodCloud
+# GitHub: https://github.com/kalcaddle/KodCloud
+# Image: kodcloud/kodcloud:latest
+# Docs: https://kodcloud.com/help/
+#
+# KodCloud (KodExplorer) is a web-based file manager, cloud disk, and online
+# IDE/code editor. It provides a full desktop environment in the browser with
+# file management, text editing, image viewing, and more. Written in PHP.
+
+services:
+  kodcloud:
+    image: kodcloud/kodcloud:latest
+    container_name: kodcloud
+    hostname: kodcloud
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # - PUID=${PUID}   # User ID for file permissions
+      # - PGID=${PGID}   # Group ID for file permissions
+    volumes:
+      - ${DOCKER_DATA}/kodcloud/data:/var/www/html/data    # User data and uploads
+      - ${DOCKER_DATA}/kodcloud/config:/var/www/html/config # Application configuration
+    ports:
+      - ${PORT_KODCLOUD:-10080}:80
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

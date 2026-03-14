@@ -1,0 +1,34 @@
+# CopyParty — File Manager
+# GitHub: https://github.com/9001/copyparty
+# Image: ghcr.io/9001/copyparty:latest
+# Docs: https://github.com/9001/copyparty/wiki
+#
+# Feature-rich, self-hosted HTTP file server and manager. Supports drag-and-drop
+# uploads, resumable transfers, in-browser media playback (audio/video), image
+# gallery, full-text search, markdown rendering, WebDAV, SFTP, and FTP.
+# Single-container; no external database required (uses SQLite for metadata).
+
+services:
+  copyparty:
+    image: ghcr.io/9001/copyparty:latest
+    container_name: copyparty-manager
+    hostname: copyparty-manager
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${DOCKER_DATA}/copyparty/config:/cfg
+      # Data volumes — map directories to serve (configure accounts in args/config)
+      - ${DOCKER_DATA}/copyparty/files:/files
+    ports:
+      - ${PORT_COPYPARTY}:3923
+    # Optional: pass CopyParty arguments via command
+    # command: --cfg /cfg/copyparty.conf
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

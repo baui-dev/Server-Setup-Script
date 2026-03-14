@@ -1,0 +1,82 @@
+# CHECKMATE (Bluewave Uptime Monitor)
+# GitHub: https://github.com/bluewave-labs/checkmate
+# Image: bluewavelabs/checkmate:latest
+# Docs: https://github.com/bluewave-labs/checkmate#-getting-started
+#
+# Open-source uptime and performance monitoring tool. Monitors websites,
+# APIs, TCP ports, ping targets, and Docker containers. Sends alerts via
+# email, Slack, Discord, PagerDuty, and webhooks. Features a modern
+# dashboard with status pages, incident management, and response time charts.
+# Requires a MongoDB backend for data storage.
+
+services:
+  checkmate-mongo:
+    image: mongo:7
+    container_name: checkmate-mongo
+    hostname: checkmate-mongo
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - MONGO_INITDB_DATABASE=checkmate
+      - MONGO_INITDB_ROOT_USERNAME=${CHECKMATE_MONGO_USER:-checkmate}
+      - MONGO_INITDB_ROOT_PASSWORD=${CHECKMATE_MONGO_PASSWORD:-checkmate_pass}
+    volumes:
+      - ${DOCKER_DATA}/checkmate/mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  checkmate:
+    image: bluewavelabs/checkmate:latest
+    container_name: checkmate
+    hostname: checkmate
+    restart: unless-stopped
+    depends_on:
+      checkmate-mongo:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Database
+      - DB_CONNECTION_STRING=mongodb://${CHECKMATE_MONGO_USER:-checkmate}:${CHECKMATE_MONGO_PASSWORD:-checkmate_pass}@checkmate-mongo:27017/checkmate?authSource=admin
+      # JWT secret for sessions - generate with: openssl rand -hex 32
+      - JWT_SECRET=${CHECKMATE_JWT_SECRET}
+      # Admin account created on first run
+      - ADMIN_EMAIL=${CHECKMATE_ADMIN_EMAIL:-admin@${BASE_DOMAIN}}
+      - ADMIN_PASSWORD=${CHECKMATE_ADMIN_PASSWORD:-changeme}
+      # App URL (used for alert links)
+      - CLIENT_HOST=https://checkmate.${BASE_DOMAIN}
+      # Email notifications (optional)
+      # - MAILER_SERVICE=gmail
+      # - MAILER_HOST=smtp.${BASE_DOMAIN}
+      # - MAILER_PORT=587
+      # - MAILER_USER=${SMTP_USERNAME}
+      # - MAILER_PASS=${SMTP_PASSWORD}
+      # - SYSTEM_EMAIL_ADDRESS=checkmate@${BASE_DOMAIN}
+      # Log level: error, warn, info, http, debug
+      - LOG_LEVEL=${CHECKMATE_LOG_LEVEL:-info}
+      # Allow new user registration (false for private instance)
+      - ALLOW_REGISTRATION=false
+    volumes:
+      - ${DOCKER_DATA}/checkmate/config:/app/config
+    ports:
+      - ${PORT_CHECKMATE:-12000}:12000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Access http://your-server:${PORT_CHECKMATE:-12000}
+# 2. Login with ADMIN_EMAIL / ADMIN_PASSWORD
+# 3. Add monitors: URL, TCP port, ping, or Docker container checks
+# 4. Configure notification integrations (email, Slack, Discord, etc.)
+# 5. Create status pages for public visibility
+# ============================================================

@@ -1,0 +1,42 @@
+# NoteDiscovery
+# GitHub: https://github.com/nicholasgasior/notediscovery (verify on GitHub)
+# Image: ghcr.io/notediscovery/notediscovery:latest
+# Docs: https://github.com/nicholasgasior/notediscovery#readme
+#
+# Self-hosted tool for discovering, organizing, and searching through notes.
+# Provides full-text search across your note collection with intelligent
+# categorization and linking features.
+#
+# NOTE: This is a less-documented project. Verify the correct GitHub repository,
+#       Docker image name, and configuration options before deploying.
+#       The image name and environment variables shown here are best-effort estimates.
+
+services:
+  notediscovery:
+    image: ghcr.io/notediscovery/notediscovery:latest
+    container_name: notediscovery
+    hostname: notediscovery
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - NODE_ENV=production
+      - PORT=3000
+      # Security
+      - SECRET=${NOTEDISCOVERY_SECRET:-changeme_generate_a_real_secret}
+      # Database (SQLite default or PostgreSQL)
+      # - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@notediscovery-postgres:5432/notediscovery
+      # Base URL
+      - BASE_URL=https://${BASE_DOMAIN}
+    volumes:
+      - ${DOCKER_DATA}/notediscovery/data:/app/data
+      - ${DOCKER_DATA}/notediscovery/notes:/app/notes
+    ports:
+      - ${PORT_NOTEDISCOVERY:-3000}:3000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

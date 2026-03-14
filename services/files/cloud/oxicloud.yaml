@@ -1,0 +1,39 @@
+# Oxicloud
+# GitHub: https://github.com/PauSala/oxicloud
+# Image: ghcr.io/pausala/oxicloud:latest
+# Docs: https://github.com/PauSala/oxicloud#readme
+#
+# Minimal, performant cloud storage server written in Rust. Implements a
+# WebDAV-compatible file storage API and a lightweight web UI for uploading,
+# downloading, and organising files. Designed to be fast and resource-efficient
+# as an alternative to heavier cloud platforms.
+# NOTE: Verify the correct image name and config keys from the upstream repo.
+
+services:
+  oxicloud:
+    image: ghcr.io/pausala/oxicloud:latest
+    container_name: oxicloud
+    hostname: oxicloud
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Storage root directory
+      - STORAGE_PATH=/data
+      # Server bind address
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8080
+      # Optional: admin credentials (set before first run)
+      # - ADMIN_USERNAME=admin
+      # - ADMIN_PASSWORD=changeme
+      # Max upload size in bytes
+      # - MAX_UPLOAD_SIZE=5368709120
+    volumes:
+      - ${DOCKER_DATA}/oxicloud/data:/data
+    ports:
+      - ${PORT_OXICLOUD:-8086}:8080
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

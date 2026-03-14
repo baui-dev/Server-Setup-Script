@@ -1,0 +1,44 @@
+# ASTROLUMA
+# GitHub: https://github.com/sanjeet990/Astroluma
+# Image: sanjeet990/astroluma:latest
+# Docs: https://github.com/sanjeet990/Astroluma#readme
+#
+# Astroluma is a self-hosted server management dashboard for organizing
+# services, links, notes, and tasks. Uses MongoDB as its backend store.
+
+services:
+  astroluma:
+    image: sanjeet990/astroluma:latest
+    container_name: astroluma
+    hostname: astroluma
+    restart: unless-stopped
+    depends_on:
+      - astroluma-mongodb
+    environment:
+      - TZ=${TZ}
+      - NODE_ENV=production
+      - PORT=8000
+      - SECRET_KEY=${SECRET_KEY}
+      - MONGODB_URI=mongodb://astroluma-mongodb:27017/astroluma
+    volumes:
+      - ${DOCKER_DATA}/astroluma/uploads:/app/storage/uploads
+    ports:
+      - ${PORT_ASTROLUMA}:8000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  astroluma-mongodb:
+    image: mongo:6.0
+    container_name: astroluma-mongodb
+    hostname: astroluma-mongodb
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_DATA}/astroluma/mongodb:/data/db
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

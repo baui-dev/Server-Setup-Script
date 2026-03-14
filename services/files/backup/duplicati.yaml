@@ -1,0 +1,39 @@
+# Duplicati
+# GitHub: https://github.com/duplicati/duplicati
+# Image: lscr.io/linuxserver/duplicati:latest
+# Docs: https://duplicati.readthedocs.io
+#
+# Free backup software supporting encrypted, incremental, and compressed backups.
+# Stores backups on local disk, network shares, FTP, SSH, WebDAV, and 20+
+# cloud providers including S3, Backblaze B2, Google Drive, OneDrive, and Azure.
+# Web UI for scheduling, monitoring, and restoring backups.
+
+services:
+  duplicati:
+    image: lscr.io/linuxserver/duplicati:latest
+    container_name: duplicati
+    hostname: duplicati
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Optional: CLI arguments appended to the server start command
+      # - CLI_ARGS=--webservice-password=changeme
+    volumes:
+      - ${DOCKER_DATA}/duplicati/config:/config
+      # Backup destination for local backups
+      - ${DOCKER_DATA}/duplicati/backups:/backups
+      # Source data to back up — mount all directories you want to protect
+      - ${DOCKER_DATA}:/source:ro
+      # Optionally mount additional locations
+      # - /mnt/nas:/mnt/nas:ro
+      # - /home:/home:ro
+    ports:
+      - ${PORT_DUPLICATI}:8200
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

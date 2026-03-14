@@ -1,0 +1,45 @@
+# Meilisearch
+# GitHub: https://github.com/meilisearch/meilisearch
+# Image: getmeili/meilisearch:latest
+# Docs: https://www.meilisearch.com/docs
+#
+# Lightning-fast, open-source search engine with typo tolerance, faceted search,
+# and relevancy ranking. Designed to be embedded into applications as a backend
+# search service. Used by many self-hosted apps (Mealie, Immich, Outline, etc.).
+
+services:
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    hostname: meilisearch
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Environment: production or development
+      # production disables the search preview UI at /
+      - MEILI_ENV=production
+      # Master key (min 16 bytes). Used to generate API keys for search/admin.
+      # Required in production mode.
+      - MEILI_MASTER_KEY=${MEILISEARCH_MASTER_KEY}
+      # HTTP address to bind (default: localhost:7700 — override to 0.0.0.0 for container)
+      - MEILI_HTTP_ADDR=0.0.0.0:7700
+      # Database path inside the container
+      - MEILI_DB_PATH=/meili_data
+      # Dump and snapshot directories
+      - MEILI_DUMP_DIR=/meili_data/dumps
+      - MEILI_SNAPSHOT_DIR=/meili_data/snapshots
+      # Optionally set a maximum index size (bytes)
+      # - MEILI_MAX_INDEX_SIZE=107374182400
+      # Enable snapshots (uncomment to enable automatic snapshots)
+      # - MEILI_SCHEDULE_SNAPSHOT=true
+      # - MEILI_SNAPSHOT_INTERVAL_SEC=86400
+    volumes:
+      - ${DOCKER_DATA}/meilisearch/data:/meili_data
+    ports:
+      - ${PORT_MEILISEARCH}:7700
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

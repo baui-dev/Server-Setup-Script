@@ -1,0 +1,48 @@
+# PaperlessAI
+# GitHub: https://github.com/clusterzx/paperless-ai
+# Image: clusterzx/paperless-ai:latest
+# Docs: https://github.com/clusterzx/paperless-ai#readme
+#
+# AI-powered assistant for Paperless-ngx. Automatically analyzes newly added
+# documents and assigns tags, correspondents, document types, and titles using
+# AI (OpenAI GPT or self-hosted Ollama). Polls the Paperless-ngx API at a
+# configurable interval to process new documents.
+#
+# Prerequisites: A running Paperless-ngx instance with API access.
+# Required: PAPERLESS_AI_API_TOKEN (generate in Paperless-ngx admin > Auth Tokens)
+
+services:
+  paperless-ai:
+    image: clusterzx/paperless-ai:latest
+    container_name: paperless-ai
+    hostname: paperless-ai
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Paperless-ngx connection
+      - PAPERLESS_API_URL=http://paperless-ngx:8000
+      - PAPERLESS_API_TOKEN=${PAPERLESS_AI_API_TOKEN}
+      # AI provider: "openai" or "ollama"
+      - AI_PROVIDER=${PAPERLESS_AI_PROVIDER:-openai}
+      # -- OpenAI configuration --
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${PAPERLESS_AI_MODEL:-gpt-4o-mini}
+      # Optional: custom OpenAI-compatible API endpoint (e.g., LiteLLM proxy)
+      # - OPENAI_API_BASE=https://api.openai.com/v1
+      # -- Ollama configuration (if AI_PROVIDER=ollama) --
+      - OLLAMA_API_URL=${OLLAMA_HOST:-http://ollama:11434}
+      - OLLAMA_MODEL=${PAPERLESS_OLLAMA_MODEL:-llama3.1}
+      # Processing interval (minutes between checks for new documents)
+      - SCAN_INTERVAL=${PAPERLESS_AI_SCAN_INTERVAL:-30}
+      # Optional: tags, correspondents, and document types to assign by AI
+      # - PROCESS_PREDEFINED_DOCUMENTS=true
+      # Optional: language for AI analysis
+      - AI_LANGUAGE=${PAPERLESS_AI_LANGUAGE:-English}
+    volumes:
+      - ${DOCKER_DATA}/paperless-ai/data:/app/data
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

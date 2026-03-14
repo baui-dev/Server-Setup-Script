@@ -1,0 +1,80 @@
+# TDARR
+# GitHub: https://github.com/HaveAGitGat/Tdarr
+# Image: ghcr.io/haveagitgat/tdarr:latest / ghcr.io/haveagitgat/tdarr_node:latest
+# Docs: https://docs.tdarr.io
+#
+# Tdarr is a distributed transcoding system for automating media codec management.
+# It scans your library, applies user-defined plugins to transcode/convert files
+# (e.g., convert MKV to MP4, H.264 to H.265/HEVC, remove unwanted audio tracks),
+# and distributes work across multiple transcoding nodes for performance.
+
+services:
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
+    hostname: tdarr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - umask=002
+      - serverIP=0.0.0.0                         # IP for the Tdarr server to bind to
+      - serverPort=8266                          # Node communication port
+      - webUIPort=8265                           # Web UI port
+      - internalNode=true                        # Run a built-in transcoding node alongside the server
+      - internalNodeIP=0.0.0.0
+      - nodeName=${TDARR_NODE_ID:-InternalNode}  # Display name for the built-in node
+      # - NVIDIA_DRIVER_CAPABILITIES=all         # Uncomment for NVIDIA GPU transcoding
+      # - NVIDIA_VISIBLE_DEVICES=all             # Uncomment for NVIDIA GPU transcoding
+    volumes:
+      - ${DOCKER_DATA}/tdarr/server:/app/server    # Tdarr server data and database
+      - ${DOCKER_DATA}/tdarr/configs:/app/configs  # Plugin and transcoding configurations
+      - ${DOCKER_DATA}/tdarr/logs:/app/logs        # Application logs
+      - ${MOVIES_DIR}:/media/movies              # Movie library
+      - ${TV_DIR}:/media/tv                      # TV show library
+      - ${DOCKER_DATA}/tdarr/transcode:/temp       # Temporary transcoding workspace
+    ports:
+      - ${PORT_TDARR:-8265}:8265                 # Web UI
+      - ${PORT_TDARR_NODE:-8266}:8266            # Node communication API
+    # Optional: NVIDIA GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  # Tdarr External Node - add additional nodes for distributed transcoding
+  # Each node should have a unique nodeName and can have dedicated GPU resources
+  tdarr-node:
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    container_name: tdarr-node
+    hostname: tdarr-node
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - umask=002
+      - nodeName=${TDARR_NODE_ID:-ExternalNode01} # Unique name for this node in the cluster
+      - serverIP=${TDARR_SERVER_IP:-tdarr}         # Tdarr server hostname or IP
+      - serverPort=8266                            # Must match the server's serverPort
+      # - NVIDIA_DRIVER_CAPABILITIES=all           # Uncomment for NVIDIA GPU transcoding
+      # - NVIDIA_VISIBLE_DEVICES=all               # Uncomment for NVIDIA GPU transcoding
+    volumes:
+      - ${DOCKER_DATA}/tdarr/configs:/app/configs    # Shared configurations (must match server)
+      - ${DOCKER_DATA}/tdarr/logs:/app/logs
+      - ${MOVIES_DIR}:/media/movies                # Must match server paths exactly
+      - ${TV_DIR}:/media/tv
+      - ${DOCKER_DATA}/tdarr/transcode:/temp         # Temporary transcoding workspace
+    # No ports - node communicates back to server on serverPort
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

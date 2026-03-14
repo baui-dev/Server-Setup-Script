@@ -1,0 +1,18 @@
+# AIOSTREAMS
+# GitHub: https://github.com/viren070/aiostreams
+# Image: ghcr.io/viren070/aiostreams
+# Docs: https://github.com/viren070/aiostreams#readme
+#
+# Unified streaming add-on aggregator for Stremio, Torrentio, and more.
+
+services:
+  aiostreams:
+    image: ghcr.io/viren070/aiostreams:latest
+    container_name: aiostreams
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data

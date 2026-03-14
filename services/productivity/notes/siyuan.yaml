@@ -1,0 +1,42 @@
+# SiYuan
+# GitHub: https://github.com/siyuan-note/siyuan
+# Image: b3log/siyuan:latest
+# Docs: https://b3log.org/siyuan/en/
+#
+# Privacy-first personal knowledge management system (PKM). Features block-based
+# editing, bidirectional links, a graph view, FlashCards, and full end-to-end
+# encryption. Runs entirely locally - no cloud dependency. Can be self-hosted
+# for team sync via the built-in server mode.
+#
+# Access: navigate to http://host:6806 and enter the access auth code.
+# NOTE: The container runs as user 1000:1000 by default. Ensure the workspace
+#       directory is writable by that user.
+
+services:
+  siyuan:
+    image: b3log/siyuan:latest
+    container_name: siyuan
+    hostname: siyuan
+    restart: unless-stopped
+    # SiYuan requires specific user context; runs as uid 1000 by default
+    user: "${PUID:-1000}:${PGID:-1000}"
+    command:
+      - --workspace=/siyuan/workspace
+      # Set a strong access code (required to log in via browser)
+      - --accessAuthCode=${SIYUAN_ACCESS_CODE:-changeme}
+      # Optional: serve on all interfaces (default is 127.0.0.1)
+      - --bind=0.0.0.0
+      # Optional: enable read-only mode
+      # - --readonly
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_DATA}/siyuan/workspace:/siyuan/workspace
+    ports:
+      - ${PORT_SIYUAN:-6806}:6806
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

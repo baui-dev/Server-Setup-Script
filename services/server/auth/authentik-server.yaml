@@ -1,0 +1,143 @@
+# AUTHENTIK
+# GitHub: https://github.com/goauthentik/authentik
+# Image: ghcr.io/goauthentik/server:latest
+# Docs: https://docs.goauthentik.io/docs/install-config/install/docker-compose
+#
+# Modern Identity Provider (IdP) and Single Sign-On (SSO) solution.
+# Supports OAuth2, OIDC, SAML, LDAP, RADIUS, and SCIM. Features a
+# visual flow editor, multi-factor authentication, social login,
+# and application proxy. Consists of a server (API + UI), a worker
+# (background tasks), PostgreSQL, and Redis.
+
+services:
+  authentik-postgres:
+    image: postgres:16-alpine
+    container_name: authentik-postgres
+    hostname: authentik-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_DB=authentik
+      - POSTGRES_USER=authentik
+      - POSTGRES_PASSWORD=${AUTHENTIK_POSTGRES_PASSWORD}
+    volumes:
+      - ${DOCKER_DATA}/authentik/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authentik -d authentik"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  authentik-redis:
+    image: redis:7-alpine
+    container_name: authentik-redis
+    hostname: authentik-redis
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_DATA}/authentik/redis:/data
+    command: --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  authentik-server:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: authentik-server
+    hostname: authentik-server
+    restart: unless-stopped
+    command: server
+    depends_on:
+      authentik-postgres:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Core secret - generate with: openssl rand -base64 60
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+      # Database
+      - AUTHENTIK_POSTGRESQL__HOST=authentik-postgres
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${AUTHENTIK_POSTGRES_PASSWORD}
+      # Redis
+      - AUTHENTIK_REDIS__HOST=authentik-redis
+      # Email (optional)
+      # - AUTHENTIK_EMAIL__HOST=smtp.${BASE_DOMAIN}
+      # - AUTHENTIK_EMAIL__PORT=587
+      # - AUTHENTIK_EMAIL__USERNAME=${SMTP_USERNAME}
+      # - AUTHENTIK_EMAIL__PASSWORD=${SMTP_PASSWORD}
+      # - AUTHENTIK_EMAIL__USE_TLS=true
+      # - AUTHENTIK_EMAIL__FROM=authentik@${BASE_DOMAIN}
+      # Log level: trace, debug, info, warning, error
+      - AUTHENTIK_LOG_LEVEL=${AUTHENTIK_LOG_LEVEL:-info}
+      # Error reporting (optional, disable for self-hosted)
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=false
+      # Cookie domain
+      - AUTHENTIK_COOKIE_DOMAIN=${BASE_DOMAIN}
+    volumes:
+      - ${DOCKER_DATA}/authentik/media:/media
+      - ${DOCKER_DATA}/authentik/custom-templates:/templates
+    ports:
+      - ${PORT_AUTHENTIK:-9000}:9000
+      - ${PORT_AUTHENTIK_HTTPS:-9443}:9443
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: authentik-worker
+    hostname: authentik-worker
+    restart: unless-stopped
+    command: worker
+    depends_on:
+      authentik-postgres:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    user: root
+    environment:
+      - TZ=${TZ}
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+      - AUTHENTIK_POSTGRESQL__HOST=authentik-postgres
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${AUTHENTIK_POSTGRES_PASSWORD}
+      - AUTHENTIK_REDIS__HOST=authentik-redis
+      # - AUTHENTIK_EMAIL__HOST=smtp.${BASE_DOMAIN}
+      # - AUTHENTIK_EMAIL__PORT=587
+      # - AUTHENTIK_EMAIL__USERNAME=${SMTP_USERNAME}
+      # - AUTHENTIK_EMAIL__PASSWORD=${SMTP_PASSWORD}
+      # - AUTHENTIK_EMAIL__USE_TLS=true
+      # - AUTHENTIK_EMAIL__FROM=authentik@${BASE_DOMAIN}
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=false
+      - AUTHENTIK_LOG_LEVEL=${AUTHENTIK_LOG_LEVEL:-info}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_DATA}/authentik/media:/media
+      - ${DOCKER_DATA}/authentik/certs:/certs
+      - ${DOCKER_DATA}/authentik/custom-templates:/templates
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Navigate to http://your-server:${PORT_AUTHENTIK:-9000}/if/flow/initial-setup/
+# 2. Create the initial admin user
+# 3. Configure applications, providers, and flows via the admin UI
+#
+# Outpost (application proxy) - deploy separately per-service:
+#   AUTHENTIK_TOKEN: obtained from Admin -> Outposts -> Create
+# ============================================================

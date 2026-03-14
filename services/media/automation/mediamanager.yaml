@@ -1,0 +1,40 @@
+# MEDIAMANAGER
+# GitHub: https://github.com/maxdorninger/MediaManager
+# Image: ghcr.io/maxdorninger/mediamanager:latest
+# Docs: https://github.com/maxdorninger/MediaManager
+#
+# MediaManager is a self-hosted media collection manager that provides an organized
+# interface for tracking, cataloging, and managing your media library.
+# It integrates with metadata providers to fetch artwork, descriptions, and ratings,
+# and can work alongside *arr applications for automated media acquisition workflows.
+#
+# NOTE: Verify the correct Docker image name, port, and environment variables
+# for your version. Check the upstream repository for the latest configuration.
+
+services:
+  mediamanager:
+    image: ghcr.io/maxdorninger/mediamanager:latest
+    container_name: mediamanager
+    hostname: mediamanager
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # - DATABASE_URL=sqlite:///config/mediamanager.db  # Database connection string
+      # - SECRET_KEY=${MEDIAMANAGER_SECRET_KEY}          # Application secret key
+      # - TMDB_API_KEY=${TMDB_API_KEY}                  # The Movie Database API key for metadata
+      # - BASE_URL=${MEDIAMANAGER_BASE_URL}             # Public-facing URL for the application
+    volumes:
+      - ${DOCKER_DATA}/mediamanager/config:/config  # Application configuration and database
+      - ${MOVIES_DIR}:/movies                     # Movie library path
+      - ${TV_DIR}:/tv                             # TV show library path
+      - ${MEDIA_DIR}:/media                       # Full media directory
+    ports:
+      - ${PORT_MEDIAMANAGER:-8082}:8082
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

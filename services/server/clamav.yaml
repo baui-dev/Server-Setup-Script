@@ -1,0 +1,42 @@
+# CLAMAV
+# GitHub: https://github.com/Cisco-Talos/clamav
+# Image: clamav/clamav:latest
+# Docs: https://docs.clamav.net
+#
+# ClamAV is an open-source antivirus engine for detecting trojans, viruses,
+# malware, and other malicious threats. The container runs clamd (the daemon),
+# freshclam (signature updater), and exposes port 3310 for network scans.
+# Other containers can send files for scanning via the clamd TCP socket.
+
+services:
+  clamav:
+    image: clamav/clamav:latest
+    container_name: clamav
+    hostname: clamav
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Freshclam update interval in seconds (default: 3600)
+      - FRESHCLAM_SLEEP_DURATION=3600
+      # Allow concurrent connections to clamd
+      - CLAMD_MAX_THREADS=10
+    volumes:
+      # Persistent virus signature database (avoids re-download on restart)
+      - ${DOCKER_DATA}/clamav/db:/var/lib/clamav
+      # Optional: scan files from a host directory
+      # - /path/to/scan:/scan:ro
+    ports:
+      # clamd daemon TCP socket — used by clients to submit scan requests
+      - ${PORT_CLAMAV:-3310}:3310
+    healthcheck:
+      test: ["CMD", "clamdscan", "--ping", "3"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

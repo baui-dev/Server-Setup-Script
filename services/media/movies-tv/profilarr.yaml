@@ -1,0 +1,50 @@
+# PROFILARR
+# GitHub: https://github.com/Dictionarry-Hub/profilarr
+# Image: ghcr.io/dictionarry-hub/profilarr:latest
+# Docs: https://github.com/Dictionarry-Hub/profilarr/wiki
+#
+# Profilarr is a quality profile synchronization tool that imports custom formats
+# and quality profiles from Dictionarry (the successor to TRaSH Guides custom formats)
+# into Radarr and Sonarr. Supports syncing, importing, and exporting profiles
+# across multiple instances. V2 is under active development; V1 is stable.
+#
+# NOTE: The correct repo is Dictionarry-Hub/profilarr (not santiagosayshey/Profilarr
+#       which is effectively archived). Use ghcr.io/dictionarry-hub/profilarr:latest.
+#
+# === QUICK START ===
+# 1. docker compose -f profilarr.yaml up -d
+# 2. Navigate to http://localhost:${PORT_PROFILARR}
+# 3. Create an account and configure Radarr/Sonarr API connections
+
+services:
+  profilarr:
+    image: ghcr.io/dictionarry-hub/profilarr:latest
+    container_name: profilarr
+    hostname: profilarr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Auth mode: on (require login) | local (local users only) | off (no auth) | oidc
+      - AUTH=${PROFILARR_AUTH:-on}
+      # - LOG_LEVEL=info                             # Logging verbosity: debug, info, warning, error
+      # Optional: parser sidecar (for advanced format testing)
+      # Deploy alongside: ghcr.io/dictionarry-hub/profilarr-parser:latest
+    volumes:
+      - ${DOCKER_DATA}/profilarr/config:/config        # Profilarr configuration and sync state
+    ports:
+      - ${PORT_PROFILARR:-6868}:6868
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.profilarr.rule=Host(`profilarr.${BASE_DOMAIN}`)"
+    #   - "traefik.http.routers.profilarr.entrypoints=websecure"
+    #   - "traefik.http.routers.profilarr.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.profilarr.loadbalancer.server.port=6868"
+
+# networks:
+#   proxy:
+#     external: true

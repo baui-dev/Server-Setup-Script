@@ -1,0 +1,56 @@
+# MAILRISE
+# GitHub: https://github.com/YoRyan/mailrise
+# Image: yoryan/mailrise:latest
+# Docs: https://mailrise.xyz
+#
+# Mailrise is an SMTP gateway that translates incoming emails into
+# Apprise notifications. It acts as a local SMTP server — your applications
+# send email to Mailrise, which then forwards the notification to any of the
+# 80+ services that Apprise supports (Slack, Discord, Telegram, Gotify,
+# Pushover, Matrix, Ntfy, PagerDuty, and many more).
+#
+# How it works:
+#   - Mailrise listens on SMTP port 8025 (or whichever you map below)
+#   - The recipient email address encodes the Apprise target, e.g.:
+#       apprise+tgram://BotToken/ChatID@mailrise.xyz
+#   - Mailrise parses the address and forwards the email content as a
+#     notification to the corresponding service via Apprise.
+#
+# Setup steps:
+#   1. Create the config file:
+#        mkdir -p ${DOCKER_DATA}/mailrise/config
+#        nano ${DOCKER_DATA}/mailrise/config/mailrise.conf
+#      Minimal config:
+#        configs:
+#          - name: default
+#            urls:
+#              - schema://...   # Your Apprise notification URL(s)
+#   2. Configure your applications to use SMTP host=mailrise, port=8025
+#   3. Send a test email to verify notifications are routed correctly
+#
+# Config file reference: https://mailrise.xyz/#configuration
+
+services:
+  mailrise:
+    image: yoryan/mailrise:latest
+    container_name: mailrise
+    hostname: mailrise
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Mailrise is configured entirely via mailrise.conf (mounted below).
+      # No additional environment variables are required for basic operation.
+      # - MAILRISE_LOGLEVEL=INFO                          # Log verbosity: DEBUG, INFO, WARNING, ERROR
+    volumes:
+      - ${DOCKER_DATA}/mailrise/config:/etc/mailrise        # Mount directory containing mailrise.conf
+    ports:
+      - "8025:8025"                                       # SMTP gateway port — point your apps here
+      # Note: Port 8025 is the default. Standard port 25 can be used instead by changing
+      # the host-side port to 25 (requires running as root or using setcap):
+      # - "25:8025"
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

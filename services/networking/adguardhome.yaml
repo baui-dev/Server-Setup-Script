@@ -1,0 +1,70 @@
+# ADGUARD HOME
+# GitHub: https://github.com/AdguardTeam/AdGuardHome
+# Image: adguard/adguardhome:latest
+# Docs: https://github.com/AdguardTeam/AdGuardHome/wiki/Docker
+#
+# Network-wide DNS-based ad and tracker blocker. Functions as a DNS
+# server that blocks ads, malware, and tracking domains for all devices
+# on your network. Provides a web UI for managing blocklists, whitelists,
+# DNS rewrites, client-specific filtering, and query logs.
+# Supports DNS-over-HTTPS (DoH) and DNS-over-TLS (DoT).
+
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    hostname: adguardhome
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      # Config and work directories
+      - ${DOCKER_DATA}/adguardhome/conf:/opt/adguardhome/conf
+      - ${DOCKER_DATA}/adguardhome/work:/opt/adguardhome/work
+    ports:
+      # Web UI (initial setup wizard and admin panel)
+      - ${PORT_ADGUARD:-3000}:3000/tcp
+      # Web UI (after setup, migrates from 3000 to 80/443)
+      - ${PORT_ADGUARD_HTTP:-80}:80/tcp
+      - ${PORT_ADGUARD_HTTPS:-443}:443/tcp
+      # DNS (UDP + TCP)
+      - ${PORT_ADGUARD_DNS:-53}:53/udp
+      - ${PORT_ADGUARD_DNS:-53}:53/tcp
+      # DNS-over-TLS (optional)
+      # - ${PORT_ADGUARD_DOT:-853}:853/tcp
+      # DNS-over-HTTPS (optional, served via HTTPS port)
+      # - ${PORT_ADGUARD_DOH:-443}:443/tcp
+      # DNSCrypt (optional)
+      # - ${PORT_ADGUARD_DNSCRYPT:-5443}:5443/udp
+      # - ${PORT_ADGUARD_DNSCRYPT:-5443}:5443/tcp
+    # AdGuard Home needs to bind to port 53 - ensure system DNS is released
+    # On systemd systems: sudo systemctl stop systemd-resolved
+    # And: sudo sed -i 's/#DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# First-time setup:
+# 1. Access http://your-server:${PORT_ADGUARD:-3000} for initial setup
+# 2. Set admin username/password
+# 3. Configure upstream DNS servers (e.g., Unbound, 1.1.1.1, 8.8.8.8)
+# 4. Add blocklists (Recommended: OISD, AdGuard DNS filter)
+#
+# If port 53 is in use by systemd-resolved:
+#   sudo systemctl stop systemd-resolved && sudo systemctl disable systemd-resolved
+#   echo "nameserver 127.0.0.1" | sudo tee /etc/resolv.conf
+#
+# Upstream DNS (configured in UI, not env vars):
+#   - Unbound (local): 127.0.0.1:5335 or host-gateway:5335
+#   - Cloudflare: https://cloudflare-dns.com/dns-query (DoH)
+#   - Quad9: tls://dns.quad9.net (DoT)
+#
+# Recommended blocklists (add in UI):
+#   https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+#   https://raw.githubusercontent.com/nicehash/NiceHashQuickMiner/main/assets/blocklist.txt
+#   https://big.oisd.nl
+# ============================================================

@@ -1,0 +1,41 @@
+# COCKPIT
+# GitHub: https://github.com/cockpit-project/cockpit
+# Image: cockpit/ws:latest
+# Docs: https://cockpit-project.org/documentation.html
+#
+# Cockpit is a web-based Linux server management interface for monitoring
+# system metrics, managing services (systemd), containers (podman), storage,
+# networking, accounts, and more. Requires privileged host access.
+#
+# NOTE: Cockpit is designed to run on the host system. The Docker container
+# uses privileged mode with PID namespace sharing to access host services.
+# For production, consider native installation via package manager instead.
+
+services:
+  cockpit:
+    image: cockpit/ws:latest
+    container_name: cockpit
+    hostname: cockpit
+    restart: unless-stopped
+    privileged: true
+    pid: host
+    environment:
+      - TZ=${TZ}
+    volumes:
+      # Allow Cockpit to manage the host system
+      - /run/systemd/private:/run/systemd/private
+      - /run/dbus:/run/dbus
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+      - /etc/os-release:/etc/os-release:ro
+      - /etc/hostname:/etc/hostname:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    ports:
+      - ${PORT_COCKPIT}:9090
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

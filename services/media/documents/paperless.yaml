@@ -1,0 +1,91 @@
+# Paperless NGX
+# GitHub: https://github.com/paperless-ngx/paperless-ngx
+# Image: ghcr.io/paperless-ngx/paperless-ngx:latest
+# Docs: https://docs.paperless-ngx.com
+#
+# Community-maintained document management system. Scan, index, and archive all
+# your physical and digital documents with AI-powered OCR, automatic tagging,
+# correspondent detection, and full-text search. Supports bulk import via a
+# watched consumption folder. Requires PostgreSQL and Redis.
+#
+# First-run setup: The admin user defined by PAPERLESS_ADMIN_USER is created
+# automatically on first startup. Change the password immediately after login.
+
+services:
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    hostname: paperless
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - USERMAP_UID=${PUID}
+      - USERMAP_GID=${PGID}
+      # Database
+      - PAPERLESS_DBENGINE=postgresql
+      - PAPERLESS_DBHOST=paperless-db
+      - PAPERLESS_DBPORT=5432
+      - PAPERLESS_DBNAME=paperless
+      - PAPERLESS_DBUSER=${POSTGRES_USER}
+      - PAPERLESS_DBPASS=${POSTGRES_PASSWORD}
+      # Redis / task queue
+      - PAPERLESS_REDIS=redis://:${REDIS_PASSWORD}@paperless-redis:6379
+      # Application
+      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY}
+      - PAPERLESS_URL=${PAPERLESS_URL}
+      - PAPERLESS_TIME_ZONE=${TZ}
+      - PAPERLESS_OCR_LANGUAGE=${PAPERLESS_OCR_LANGUAGE:-eng}
+      # Admin bootstrap (only used on first run)
+      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER}
+      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD}
+      # Optional tuning
+      - PAPERLESS_WORKER_TIMEOUT=${PAPERLESS_WORKER_TIMEOUT:-1800}
+      - PAPERLESS_TASK_WORKERS=${PAPERLESS_TASK_WORKERS:-2}
+    volumes:
+      - ${DOCKER_DATA}/paperless/data:/usr/src/paperless/data
+      - ${DOCKER_DATA}/paperless/media:/usr/src/paperless/media
+      - ${DOCKER_DATA}/paperless/export:/usr/src/paperless/export
+      - ${DOCKER_DATA}/paperless/consume:/usr/src/paperless/consume
+    ports:
+      - ${PORT_PAPERLESS}:8000
+    depends_on:
+      paperless-db:
+        condition: service_healthy
+      paperless-redis:
+        condition: service_started
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  paperless-db:
+    image: postgres:16-alpine
+    container_name: paperless-db
+    hostname: paperless-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=paperless
+    volumes:
+      - ${DOCKER_DATA}/paperless/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d paperless"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  paperless-redis:
+    image: redis:7-alpine
+    container_name: paperless-redis
+    hostname: paperless-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${DOCKER_DATA}/paperless/redis:/data
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

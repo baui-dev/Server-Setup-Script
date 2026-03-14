@@ -1,0 +1,96 @@
+# SQUIRREL SERVERS MANAGER (SSM)
+# GitHub: https://github.com/SquirrelCorporation/SquirrelServersManager
+# Image: ghcr.io/squirrelcorporation/squirrelserversmanager-client:latest
+# Docs: https://squirrelserversmanager.io/docs
+#
+# Squirrel Servers Manager is a self-hosted server lifecycle and configuration
+# management platform. Manages multiple servers via SSH with Ansible playbooks,
+# Docker container management, inventory tracking, and automated tasks.
+# Stack includes: client (UI), server (API), agent proxy, MongoDB, Redis.
+
+services:
+  ssm-client:
+    image: ghcr.io/squirrelcorporation/squirrelserversmanager-client:latest
+    container_name: ssm-client
+    hostname: ssm-client
+    restart: unless-stopped
+    depends_on:
+      - ssm-server
+    environment:
+      - TZ=${TZ}
+    ports:
+      - ${PORT_SSM:-8000}:8000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  ssm-server:
+    image: ghcr.io/squirrelcorporation/squirrelserversmanager-server:latest
+    container_name: ssm-server
+    hostname: ssm-server
+    restart: unless-stopped
+    depends_on:
+      ssm-mongodb:
+        condition: service_healthy
+      ssm-redis:
+        condition: service_started
+    environment:
+      - TZ=${TZ}
+      - NODE_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - MONGODB_URI=mongodb://ssm-mongodb:27017/ssm
+      - REDIS_HOST=ssm-redis
+      - REDIS_PORT=6379
+    volumes:
+      - ${DOCKER_DATA}/ssm/server/config:/app/config
+      - ${DOCKER_DATA}/ssm/server/playbooks:/app/playbooks
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  ssm-agent-proxy:
+    image: ghcr.io/squirrelcorporation/squirrelserversmanager-agent-proxy:latest
+    container_name: ssm-agent-proxy
+    hostname: ssm-agent-proxy
+    restart: unless-stopped
+    depends_on:
+      - ssm-server
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_DATA}/ssm/agent-proxy/config:/config
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  ssm-mongodb:
+    image: mongo:7.0
+    container_name: ssm-mongodb
+    hostname: ssm-mongodb
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_DATA}/ssm/mongodb:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  ssm-redis:
+    image: redis:7-alpine
+    container_name: ssm-redis
+    hostname: ssm-redis
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_DATA}/ssm/redis:/data
+    command: --save 60 1 --loglevel warning
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

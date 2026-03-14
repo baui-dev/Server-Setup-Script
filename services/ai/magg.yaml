@@ -1,0 +1,88 @@
+# MAGG (MCP Aggregator Gateway)
+# GitHub: https://github.com/magicwand-ai/magg
+# Image: ghcr.io/magicwand-ai/magg:latest
+# Docs: https://github.com/magicwand-ai/magg#readme
+#
+# Magg is an MCP (Model Context Protocol) server aggregator/gateway. It consolidates
+# multiple MCP servers behind a single endpoint, enabling AI clients (Claude Desktop,
+# Open WebUI, AnythingLLM, etc.) to connect to one URL and access tools from many
+# underlying MCP servers. Supports stdio and HTTP/SSE transport modes.
+# Useful for centralizing tool access across filesystem, search, code execution,
+# database, and other MCP-compatible services.
+#
+# === QUICK START ===
+# 1. Create your config file at ${DOCKER_DATA}/magg/config/config.json (see docs for format)
+# 2. docker compose -f magg-mcp.yaml up -d
+# 3. Point your MCP client to http://localhost:${PORT_MAGG_MCP}/sse or /mcp
+#
+# === CONFIG FORMAT (config.json) ===
+# {
+#   "servers": [
+#     {
+#       "name": "filesystem",
+#       "command": "npx",
+#       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/data"]
+#     },
+#     {
+#       "name": "brave-search",
+#       "command": "npx",
+#       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+#       "env": { "BRAVE_API_KEY": "your-key" }
+#     }
+#   ]
+# }
+
+services:
+  magg:
+    image: ghcr.io/magicwand-ai/magg:latest
+    container_name: magg
+    hostname: magg
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+
+      # --- Server ---
+      # - MAGG_HOST=0.0.0.0             # Bind address
+      # - MAGG_PORT=3000                # Internal listen port
+      # - MAGG_LOG_LEVEL=info           # Log level: debug | info | warn | error
+
+      # --- Configuration ---
+      # Path to the JSON/YAML config file listing upstream MCP servers
+      - MAGG_CONFIG=/config/config.json
+
+      # --- Transport ---
+      # - MAGG_TRANSPORT=sse            # Transport mode: sse (HTTP+SSE) or stdio
+      # - MAGG_SSE_PATH=/sse            # SSE endpoint path
+      # - MAGG_MCP_PATH=/mcp            # MCP JSON-RPC endpoint path
+
+      # --- Authentication ---
+      # - MAGG_API_KEY=                 # Optional API key to protect the gateway endpoint
+
+      # --- Tool Namespacing ---
+      # - MAGG_NAMESPACE_TOOLS=true     # Prefix tool names with server name (avoids collisions)
+
+    volumes:
+      - ${DOCKER_DATA}/magg/config:/config    # Config directory (place config.json here)
+      - ${DOCKER_DATA}/magg/data:/data        # Optional: shared data volume for file-based MCP servers
+      # Mount Docker socket if running MCP servers that need to spawn containers
+      # - /var/run/docker.sock:/var/run/docker.sock
+
+    ports:
+      - ${PORT_MAGG_MCP:-3100}:3000         # MCP gateway HTTP/SSE endpoint
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Allow reaching host services (Ollama, other MCPs)
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.magg.rule=Host(`mcp.${BASE_DOMAIN}`)"
+    #   - "traefik.http.routers.magg.entrypoints=websecure"
+    #   - "traefik.http.routers.magg.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.magg.loadbalancer.server.port=3000"
+
+# networks:
+#   proxy:
+#     external: true

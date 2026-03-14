@@ -1,0 +1,73 @@
+# Notesnook Sync Server (Monograph)
+# GitHub: https://github.com/streetwriters/notesnook-sync-server
+# Image: streetwriters/notesnook-sync:latest
+# Docs: https://github.com/streetwriters/notesnook-sync-server#readme
+#
+# Self-hosted sync server for the Notesnook end-to-end encrypted note-taking app.
+# Notesnook clients (desktop, mobile, web) connect to this server for syncing.
+# The server itself never sees unencrypted note content - all encryption/decryption
+# happens client-side. Requires MongoDB and Redis.
+#
+# After setup: in the Notesnook app, go to Settings > Sync > Server URL
+# and enter your server's URL.
+
+services:
+  notesnook:
+    image: streetwriters/notesnook-sync:latest
+    container_name: notesnook
+    hostname: notesnook
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # MongoDB connection
+      - MONGODB_CONNECTION_STRING=mongodb://notesnook-mongo:27017
+      - MONGODB_DATABASE_NAME=notesnook
+      # Redis connection
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@notesnook-redis:6379
+      # Application configuration
+      - NODE_ENV=production
+      - PORT=5264
+      # JWT signing secrets (generate each with: openssl rand -hex 64)
+      - NOTESNOOK_JWT_SECRET=${NOTESNOOK_JWT_SECRET:-changeme_generate_a_real_secret}
+      # CORS allowed origins (set to your domain)
+      - ALLOWED_ORIGINS=https://${BASE_DOMAIN}
+      # Optional: SMTP for account verification and password reset
+      # - SMTP_HOST=smtp.${BASE_DOMAIN}
+      # - SMTP_PORT=587
+      # - SMTP_USERNAME=${NOTESNOOK_SMTP_USER}
+      # - SMTP_PASSWORD=${NOTESNOOK_SMTP_PASSWORD}
+      # - SMTP_SENDER=notesnook@${BASE_DOMAIN}
+    ports:
+      - ${PORT_NOTESNOOK:-5264}:5264
+    depends_on:
+      - notesnook-mongo
+      - notesnook-redis
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  notesnook-mongo:
+    image: mongo:7
+    container_name: notesnook-mongo
+    hostname: notesnook-mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_DATABASE=notesnook
+    volumes:
+      - ${DOCKER_DATA}/notesnook/mongo:/data/db
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  notesnook-redis:
+    image: redis:7-alpine
+    container_name: notesnook-redis
+    hostname: notesnook-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${DOCKER_DATA}/notesnook/redis:/data
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

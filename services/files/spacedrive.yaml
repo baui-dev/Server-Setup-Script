@@ -1,0 +1,38 @@
+# Spacedrive
+# GitHub: https://github.com/spacedriveapp/spacedrive
+# Image: ghcr.io/spacedriveapp/spacedrive/server:latest
+# Docs: https://spacedrive.com/docs
+#
+# Open-source cross-platform file manager powered by a virtual distributed
+# filesystem (VDFS) built in Rust. Indexes and organises files across local
+# disks, network drives, and cloud storage into a unified library. The server
+# component exposes a web UI and syncs libraries across devices.
+# NOTE: The self-hosted server is under active development; check the GitHub
+# releases for the latest stable image tag before deploying.
+
+services:
+  spacedrive:
+    image: ghcr.io/spacedriveapp/spacedrive/server:latest
+    container_name: spacedrive
+    hostname: spacedrive
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Data directory inside the container
+      - SD_DATA_DIR=/data
+      # Origin allowed to connect (set to your domain in production)
+      # - SD_AUTH_SECRET=changeme
+    volumes:
+      - ${DOCKER_DATA}/spacedrive/data:/data
+      # Mount additional storage locations to index
+      # - /mnt/nas:/mnt/nas:ro
+    ports:
+      - ${PORT_SPACEDRIVE}:8080
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

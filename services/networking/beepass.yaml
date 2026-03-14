@@ -1,0 +1,74 @@
+# BEEPASS HUB
+# GitHub: https://github.com/beepass/beepass-hub
+# Image: beepassvpn/hub:latest
+# Docs: https://github.com/beepass/beepass-hub
+#
+# BeePass is a censorship-circumvention VPN system that uses the
+# Outline/Shadowsocks protocol stack to bypass DPI and internet
+# censorship. BeePass Hub manages multiple Outline VPN servers,
+# provides access keys, and coordinates anti-censorship tunneling.
+# Compatible with the Outline client apps (Windows, macOS, Android, iOS).
+
+services:
+  beepass:
+    image: beepassvpn/hub:latest
+    container_name: beepass
+    hostname: beepass
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # API and management port
+      # - API_PORT=8080
+      # VPN server ports
+      # - VPN_PORT_START=10000
+      # - VPN_PORT_END=11000
+    volumes:
+      - ${DOCKER_DATA}/beepass/config:/config
+      - ${DOCKER_DATA}/beepass/data:/data
+    ports:
+      - ${PORT_BEEPASS:-8080}:8080
+      # VPN access key port range (expose the range used by Outline servers)
+      # - "10000-10100:10000-10100/tcp"
+      # - "10000-10100:10000-10100/udp"
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  # Outline Server (Shadowsocks-based, managed by BeePass)
+  # Each Outline server instance provides VPN access via Shadowsocks
+  outline-server:
+    image: quay.io/outline/shadowbox:stable
+    container_name: outline-server
+    hostname: outline-server
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TZ=${TZ}
+      - SB_API_PORT=8081
+      - SB_CERTIFICATE_FILE=/data/shadowbox.crt
+      - SB_PRIVATE_KEY_FILE=/data/shadowbox.key
+      # Management API prefix - must match Outline Manager
+      - SB_API_PREFIX=${OUTLINE_API_PREFIX:-secret}
+    volumes:
+      - ${DOCKER_DATA}/beepass/outline:/data
+      - /etc/localtime:/etc/localtime:ro
+    cap_add:
+      - NET_ADMIN
+
+# networks:
+#   proxy:
+#     external: true
+
+# ============================================================
+# BeePass / Outline Setup:
+# 1. Install Outline Manager (desktop app) from getoutline.org/get-started
+# 2. Run the Outline server container above
+# 3. In Outline Manager, click "Advanced" -> "Set up Outline yourself"
+# 4. Provide the management API URL: https://your-server:8081/secret/
+# 5. Create access keys and share them with BeePass clients
+#
+# Client apps: https://getoutline.org/get-started/#step-3
+# BeePass client: https://beepass.app
+#
+# Note: BeePass Hub may have different requirements - verify the
+# correct image and configuration at the GitHub repository.
+# ============================================================

@@ -1,0 +1,33 @@
+# Music Assistant
+# GitHub: https://github.com/music-assistant/server
+# Image: ghcr.io/music-assistant/server:latest
+# Docs: https://music-assistant.io/docs
+#
+# Open-source, multi-room music streaming server. Integrates with Spotify,
+# Tidal, YouTube Music, Qobuz, SoundCloud, and local libraries. Streams to
+# Chromecast, AirPlay, Snapcast, UPnP/DLNA, and Home Assistant media players.
+# Optionally pairs with the Music Assistant Home Assistant integration for
+# voice control and whole-home audio automation.
+#
+# NOTE: network_mode: host is required for mDNS/UPnP/Zeroconf device
+# discovery (Chromecast, AirPlay, DLNA). The web UI is available on port 8095.
+# If host networking is undesirable, use macvlan or manually expose UDP ports.
+
+services:
+  music-assistant:
+    image: ghcr.io/music-assistant/server:latest
+    container_name: music-assistant
+    hostname: music-assistant
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TZ=${TZ}
+      - LOG_LEVEL=${MA_LOG_LEVEL:-info}
+    volumes:
+      - ${DOCKER_DATA}/music-assistant/data:/data
+      - ${MUSIC_DIR}:/music:ro
+    # ports are not used with network_mode: host; access on http://<host>:8095
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,30 @@
+# CHARTDB
+# GitHub: https://github.com/chartdb/chartdb
+# Image: ghcr.io/chartdb/chartdb:latest
+# Docs: https://chartdb.io/docs
+#
+# Browser-based database schema diagram editor. Supports PostgreSQL, MySQL,
+# MariaDB, SQLite, and Microsoft SQL Server. Entirely client-side — the server
+# only serves the static SPA; no database credentials leave the browser.
+# No external dependencies required.
+
+services:
+  chartdb:
+    image: ghcr.io/chartdb/chartdb:latest
+    container_name: chartdb
+    hostname: chartdb
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Optional: restrict access to a specific origin (CORS)
+      # - CHARTDB_ALLOWED_ORIGIN=https://chartdb.${BASE_DOMAIN}
+    volumes:
+      - ${DOCKER_DATA}/chartdb/config:/config
+    ports:
+      - ${PORT_CHARTDB}:80
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

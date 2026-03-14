@@ -1,0 +1,56 @@
+# Stirling PDF
+# GitHub: https://github.com/Stirling-Tools/Stirling-PDF
+# Image: frooodle/s-pdf:latest
+# Docs: https://github.com/Stirling-Tools/Stirling-PDF#how-to-use
+#
+# Powerful self-hosted web application for all your PDF operations. Supports
+# merging, splitting, converting, compressing, rotating, watermarking, OCR,
+# signing, and over 50 other PDF tools. No files are sent to external services.
+# Optional security login with user management. Supports multiple languages.
+
+services:
+  stirlingpdf:
+    image: frooodle/s-pdf:latest
+    container_name: stirlingpdf
+    hostname: stirlingpdf
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # -- Security / Authentication --
+      # Enable login page and user management (false = no login required)
+      - DOCKER_ENABLE_SECURITY=false
+      # Initial admin credentials (only used when security is enabled)
+      # - SECURITY_INITIALLOGIN_USERNAME=${STIRLINGPDF_ADMIN_USER:-admin}
+      # - SECURITY_INITIALLOGIN_PASSWORD=${STIRLINGPDF_ADMIN_PASSWORD:-changeme}
+      # -- Feature flags --
+      # Install Calibre for e-book to PDF conversion (large image, optional)
+      - INSTALL_BOOK_AND_ADVANCED_HTML_OPS=false
+      # -- OCR Languages --
+      # Languages to make available for OCR (space-separated Tesseract lang codes)
+      # Common: eng deu fra spa por ita chi-sim chi-tra jpn kor ara
+      - LANGS=en_GB
+      # -- Application settings --
+      # Show update notification in UI
+      - SYSTEM_SHOW_UPDATE=false
+      # -- Custom branding (optional) --
+      # - SYSTEM_DEFAULTLOCALE=en-US
+      # - UI_APP_NAME=Stirling PDF
+      # - UI_HOME_DESCRIPTION=All your PDF tools in one place
+      # - UI_APP_NAVBAR_NAME=PDF Tools
+    volumes:
+      # Custom Tesseract training data for additional OCR language packs
+      - ${DOCKER_DATA}/stirlingpdf/trainingData:/usr/share/tessdata
+      # Custom application configuration (e.g., settings.yml overrides)
+      - ${DOCKER_DATA}/stirlingpdf/configs:/configs
+      # Persistent application logs
+      - ${DOCKER_DATA}/stirlingpdf/logs:/logs
+      # Custom files (e.g., custom scripts, fonts)
+      - ${DOCKER_DATA}/stirlingpdf/customFiles:/customFiles
+    ports:
+      - ${PORT_STIRLINGPDF:-8080}:8080
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,31 @@
+# Puter
+# GitHub: https://github.com/HeyPuter/puter
+# Image: ghcr.io/heyputer/puter:latest
+# Docs: https://developer.puter.com/
+#
+# Puter is a full-featured web OS with a rich desktop environment accessible
+# from any browser. It includes a file system, application store, built-in apps
+# (text editor, terminal, AI assistant, etc.), user accounts, and developer
+# APIs. Self-hosted instances require a domain name for proper cookie scoping.
+
+services:
+  puter:
+    image: ghcr.io/heyputer/puter:latest
+    container_name: puter
+    hostname: puter
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUTER_DOMAIN=${PUTER_DOMAIN}          # Domain for the Puter instance (e.g. puter.example.com)
+      # - PUTER_API_DOMAIN=api.${PUTER_DOMAIN} # API subdomain (auto-derived if unset)
+    volumes:
+      - ${DOCKER_DATA}/puter/config:/etc/puter   # Application configuration
+      - ${DOCKER_DATA}/puter/data:/var/puter     # User data and file storage
+    ports:
+      - ${PORT_PUTER:-4100}:4100
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

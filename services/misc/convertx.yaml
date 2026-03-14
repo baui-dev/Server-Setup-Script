@@ -1,0 +1,34 @@
+# ConvertX
+# GitHub: https://github.com/C4illin/ConvertX
+# Image: ghcr.io/c4illin/convertx:latest
+# Docs: https://github.com/C4illin/ConvertX#readme
+#
+# Self-hosted online file converter supporting 1000+ formats including video,
+# audio, images, documents, e-books, and archives. No external API calls;
+# all conversions happen locally using tools like FFmpeg, ImageMagick, LibreOffice,
+# and Pandoc. Stores history in a built-in SQLite database.
+
+services:
+  convertx:
+    image: ghcr.io/c4illin/convertx:latest
+    container_name: convertx
+    hostname: convertx
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # JWT secret for session tokens — change to a long random string
+      - JWT_SECRET=${CONVERTX_JWT_SECRET:-changeme_use_a_long_random_string}
+      # Account registration: set to false to disable new signups after setup
+      - ALLOW_UNAUTHENTICATED=false
+      # Base URL for generating download links
+      # - HTTP_ALLOWED_ORIGIN=https://convertx.${BASE_DOMAIN}
+    volumes:
+      - ${DOCKER_DATA}/convertx/data:/app/data
+    ports:
+      - ${PORT_CONVERTX}:3000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

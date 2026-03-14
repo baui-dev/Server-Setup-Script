@@ -1,0 +1,57 @@
+# ArchiveBox
+# GitHub: https://github.com/ArchiveBox/ArchiveBox
+# Image: archivebox/archivebox:latest
+# Docs: https://github.com/ArchiveBox/ArchiveBox/wiki/Docker
+#
+# Self-hosted internet archiving solution. Saves web pages as HTML snapshots,
+# PDFs, screenshots, WARC files, and media downloads. Supports importing from
+# browser bookmarks, RSS feeds, Pocket, Pinboard, Shaarli, and more.
+# Uses a SQLite database and stores archives on the local filesystem.
+
+services:
+  archivebox:
+    image: archivebox/archivebox:latest
+    container_name: archivebox
+    hostname: archivebox
+    restart: unless-stopped
+    command: server --quick-init 0.0.0.0:8000
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Admin credentials — set before first run
+      - ADMIN_USERNAME=${ARCHIVEBOX_ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${ARCHIVEBOX_ADMIN_PASSWORD:-changeme}
+      # Allow public access without login
+      - PUBLIC_INDEX=false
+      - PUBLIC_SNAPSHOTS=false
+      - PUBLIC_ADD_VIEW=false
+      # Public-facing URL (important for assets and links)
+      - ALLOWED_HOSTS=*
+      - CSRF_TRUSTED_ORIGINS=https://archivebox.${BASE_DOMAIN}
+      # Storage backends to enable (all enabled by default)
+      - SAVE_TITLE=true
+      - SAVE_FAVICON=true
+      - SAVE_WGET=true
+      - SAVE_WARC=true
+      - SAVE_PDF=true
+      - SAVE_SCREENSHOT=true
+      - SAVE_DOM=true
+      - SAVE_SINGLEFILE=true
+      # Chrome/Chromium binary (bundled in the image)
+      # - CHROME_BINARY=chromium-browser
+      # Search backend (uncomment to enable full-text search)
+      # - SEARCH_BACKEND_ENGINE=sonic
+      # - SEARCH_BACKEND_HOST_NAME=sonic
+      # - SEARCH_BACKEND_PORT=1491
+      # - SEARCH_BACKEND_PASSWORD=changeme
+    volumes:
+      - ${DOCKER_DATA}/archivebox/data:/data
+    ports:
+      - ${PORT_ARCHIVEBOX}:8000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

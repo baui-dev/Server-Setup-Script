@@ -1,0 +1,109 @@
+# MEDIACMS
+# GitHub: https://github.com/mediacms-io/mediacms
+# Image: mediacms/mediacms:latest
+# Docs: https://mediacms.io/docs
+#
+# MediaCMS is a self-hosted, fully-featured video and media platform similar to YouTube.
+# It supports video upload, transcoding, streaming, commenting, playlists, categories,
+# and user management. Built with Django, Celery, PostgreSQL, and Redis.
+# Provides REST API and supports multiple codecs via FFmpeg transcoding.
+
+services:
+  mediacms:
+    image: mediacms/mediacms:latest
+    container_name: mediacms
+    hostname: mediacms
+    restart: unless-stopped
+    depends_on:
+      mediacms-db:
+        condition: service_healthy
+      mediacms-redis:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_HOST=mediacms-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=mediacms
+      - POSTGRES_USER=mediacms
+      - POSTGRES_PASSWORD=${MEDIACMS_DB_PASSWORD:-mediacms_secure_pass}
+      - REDIS_LOCATION=redis://mediacms-redis:6379/0
+      - SECRET_KEY=${MEDIACMS_SECRET_KEY:-changeme-very-long-secret-key}  # Django secret key
+      - ALLOWED_HOSTS=${MEDIACMS_ALLOWED_HOSTS:-*}                         # Allowed hostnames (comma-separated)
+      - FRONTEND_HOST=${MEDIACMS_BASE_URL:-http://localhost}               # Public-facing URL
+      - DEBUG=false
+      # - ADMIN_USER=${MEDIACMS_ADMIN_USER:-admin}
+      # - ADMIN_EMAIL=${MEDIACMS_ADMIN_EMAIL:-admin@localhost}
+      # - ADMIN_PASSWORD=${MEDIACMS_ADMIN_PASSWORD:-changeme}
+    volumes:
+      - ${DOCKER_DATA}/mediacms/media:/home/mediacms.io/mediacms/media_files  # Uploaded media files
+      - ${DOCKER_DATA}/mediacms/logs:/home/mediacms.io/mediacms/logs          # Application logs
+    ports:
+      - ${PORT_MEDIACMS:-80}:80                  # HTTP web interface (nginx)
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  mediacms-worker:
+    image: mediacms/mediacms:latest
+    container_name: mediacms-worker
+    hostname: mediacms-worker
+    restart: unless-stopped
+    depends_on:
+      mediacms-db:
+        condition: service_healthy
+      mediacms-redis:
+        condition: service_healthy
+    command: celery -A cms worker --loglevel=info -Q celery
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_HOST=mediacms-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=mediacms
+      - POSTGRES_USER=mediacms
+      - POSTGRES_PASSWORD=${MEDIACMS_DB_PASSWORD:-mediacms_secure_pass}
+      - REDIS_LOCATION=redis://mediacms-redis:6379/0
+      - SECRET_KEY=${MEDIACMS_SECRET_KEY:-changeme-very-long-secret-key}
+    volumes:
+      - ${DOCKER_DATA}/mediacms/media:/home/mediacms.io/mediacms/media_files  # Shared media storage
+      - ${DOCKER_DATA}/mediacms/logs:/home/mediacms.io/mediacms/logs
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  mediacms-db:
+    image: postgres:15-alpine
+    container_name: mediacms-db
+    hostname: mediacms-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=mediacms
+      - POSTGRES_USER=mediacms
+      - POSTGRES_PASSWORD=${MEDIACMS_DB_PASSWORD:-mediacms_secure_pass}
+    volumes:
+      - ${DOCKER_DATA}/mediacms/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mediacms -d mediacms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  mediacms-redis:
+    image: redis:7-alpine
+    container_name: mediacms-redis
+    hostname: mediacms-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - ${DOCKER_DATA}/mediacms/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

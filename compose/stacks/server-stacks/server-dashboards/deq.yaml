@@ -7,18 +7,18 @@
 # This replacement provides a maintained system metrics dashboard.
 
 services:
-	deq:
-		image: mauricenino/dashdot:latest
-		container_name: deq
-		hostname: deq
-		restart: unless-stopped
-		privileged: true
-		environment:
-			- TZ=${TZ}
-			- DASHDOT_ENABLE_CPU_TEMPS=true
-			- DASHDOT_ENABLE_STORAGE_SPLIT_VIEW=true
-		volumes:
-			- /:/mnt/host:ro
-		ports:
-			- ${PORT_DEQ:-3001}:3001
+  deq:
+    image: mauricenino/dashdot:latest
+    container_name: deq
+    hostname: deq
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - TZ=${TZ}
+      - DASHDOT_ENABLE_CPU_TEMPS=true
+      - DASHDOT_ENABLE_STORAGE_SPLIT_VIEW=true
+    volumes:
+      - /:/mnt/host:ro
+    ports:
+      - ${PORT_DEQ:-3001}:3001
 

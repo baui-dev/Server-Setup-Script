@@ -1,0 +1,104 @@
+# FLOWISEAI
+# GitHub: https://github.com/FlowiseAI/Flowise
+# Image: flowiseai/flowise:latest
+# Docs: https://docs.flowiseai.com/getting-started/docker
+#
+# Flowise is an open-source, low-code tool for building customized LLM orchestration flows
+# and AI agents. Features a visual drag-and-drop canvas to connect LLMs, vector stores,
+# APIs, and tools into pipelines (chains). Supports OpenAI, Anthropic, Ollama, HuggingFace,
+# and dozens of integrations. Includes API key management, credential storage, and a REST API.
+#
+# === QUICK START ===
+# 1. Copy config.env to .env and set FLOWISE_USERNAME, FLOWISE_PASSWORD
+# 2. docker compose -f flowiseai.yaml up -d
+# 3. Navigate to http://localhost:${PORT_FLOWISEAI}
+
+services:
+  flowise:
+    image: flowiseai/flowise:latest
+    container_name: flowise
+    hostname: flowise
+    restart: unless-stopped
+    user: "${PUID}:${PGID}"            # Run as non-root for security
+    environment:
+      - TZ=${TZ}
+
+      # --- Server ---
+      - PORT=3000                      # Internal listen port
+      - FLOWISE_HOST=0.0.0.0           # Bind address (0.0.0.0 for all interfaces)
+      # - CORS_ORIGINS=*               # Allowed CORS origins (comma-separated). Defaults to * (all)
+      # - IFRAME_ORIGINS=*             # Allowed iframe origins for embedded chatbots
+      # - DISABLE_FLOWISE_TELEMETRY=true  # Disable anonymous telemetry
+
+      # --- Authentication ---
+      # Basic auth credentials for the WebUI and API
+      - FLOWISE_USERNAME=${FLOWISE_USERNAME:-admin}
+      - FLOWISE_PASSWORD=${FLOWISE_PASSWORD:-changeme}
+      # Override encryption key for API keys stored in database (generate with: openssl rand -hex 24)
+      # - FLOWISE_SECRETKEY_OVERWRITE=${SECRET_KEY}
+
+      # --- File / Storage Paths (inside container) ---
+      - DATABASE_PATH=/root/.flowise         # SQLite database directory
+      - APIKEY_PATH=/root/.flowise           # API key storage directory
+      - LOG_PATH=/root/.flowise/logs         # Log files directory
+      - SECRETKEY_PATH=/root/.flowise        # Encryption key storage directory
+      - TEMP_PATH=/root/.flowise/temp        # Temporary file uploads directory
+      - BLOB_STORAGE_PATH=/root/.flowise/storage  # File/blob upload storage
+
+      # --- Logging ---
+      # - LOG_LEVEL=info               # Log level: error | warn | info | verbose | debug
+      # - DEBUG=false                  # Enable debug mode (verbose logging)
+
+      # --- File Uploads ---
+      # - FLOWISE_FILE_SIZE_LIMIT=50mb # Maximum file upload size (e.g., 50mb, 100mb)
+
+      # --- Execution ---
+      # - EXECUTION_MODE=main          # main (synchronous) or worker (async with queue)
+      # - WORKER_CONCURRENCY=5         # Number of concurrent flows when using worker mode
+
+      # --- Tool / Function Node External Dependencies ---
+      # Comma-separated list of npm packages available in Function nodes
+      # - TOOL_FUNCTION_BUILTIN_DEP=crypto,fs  # Built-in Node.js modules to allow
+      # - TOOL_FUNCTION_EXTERNAL_DEP=moment,lodash  # External npm packages to allow
+
+      # --- Queue (required for EXECUTION_MODE=worker) ---
+      # - QUEUE_NAME=flowise            # BullMQ queue name
+      # - REDIS_URL=redis://:${REDIS_PASSWORD}@flowise-redis:6379  # Redis connection for queue
+
+      # --- Database (SQLite default; PostgreSQL optional) ---
+      # By default Flowise uses SQLite stored at DATABASE_PATH.
+      # Uncomment below to use PostgreSQL instead:
+      # - DATABASE_TYPE=postgres
+      # - DATABASE_HOST=flowise-postgres
+      # - DATABASE_PORT=5432
+      # - DATABASE_NAME=${POSTGRES_DB:-flowise}
+      # - DATABASE_USER=${POSTGRES_USER}
+      # - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+      # - DATABASE_SSL=false
+
+      # --- OpenAI / LLM Keys (optional - can also be added per-credential in UI) ---
+      # - OPENAI_API_KEY=              # Pre-populate OpenAI key
+      # - ANTHROPIC_API_KEY=           # Pre-populate Anthropic key
+
+      # --- HuggingFace ---
+      # - HUGGINGFACEHUB_API_TOKEN=    # HuggingFace API token
+
+    volumes:
+      - ${DOCKER_DATA}/flowise/data:/root/.flowise    # All Flowise data: DB, API keys, logs, uploads
+
+    ports:
+      - ${PORT_FLOWISEAI}:3000         # WebUI + REST API
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.flowise.rule=Host(`flowise.${BASE_DOMAIN}`)"
+    #   - "traefik.http.routers.flowise.entrypoints=websecure"
+    #   - "traefik.http.routers.flowise.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.flowise.loadbalancer.server.port=3000"
+
+# networks:
+#   proxy:
+#     external: true

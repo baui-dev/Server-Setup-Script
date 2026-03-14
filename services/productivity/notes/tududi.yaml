@@ -1,0 +1,42 @@
+# Tududi
+# GitHub: https://github.com/chrisvel/tududi
+# Image: chrisvel/tududi:latest
+# Docs: https://github.com/chrisvel/tududi#readme
+#
+# Self-hosted task and note management application built with Ruby on Rails.
+# Combines to-do lists, projects, notes, and areas of focus in a single interface.
+# Inspired by GTD (Getting Things Done) methodology. Stores data in SQLite.
+# See also: to-do-stacks/tududi.yaml for the same service under the to-do category.
+
+services:
+  tududi:
+    image: chrisvel/tududi:latest
+    container_name: tududi-notes
+    hostname: tududi-notes
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Rails environment
+      - RAILS_ENV=production
+      # Secret key base - generate with: openssl rand -hex 64
+      - SECRET_KEY_BASE=${TUDUDI_SECRET_KEY:-changeme_generate_a_real_64char_hex_secret}
+      # Admin user credentials (created on first run)
+      - TUDUDI_USER_EMAIL=${TUDUDI_USER_EMAIL:-admin@example.com}
+      - TUDUDI_USER_PASSWORD=${TUDUDI_USER_PASSWORD:-changeme}
+      # Database (SQLite default)
+      # To use PostgreSQL, set DATABASE_URL:
+      # - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@tududi-postgres:5432/tududi
+      # Application host (used for asset URLs)
+      - APP_DOMAIN=${BASE_DOMAIN}
+    volumes:
+      - ${DOCKER_DATA}/tududi-notes/data:/app/db
+    ports:
+      - ${PORT_TUDUDI_NOTES:-4567}:4567
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,0 +1,43 @@
+# ALIASVAULT
+# GitHub: https://github.com/lanedirt/AliasVault
+# Image: lanedirt/aliasvault:latest
+# Docs: https://aliasvault.net/documentation/installation/install-on-existing-server
+#
+# Self-hosted email alias and password manager. Creates unique email aliases per
+# service so your real address is never exposed. Stores encrypted credentials
+# in an SQLite vault. Single container, no external database required.
+
+services:
+  aliasvault:
+    image: lanedirt/aliasvault:latest
+    container_name: aliasvault
+    hostname: aliasvault
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      # Public-facing domain — required for correct link generation in emails
+      - PUBLIC_DOMAIN=aliasvault.${BASE_DOMAIN}
+      # Password for the built-in admin account (change on first run)
+      - ADMIN_PASSWORD=${SECRET_KEY}
+      # Passphrase used to encrypt the data-protection certificate stored on disk
+      - DATA_PROTECTION_CERT_PASS=${SECRET_KEY}
+      # SMTP relay for sending alias emails (all optional)
+      # - SMTP_HOST=smtp.${BASE_DOMAIN}           # SMTP server hostname
+      # - SMTP_PORT=587                       # SMTP port (587 for STARTTLS, 465 for TLS)
+      # - SMTP_USERNAME=aliasvault@${BASE_DOMAIN} # SMTP auth username
+      # - SMTP_PASSWORD=changeme              # SMTP auth password
+      # - SMTP_FROM=noreply@${BASE_DOMAIN}        # Envelope from address
+      # - SMTP_SECURE=true                   # Use TLS/STARTTLS
+      # - ASPNETCORE_ENVIRONMENT=Production  # Runtime environment (Production/Development)
+    volumes:
+      - ${DOCKER_DATA}/aliasvault/data:/app/data
+    ports:
+      - ${PORT_ALIASVAULT}:80
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

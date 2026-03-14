@@ -75,6 +75,14 @@ fi
 
 [[ ${#REQUESTED[@]} -eq 0 ]] && die "No services selected."
 
+# Deterministic order: trim blanks, unique, sort.
+declare -a REQUESTED_CLEAN=()
+for n in "${REQUESTED[@]}"; do
+    n="${n//[[:space:]]/}"
+    [[ -n "${n}" ]] && REQUESTED_CLEAN+=("${n}")
+done
+mapfile -t REQUESTED < <(printf '%s\n' "${REQUESTED_CLEAN[@]}" | sort -u)
+
 # ─── Extract service block from a YAML file ──────────────────────────────────
 # Returns everything indented below the top-level `services:` key, stopping at
 # the next unindented key (networks:, volumes:, version:).
@@ -121,6 +129,20 @@ resolve_port_line() {
     echo "${line}"
 }
 
+# Rewrite ${PORT_FOO:-8080} to ${PORT_FOO:-${AUTO_PORT_FOO}} so users can
+# configure ports entirely via generated .env.
+rewrite_auto_port_fallback() {
+    local line="$1"
+    if [[ "${line}" =~ (\$\{(PORT_[A-Z0-9_]+):-[0-9]+\}) ]]; then
+        local full_match="${BASH_REMATCH[1]}"
+        local pvar="${BASH_REMATCH[2]}"
+        local autovar="${pvar/PORT_/AUTO_PORT_}"
+        local replacement="\${${pvar}:-\${${autovar}}}"
+        line="${line/${full_match}/${replacement}}"
+    fi
+    echo "${line}"
+}
+
 # ─── Main merge loop ─────────────────────────────────────────────────────────
 declare -A CATEGORY_SERVICES=()   # category -> accumulated service blocks (newline-sep)
 declare -A CATEGORY_NAMES=()      # category -> space-sep list of svc names written
@@ -157,6 +179,7 @@ for raw_name in "${REQUESTED[@]}"; do
     # Extract and resolve port conflicts
     local_block=""
     while IFS= read -r ln; do
+        ln="$(rewrite_auto_port_fallback "${ln}")"
         if [[ "${ln}" =~ ^[[:space:]]+-[[:space:]] && "${ln}" =~ : ]]; then
             ln="$(resolve_port_line "${ln}")"
         fi
@@ -205,7 +228,8 @@ write_stack() {
 
 # ─── Per-category stacks ──────────────────────────────────────────────────────
 echo -e "\n${BOLD}Writing category stacks …${RESET}"
-for category in "${!CATEGORY_SERVICES[@]}"; do
+mapfile -t sorted_categories < <(printf '%s\n' "${!CATEGORY_SERVICES[@]}" | sort)
+for category in "${sorted_categories[@]}"; do
     out="${OUTPUT_DIR}/${category}-stack.yaml"
     note="Services:${CATEGORY_NAMES[$category]}"
     write_stack "${category^^} STACK" "${note}" "${out}" "${CATEGORY_SERVICES[$category]}"
@@ -214,7 +238,7 @@ done
 # ─── Combined stack ───────────────────────────────────────────────────────────
 echo -e "\n${BOLD}Writing combined stack …${RESET}"
 all_cats=""
-for c in "${!CATEGORY_NAMES[@]}"; do all_cats+=" ${c}"; done
+for c in "${sorted_categories[@]}"; do all_cats+=" ${c}"; done
 write_stack "COMBINED STACK" "Categories:${all_cats}" \
     "${OUTPUT_DIR}/combined-stack.yaml" "${COMBINED_BLOCK}"
 

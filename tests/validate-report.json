@@ -8,8 +8,48 @@
 }
 ,
 {
+  "file": "services/ai/flowise.yaml",
+  "name": "flowise",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/ai/khoj.yaml",
+  "name": "khoj",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/ai/local-deep-research.yaml",
+  "name": "local-deep-research",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/ai/magg.yaml",
+  "name": "magg",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/ai/n8n/n8n.yaml",
   "name": "n8n",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/ai/openhands.yaml",
+  "name": "openhands",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -24,8 +64,24 @@
 }
 ,
 {
+  "file": "services/ai/open-webui.yaml",
+  "name": "open-webui",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/communication/gotify/gotify.yaml",
   "name": "gotify",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/communication/mail/mailrise.yaml",
+  "name": "mailrise",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -48,6 +104,70 @@
 }
 ,
 {
+  "file": "services/communication/postal.yaml",
+  "name": "postal",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/communication/postiz.yaml",
+  "name": "postiz",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/communication/simplex.yaml",
+  "name": "simplex",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/communication/stalwart.yaml",
+  "name": "stalwart",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/development/appsmith.yaml",
+  "name": "appsmith",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/development/appwrite.yaml",
+  "name": "appwrite",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/development/bytestash.yaml",
+  "name": "bytestash",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/development/coder.yaml",
+  "name": "coder",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/development/code-server/code-server.yaml",
   "name": "code-server",
   "status": "ok",
@@ -64,6 +184,22 @@
 }
 ,
 {
+  "file": "services/development/nextterm.yaml",
+  "name": "nextterm",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/development/rustpad.yaml",
+  "name": "rustpad",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/development/semaphore/semaphore.yaml",
   "name": "semaphore",
   "status": "ok",
@@ -72,8 +208,136 @@
 }
 ,
 {
+  "file": "services/files/alist.yaml",
+  "name": "alist",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/archivebox.yaml",
+  "name": "archivebox",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/backup/alist-sync.yaml",
+  "name": "alist-sync",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/backup/duplicati.yaml",
+  "name": "duplicati",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/backup/zerotier.yaml",
+  "name": "zerotier",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/bichon.yaml",
+  "name": "bichon",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/cloud/cloudreve.yaml",
+  "name": "cloudreve",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/cloud/copyparty.yaml",
+  "name": "copyparty",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/cloud/foxel.yaml",
+  "name": "foxel",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/cloud/opencloud.yaml",
+  "name": "opencloud",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/cloud/oxicloud.yaml",
+  "name": "oxicloud",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/enclosed.yaml",
+  "name": "enclosed",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/files/filebrowser/filebrowser.yaml",
   "name": "filebrowser",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/file-manager/pydio.yaml",
+  "name": "pydio",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/file-manager/seafile.yaml",
+  "name": "seafile",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/file-manager/unison.yaml",
+  "name": "unison",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/filerise.yaml",
+  "name": "filerise",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -96,8 +360,32 @@
 }
 ,
 {
+  "file": "services/files/palmr.yaml",
+  "name": "palmr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/files/sharing/pairdrop/pairdrop.yaml",
   "name": "pairdrop",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/spacedrive.yaml",
+  "name": "spacedrive",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/files/zipline.yaml",
+  "name": "zipline",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -112,8 +400,96 @@
 }
 ,
 {
+  "file": "services/media/automation/flexget.yaml",
+  "name": "flexget",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/automation/jfa-go.yaml",
+  "name": "jfa-go",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/automation/kyoo-back.yaml",
+  "name": "kyoo-back",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/automation/mediacms.yaml",
+  "name": "mediacms",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/automation/mediamanager.yaml",
+  "name": "mediamanager",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/automation/pulsarr.yaml",
+  "name": "pulsarr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/media/automation/recyclarr.yaml",
   "name": "recyclarr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/automation/wizarr.yaml",
+  "name": "wizarr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/documents/paperless.yaml",
+  "name": "paperless",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/documents/papra.yaml",
+  "name": "papra",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/documents/stirling-pdf.yaml",
+  "name": "stirling-pdf",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/downloads/bitmagnet.yaml",
+  "name": "bitmagnet",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -128,8 +504,32 @@
 }
 ,
 {
+  "file": "services/media/downloads/librespeed.yaml",
+  "name": "librespeed",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/media/downloads/pyload.yaml",
   "name": "pyload",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/downloads/qbit-manage.yaml",
+  "name": "qbit-manage",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/downloads/qbitrr.yaml",
+  "name": "qbitrr",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -144,8 +544,32 @@
 }
 ,
 {
+  "file": "services/media/downloads/rdtclient.yaml",
+  "name": "rdtclient",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/media/downloads/sabnzbd.yaml",
   "name": "sabnzbd",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/images/immich-server.yaml",
+  "name": "immich-server",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/images/pangolin.yaml",
+  "name": "pangolin",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -160,6 +584,22 @@
 }
 ,
 {
+  "file": "services/media/movies-tv/agregarr.yaml",
+  "name": "agregarr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/movies-tv/aiostreams.yaml",
+  "name": "aiostreams",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/media/movies-tv/bazarr/bazarr.yaml",
   "name": "bazarr",
   "status": "ok",
@@ -168,8 +608,32 @@
 }
 ,
 {
+  "file": "services/media/movies-tv/dispatcharr.yaml",
+  "name": "dispatcharr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/movies-tv/homehost.yaml",
+  "name": "homehost",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/media/movies-tv/jellyfin/jellyfin.yaml",
   "name": "jellyfin",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/movies-tv/jellyfin-vue.yaml",
+  "name": "jellyfin-vue",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -186,6 +650,14 @@
 {
   "file": "services/media/movies-tv/maintainerr/maintainerr.yaml",
   "name": "maintainerr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/movies-tv/profilarr.yaml",
+  "name": "profilarr",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -216,8 +688,72 @@
 }
 ,
 {
+  "file": "services/media/movies-tv/tdarr.yaml",
+  "name": "tdarr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/music/deej-ai.yaml",
+  "name": "deej-ai",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/media/music/lidarr/lidarr.yaml",
   "name": "lidarr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/music/meelo-server.yaml",
+  "name": "meelo-server",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/music/mopidy.yaml",
+  "name": "mopidy",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/music/music-assistant.yaml",
+  "name": "music-assistant",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/music/navidrome.yaml",
+  "name": "navidrome",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/music/owntone-server.yaml",
+  "name": "owntone-server",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/media/music/owntone.yaml",
+  "name": "owntone",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -232,8 +768,112 @@
 }
 ,
 {
+  "file": "services/media/music/umami.yaml",
+  "name": "umami",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/media/utilities/flaresolverr.yaml",
   "name": "flaresolverr",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/misc/compose-toolbox.yaml",
+  "name": "compose-toolbox",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/misc/convertx.yaml",
+  "name": "convertx",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/misc/mealie.yaml",
+  "name": "mealie",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/misc/meilisearch.yaml",
+  "name": "meilisearch",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/misc/redlib.yaml",
+  "name": "redlib",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/adguardhome.yaml",
+  "name": "adguardhome",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/algo.yaml",
+  "name": "algo",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/amneziawg.yaml",
+  "name": "amneziawg",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/beepass.yaml",
+  "name": "beepass",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/caddy.yaml",
+  "name": "caddy",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/checkmate.yaml",
+  "name": "checkmate",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/crowdsec.yaml",
+  "name": "crowdsec",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -264,6 +904,49 @@
 }
 ,
 {
+  "file": "services/networking/firefly.yaml",
+  "name": "firefly",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/godoxy.yaml",
+  "name": "godoxy",
+  "status": "warning",
+  "errors": [],
+  "warnings": [
+    "port 80 already used by caddy",
+    "port 443 already used by caddy"
+  ]
+}
+,
+{
+  "file": "services/networking/hiddify.yaml",
+  "name": "hiddify",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/komari.yaml",
+  "name": "komari",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/lucky.yaml",
+  "name": "lucky",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/networking/monitoring/beszel/beszel.yaml",
   "name": "beszel",
   "status": "ok",
@@ -288,6 +971,41 @@
 }
 ,
 {
+  "file": "services/networking/netdata.yaml",
+  "name": "netdata",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/ntopng.yaml",
+  "name": "ntopng",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/pingora.yaml",
+  "name": "pingora",
+  "status": "warning",
+  "errors": [],
+  "warnings": [
+    "port 80 already used by caddy",
+    "port 443 already used by caddy"
+  ]
+}
+,
+{
+  "file": "services/networking/portmaster.yaml",
+  "name": "portmaster",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/networking/reverse-proxy/nginx-proxy-manager/nginx-proxy-manager.yaml",
   "name": "nginx-proxy-manager",
   "status": "ok",
@@ -298,6 +1016,14 @@
 {
   "file": "services/networking/reverse-proxy/traefik/traefik.yaml",
   "name": "traefik",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/networking/tianji.yaml",
+  "name": "tianji",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -328,8 +1054,59 @@
 }
 ,
 {
+  "file": "services/networking/zoraxy.yaml",
+  "name": "zoraxy",
+  "status": "warning",
+  "errors": [],
+  "warnings": [
+    "port 80 already used by caddy",
+    "port 443 already used by caddy"
+  ]
+}
+,
+{
+  "file": "services/networking/ztnet.yaml",
+  "name": "ztnet",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/bookmarks/hoarder.yaml",
+  "name": "hoarder",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/bookmarks/karakeep.yaml",
+  "name": "karakeep",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/bookmarks/linkding.yaml",
+  "name": "linkding",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/productivity/bookmarks/linkwarden/linkwarden.yaml",
   "name": "linkwarden",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/bookmarks/omnivore-api.yaml",
+  "name": "omnivore-api",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -344,8 +1121,48 @@
 }
 ,
 {
+  "file": "services/productivity/documents/paperless-ai.yaml",
+  "name": "paperless-ai",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/documents/paperless-ngx.yaml",
+  "name": "paperless-ngx",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/donetick.yaml",
+  "name": "donetick",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/excalidraw.yaml",
+  "name": "excalidraw",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/productivity/finance/actual-budget/actual-budget.yaml",
   "name": "actual-budget",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/notes/blinko.yaml",
+  "name": "blinko",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -360,8 +1177,32 @@
 }
 ,
 {
+  "file": "services/productivity/notes/logseq.yaml",
+  "name": "logseq",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/productivity/notes/memos/memos.yaml",
   "name": "memos",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/notes/notediscovery.yaml",
+  "name": "notediscovery",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/notes/notesnook.yaml",
+  "name": "notesnook",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -376,8 +1217,72 @@
 }
 ,
 {
+  "file": "services/productivity/notes/siyuan.yaml",
+  "name": "siyuan",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/notes/trilium.yaml",
+  "name": "trilium",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/notes/tududi.yaml",
+  "name": "tududi",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/seo/serpbear.yaml",
+  "name": "serpbear",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/stirlingpdf.yaml",
+  "name": "stirlingpdf",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/tasks/leadertask.yaml",
+  "name": "leadertask",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/productivity/tasks/plane/plane.yaml",
   "name": "plane",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/tasks/planify.yaml",
+  "name": "planify",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/productivity/tasks/todometer.yaml",
+  "name": "todometer",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -394,6 +1299,78 @@
 {
   "file": "services/server/auth/authelia/authelia.yaml",
   "name": "authelia",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/auth/authentik-server.yaml",
+  "name": "authentik-server",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/auth/keycloak.yaml",
+  "name": "keycloak",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/auth/stackauth-backend.yaml",
+  "name": "stackauth-backend",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/auth/zitadel.yaml",
+  "name": "zitadel",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/automation/cronmaster.yaml",
+  "name": "cronmaster",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/clamav.yaml",
+  "name": "clamav",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/dashboards/app.yaml",
+  "name": "app",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/dashboards/astroluma.yaml",
+  "name": "astroluma",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/dashboards/dokploy.yaml",
+  "name": "dokploy",
   "status": "ok",
   "errors": [],
   "warnings": []
@@ -432,6 +1409,78 @@
 }
 ,
 {
+  "file": "services/server/databases/chartdb.yaml",
+  "name": "chartdb",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/databases/cloudbeaver.yaml",
+  "name": "cloudbeaver",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/databases/datastation.yaml",
+  "name": "datastation",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/databases/db-studio.yaml",
+  "name": "db-studio",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/management/1panel.yaml",
+  "name": "1panel",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/management/cloudpanel.yaml",
+  "name": "cloudpanel",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/management/cockpit.yaml",
+  "name": "cockpit",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/management/core.yaml",
+  "name": "core",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/management/cv4pve-admin.yaml",
+  "name": "cv4pve-admin",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/server/management/dockge/dockge.yaml",
   "name": "dockge",
   "status": "ok",
@@ -448,8 +1497,144 @@
 }
 ,
 {
+  "file": "services/server/management/ferretdb.yaml",
+  "name": "ferretdb",
+  "status": "warning",
+  "errors": [],
+  "warnings": [
+    "port 9120 already used by core",
+    "port 9120 already used by core"
+  ]
+}
+,
+{
+  "file": "services/server/management/kubero.yaml",
+  "name": "kubero",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/management/openpanel.yaml",
+  "name": "openpanel",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/management/ssm-client.yaml",
+  "name": "ssm-client",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
   "file": "services/server/management/watchtower/watchtower.yaml",
   "name": "watchtower",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/remote-desktop/kasm.yaml",
+  "name": "kasm",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/security/aliasvault.yaml",
+  "name": "aliasvault",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/security/backvault.yaml",
+  "name": "backvault",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/security/infisical.yaml",
+  "name": "infisical",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/security/safeline-mgt.yaml",
+  "name": "safeline-mgt",
+  "status": "warning",
+  "errors": [],
+  "warnings": [
+    "port 80 already used by caddy",
+    "port 443 already used by caddy"
+  ]
+}
+,
+{
+  "file": "services/server/security/tirreno.yaml",
+  "name": "tirreno",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/wazuhmanager.yaml",
+  "name": "wazuhmanager",
+  "status": "warning",
+  "errors": [],
+  "warnings": [
+    "port 1514 already used by wazuhmanager"
+  ]
+}
+,
+{
+  "file": "services/server/webos/aaronos.yaml",
+  "name": "aaronos",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/webos/arozos.yaml",
+  "name": "arozos",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/webos/friendup-os.yaml",
+  "name": "friendup-os",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/webos/kodcloud.yaml",
+  "name": "kodcloud",
+  "status": "ok",
+  "errors": [],
+  "warnings": []
+}
+,
+{
+  "file": "services/server/webos/puter.yaml",
+  "name": "puter",
   "status": "ok",
   "errors": [],
   "warnings": []

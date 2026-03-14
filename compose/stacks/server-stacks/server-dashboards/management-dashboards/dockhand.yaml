@@ -1,0 +1,17 @@
+# DOCKHAND (Replacement: Dozzle)
+# GitHub: https://github.com/amir20/dozzle
+# Image: amir20/dozzle:latest
+
+services:
+  dockhand:
+    image: amir20/dozzle:latest
+    container_name: dockhand
+    hostname: dockhand
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - ${PORT_DOCKHAND:-8888}:8080
+

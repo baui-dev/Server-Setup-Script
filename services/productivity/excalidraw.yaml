@@ -1,0 +1,54 @@
+# Excalidraw
+# GitHub: https://github.com/excalidraw/excalidraw
+# Image: excalidraw/excalidraw:latest
+# Docs: https://github.com/excalidraw/excalidraw#self-hosting
+#
+# Virtual whiteboard and collaborative diagramming tool with a hand-drawn aesthetic.
+# Create wireframes, flowcharts, architecture diagrams, and sketches. Fully runs
+# client-side in the browser - no user data is stored server-side unless the
+# optional collaboration backend (excalidraw-room) is added.
+# No database or persistent storage required for basic use.
+
+services:
+  excalidraw:
+    image: excalidraw/excalidraw:latest
+    container_name: excalidraw
+    hostname: excalidraw
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Optional: point to a self-hosted storage/collaboration backend
+      # VITE_APP_BACKEND_V2_GET_URL: https://excalidraw.${BASE_DOMAIN}/api/v2/scenes/
+      # VITE_APP_BACKEND_V2_POST_URL: https://excalidraw.${BASE_DOMAIN}/api/v2/scenes/
+      # VITE_APP_WS_SERVER_URL: wss://excalidraw-room.${BASE_DOMAIN}
+      # VITE_APP_LIBRARY_URL: https://libraries.excalidraw.com
+      # VITE_APP_LIBRARY_BACKEND: https://us-central1-excalidraw-room-persistence.cloudfunctions.net/rooms
+    ports:
+      - ${PORT_EXCALIDRAW:-80}:80
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# Optional: Self-hosted collaboration room server (enables real-time multiplayer)
+# excalidraw-room:
+#   image: excalidraw/excalidraw-room:latest
+#   container_name: excalidraw-room
+#   hostname: excalidraw-room
+#   restart: unless-stopped
+#   ports:
+#     - ${PORT_EXCALIDRAW_ROOM:-8080}:80
+
+# Optional: Self-hosted storage backend for persistent scenes
+# excalidraw-storage:
+#   image: excalidraw/excalidraw-storage-backend:latest
+#   container_name: excalidraw-storage
+#   hostname: excalidraw-storage
+#   restart: unless-stopped
+#   environment:
+#     - STORAGE_DRIVER=filesystem
+#     - STORAGE_PATH=/data
+#   volumes:
+#     - ${DOCKER_DATA}/excalidraw/storage:/data
+
+# networks:
+#   proxy:
+#     external: true

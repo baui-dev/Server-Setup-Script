@@ -1,0 +1,42 @@
+# KUBERO
+# GitHub: https://github.com/kubero-dev/kubero
+# Image: ghcr.io/kubero-dev/kubero/kubero:latest
+# Docs: https://docs.kubero.dev
+#
+# Kubero is a fully self-hosted PaaS (Platform as a Service) built on
+# Kubernetes. It provides a Heroku-like experience for deploying apps
+# from git repositories, with a web UI, CLI, and operator-based architecture.
+# Requires a running Kubernetes cluster (k3d, k3s, or any K8s cluster).
+#
+# NOTE: Kubero requires a Kubernetes cluster. Configure KUBECONFIG to
+# point to your cluster credentials. See docs for k3d quick-start.
+
+services:
+  kubero:
+    image: ghcr.io/kubero-dev/kubero/kubero:latest
+    container_name: kubero
+    hostname: kubero
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Kubernetes access — mount kubeconfig or use in-cluster config
+      - KUBECONFIG=/home/kubero/.kube/config
+      # Application secret key
+      - KUBERO_SESSION_KEY=${SECRET_KEY}
+      # Admin credentials
+      - KUBERO_USERS=[{"id":1,"method":"local","username":"admin","password":"${SECRET_KEY}","insecure":false,"skipTLSVerify":false}]
+      # Webhook secret for git integrations
+      - KUBERO_WEBHOOK_SECRET=${SECRET_KEY}
+      # Domain used for app routing
+      # - KUBERO_DOMAIN=${BASE_DOMAIN}
+    volumes:
+      - ${DOCKER_DATA}/kubero/config:/home/kubero/.kube
+      - ${DOCKER_DATA}/kubero/data:/app/data
+    ports:
+      - ${PORT_KUBERO}:3000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

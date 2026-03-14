@@ -1,0 +1,53 @@
+# APPSMITH
+# GitHub: https://github.com/appsmithorg/appsmith
+# Image: appsmith/appsmith-ce:latest
+# Docs: https://docs.appsmith.com/getting-started/setup/installation-guides/docker
+#
+# Open-source, low-code platform for building internal tools and admin panels.
+# The Community Edition (CE) bundles MongoDB, Caddy, and all dependencies in a
+# single container — no external database required for basic use.
+
+services:
+  appsmith:
+    image: appsmith/appsmith-ce:latest
+    container_name: appsmith
+    hostname: appsmith
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # - APPSMITH_DISABLE_TELEMETRY=true              # Opt out of anonymous usage analytics
+      # - APPSMITH_SIGNUP_DISABLED=false               # Set true to prevent new user self-registration
+      # - APPSMITH_ADMIN_EMAILS=admin@example.com      # Comma-separated emails that are auto-granted admin
+      # - APPSMITH_ALLOWED_FRAME_ANCESTORS=            # Origins allowed to embed Appsmith in an iframe
+      # --- Encryption (generate both with: openssl rand -hex 16) ---
+      # - APPSMITH_ENCRYPTION_PASSWORD=changeme        # Required for encrypting stored datasource credentials
+      # - APPSMITH_ENCRYPTION_SALT=changeme            # Salt for the encryption password above
+      # --- Custom Domain / TLS ---
+      # - APPSMITH_CUSTOM_DOMAIN=app.example.com       # Enables auto Let's Encrypt TLS via Caddy
+      # --- Email / SMTP ---
+      # - APPSMITH_MAIL_ENABLED=false                  # Set true to enable outbound email
+      # - APPSMITH_MAIL_HOST=smtp.example.com          # SMTP server hostname
+      # - APPSMITH_MAIL_PORT=587                       # SMTP port (587=STARTTLS, 465=SSL)
+      # - APPSMITH_MAIL_SMTP_AUTH=true                 # Enable SMTP authentication
+      # - APPSMITH_MAIL_USERNAME=                      # SMTP login username
+      # - APPSMITH_MAIL_PASSWORD=                      # SMTP login password
+      # - APPSMITH_MAIL_FROM=noreply@example.com       # Sender address for system emails
+      # - APPSMITH_MAIL_SMTP_TLS_ENABLED=true          # Enable TLS for SMTP connection
+      # --- OAuth2 (Google) ---
+      # - APPSMITH_OAUTH2_GOOGLE_CLIENT_ID=            # Google OAuth2 client ID
+      # - APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET=        # Google OAuth2 client secret
+      # --- OAuth2 (GitHub) ---
+      # - APPSMITH_OAUTH2_GITHUB_CLIENT_ID=            # GitHub OAuth2 client ID
+      # - APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET=        # GitHub OAuth2 client secret
+      # --- Google Maps ---
+      # - APPSMITH_GOOGLE_MAPS_API_KEY=                # Google Maps JS API key for map widgets
+    volumes:
+      - ${DOCKER_DATA}/appsmith/stacks:/appsmith-stacks  # All data: MongoDB, Caddy config, uploads, logs
+    ports:
+      - ${PORT_APPSMITH}:80
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

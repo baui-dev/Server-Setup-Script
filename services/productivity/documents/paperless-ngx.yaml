@@ -1,0 +1,141 @@
+# Paperless-ngx
+# GitHub: https://github.com/paperless-ngx/paperless-ngx
+# Image: ghcr.io/paperless-ngx/paperless-ngx:latest
+# Docs: https://docs.paperless-ngx.com
+#
+# Document management system (DMS) that indexes and makes your physical documents
+# searchable. Upload scans or PDFs; Paperless-ngx OCRs them, extracts text,
+# auto-classifies with ML, and stores them securely. Integrates with scanners
+# via network folders. Requires PostgreSQL and Redis.
+#
+# Required env vars: PAPERLESS_SECRET_KEY, PAPERLESS_ADMIN_USER,
+#                    PAPERLESS_ADMIN_PASSWORD, PAPERLESS_URL,
+#                    POSTGRES_USER, POSTGRES_PASSWORD, REDIS_PASSWORD
+
+services:
+  paperless-ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-ngx
+    hostname: paperless-ngx
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Redis broker (required)
+      - PAPERLESS_REDIS=redis://:${REDIS_PASSWORD}@paperless-redis:6379
+      # PostgreSQL database (required)
+      - PAPERLESS_DBENGINE=postgresql
+      - PAPERLESS_DBHOST=paperless-postgres
+      - PAPERLESS_DBPORT=5432
+      - PAPERLESS_DBNAME=paperless
+      - PAPERLESS_DBUSER=${POSTGRES_USER}
+      - PAPERLESS_DBPASS=${POSTGRES_PASSWORD}
+      # Security
+      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY}
+      # Public URL (used for links in emails and API responses)
+      - PAPERLESS_URL=${PAPERLESS_URL:-https://paperless.${BASE_DOMAIN}}
+      # Admin user created on first run
+      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER}
+      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD}
+      - PAPERLESS_ADMIN_MAIL=${PAPERLESS_ADMIN_MAIL:-admin@example.com}
+      # User/group mapping (match your host PUID/PGID)
+      - USERMAP_UID=${PUID:-1000}
+      - USERMAP_GID=${PGID:-1000}
+      # OCR settings
+      - PAPERLESS_OCR_LANGUAGE=eng
+      # Comma-separated list of additional languages: eng+deu+fra etc.
+      # Install language packs by adding to PAPERLESS_OCR_LANGUAGE
+      - PAPERLESS_TIME_ZONE=${TZ}
+      # Optional: document retention and processing
+      - PAPERLESS_OCR_MODE=skip           # skip (only OCR non-searchable), redo, force
+      - PAPERLESS_OCR_SKIP_ARCHIVE_FILE=never  # never, always, with_text
+      # Optional: consumer polling (for folder-based ingestion)
+      - PAPERLESS_CONSUMER_POLLING=0       # 0 = inotify (recommended), or polling interval in seconds
+      # Optional: auto-tag / auto-classify
+      # - PAPERLESS_ENABLE_NLTK=true
+      # Optional: TIKA for enhanced document parsing (Word, Excel, etc.)
+      # - PAPERLESS_TIKA_ENABLED=1
+      # - PAPERLESS_TIKA_ENDPOINT=http://paperless-tika:9998
+      # - PAPERLESS_TIKA_GOTENBERG_ENDPOINT=http://paperless-gotenberg:3000
+      # Optional: email consumption
+      # - PAPERLESS_EMAIL_TASK_CRON=*/10 * * * *
+      # Optional: trash documents instead of permanent delete
+      - PAPERLESS_EMPTY_TRASH_DELAY=30    # days before permanent deletion
+      # Optional: SMTP for sending notifications
+      # - PAPERLESS_EMAIL_HOST=smtp.${BASE_DOMAIN}
+      # - PAPERLESS_EMAIL_PORT=587
+      # - PAPERLESS_EMAIL_HOST_USER=${PAPERLESS_SMTP_USER}
+      # - PAPERLESS_EMAIL_HOST_PASSWORD=${PAPERLESS_SMTP_PASSWORD}
+      # - PAPERLESS_EMAIL_USE_TLS=true
+    volumes:
+      - ${DOCKER_DATA}/paperless-ngx/data:/usr/src/paperless/data
+      - ${DOCKER_DATA}/paperless-ngx/media:/usr/src/paperless/media
+      # Export directory for backups (paperless-ngx document_exporter)
+      - ${DOCKER_DATA}/paperless-ngx/export:/usr/src/paperless/export
+      # Consume folder: drop documents here for automatic ingestion
+      - ${DOCKER_DATA}/paperless-ngx/consume:/usr/src/paperless/consume
+    ports:
+      - ${PORT_PAPERLESS_NGX:-8000}:8000
+    depends_on:
+      paperless-postgres:
+        condition: service_healthy
+      paperless-redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  paperless-postgres:
+    image: postgres:16-alpine
+    container_name: paperless-postgres
+    hostname: paperless-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=paperless
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${DOCKER_DATA}/paperless-ngx/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d paperless"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  paperless-redis:
+    image: redis:7-alpine
+    container_name: paperless-redis
+    hostname: paperless-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${DOCKER_DATA}/paperless-ngx/redis:/data
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# Optional: Apache Tika for Word/Excel/PowerPoint parsing
+# paperless-tika:
+#   image: apache/tika:latest
+#   container_name: paperless-tika
+#   hostname: paperless-tika
+#   restart: unless-stopped
+#
+# Optional: Gotenberg for PDF conversion from office formats
+# paperless-gotenberg:
+#   image: gotenberg/gotenberg:latest
+#   container_name: paperless-gotenberg
+#   hostname: paperless-gotenberg
+#   restart: unless-stopped
+#   command:
+#     - gotenberg
+#     - --chromium-disable-javascript=true
+#     - --chromium-allow-list=file:///tmp/.*
+
+# networks:
+#   proxy:
+#     external: true

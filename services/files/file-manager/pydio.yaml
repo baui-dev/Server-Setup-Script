@@ -1,0 +1,70 @@
+# Pydio Cells
+# GitHub: https://github.com/pydio/cells
+# Image: pydio/cells:latest
+# Docs: https://pydio.com/en/docs/cells/v4/cells-installation
+#
+# Enterprise-grade, self-hosted file sharing and collaboration platform.
+# Provides a Dropbox-like experience with fine-grained permissions, versioning,
+# audit logs, activity feeds, Office Online integration, and a rich web UI.
+# Cells is the modern Go-rewritten successor to Pydio Classic.
+# Requires MySQL or MariaDB as the backend database.
+
+services:
+  pydio:
+    image: pydio/cells:latest
+    container_name: pydio
+    hostname: pydio
+    restart: unless-stopped
+    depends_on:
+      pydio-db:
+        condition: service_healthy
+    environment:
+      - TZ=${TZ}
+      # Public-facing URL (required for OAuth2 redirects)
+      - CELLS_EXTERNAL=https://pydio.${BASE_DOMAIN}
+      # Internal bind address
+      - CELLS_BIND=0.0.0.0:8080
+      # Disable internal TLS (terminate at reverse proxy)
+      - CELLS_NO_TLS=1
+      # Site URI
+      - CELLS_SITE_URI=http://0.0.0.0:8080
+      # Database DSN
+      - CELLS_DB_HOST=pydio-db
+      - CELLS_DB_USER=${MYSQL_USER:-pydio}
+      - CELLS_DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - CELLS_DB_NAME=pydio
+      # Log level: debug | info | warn | error
+      - CELLS_LOG_LEVEL=info
+    volumes:
+      - ${DOCKER_DATA}/pydio/cells:/var/cells
+      - ${DOCKER_DATA}/pydio/data:/var/cells/data
+    ports:
+      - ${PORT_PYDIO:-8080}:8080
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  pydio-db:
+    image: mariadb:11
+    container_name: pydio-db
+    hostname: pydio-db
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=pydio
+      - MYSQL_USER=${MYSQL_USER:-pydio}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ${DOCKER_DATA}/pydio/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

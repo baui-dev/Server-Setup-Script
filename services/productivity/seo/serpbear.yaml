@@ -1,0 +1,37 @@
+# SerpBear
+# GitHub: https://github.com/towfiqi/serpbear
+# Image: towfiqi/serpbear:latest
+# Docs: https://docs.serpbear.com/
+#
+# SerpBear is an open-source search engine position tracking application.
+# It lets you track your website keyword rankings on Google and other search
+# engines. It stores data in a SQLite database and supports email reports,
+# SMTP notifications, and multiple domains. A SECRET key is required for
+# API access and NEXT_AUTH_SECRET secures user sessions.
+
+services:
+  serpbear:
+    image: towfiqi/serpbear:latest
+    container_name: serpbear
+    hostname: serpbear
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - SECRET=${SERPBEAR_SECRET}              # API secret key (openssl rand -hex 32)
+      - NEXT_AUTH_SECRET=${SERPBEAR_SECRET}    # NextAuth session secret
+      - NEXT_AUTH_URL=http://localhost:${PORT_SERPBEAR:-3000}  # Public URL of this instance
+      # - SMTP_HOST=smtp.example.com           # SMTP host for email reports
+      # - SMTP_PORT=587                        # SMTP port
+      # - SMTP_USER=user@example.com           # SMTP username
+      # - SMTP_PASSWORD=changeme               # SMTP password
+      # - SMTP_EMAIL=serpbear@example.com      # From address for report emails
+    volumes:
+      - ${DOCKER_DATA}/serpbear/data:/app/data   # SQLite database and persistent data
+    ports:
+      - ${PORT_SERPBEAR:-3000}:3000
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

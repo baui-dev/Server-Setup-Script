@@ -1,0 +1,91 @@
+# Hoarder
+# GitHub: https://github.com/hoarder-app/hoarder
+# Image: ghcr.io/hoarder-app/hoarder:release
+# Docs: https://docs.hoarder.app
+#
+# AI-powered self-hosted bookmark manager ("hoard everything"). Automatically
+# tags bookmarks with AI, captures full-page screenshots via headless Chromium,
+# and provides full-text search via Meilisearch. Includes iOS/Android mobile apps.
+#
+# Required env vars: HOARDER_NEXTAUTH_SECRET, HOARDER_MEILI_KEY
+# Optional: OPENAI_API_KEY or OLLAMA_BASE_URL for AI tagging
+
+services:
+  hoarder:
+    image: ghcr.io/hoarder-app/hoarder:release
+    container_name: hoarder
+    hostname: hoarder
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      # Authentication - generate with: openssl rand -hex 32
+      - NEXTAUTH_SECRET=${HOARDER_NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=http://localhost:${PORT_HOARDER:-3000}
+      # Data directory inside the container
+      - DATA_DIR=/data
+      # Meilisearch integration (full-text search)
+      - MEILI_ADDR=${HOARDER_MEILI_ADDR:-http://hoarder-meilisearch:7700}
+      - MEILI_MASTER_KEY=${HOARDER_MEILI_KEY}
+      # Chromium for screenshots and link previews
+      - BROWSER_WEB_URL=http://hoarder-chrome:9222
+      # -- AI Tagging (choose one provider) --
+      # OpenAI (recommended for best results):
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - INFERENCE_TEXT_MODEL=gpt-4o-mini
+      # - INFERENCE_IMAGE_MODEL=gpt-4o-mini
+      # Ollama (self-hosted, no API key needed):
+      # - OLLAMA_BASE_URL=http://ollama:11434
+      # - INFERENCE_TEXT_MODEL=llama3.1
+      # - INFERENCE_IMAGE_MODEL=llava
+      # Language for AI inference
+      # - INFERENCE_LANG=english
+      # -- Optional settings --
+      # Disable new user registration after initial setup:
+      # - DISABLE_SIGNUPS=true
+      # Max asset size for screenshots (bytes):
+      # - MAX_ASSET_SIZE=4194304
+      # Enable OAuth (e.g., Authentik, Authelia):
+      # - OAUTH_WELLKNOWN_URL=https://auth.${BASE_DOMAIN}/.well-known/openid-configuration
+      # - OAUTH_CLIENT_ID=${HOARDER_OAUTH_CLIENT_ID}
+      # - OAUTH_CLIENT_SECRET=${HOARDER_OAUTH_CLIENT_SECRET}
+    volumes:
+      - ${DOCKER_DATA}/hoarder/data:/data
+    ports:
+      - ${PORT_HOARDER:-3000}:3000
+    depends_on:
+      - hoarder-meilisearch
+      - hoarder-chrome
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  hoarder-chrome:
+    image: gcr.io/zenika-hub/alpine-chrome:123
+    container_name: hoarder-chrome
+    hostname: hoarder-chrome
+    restart: unless-stopped
+    command:
+      - --no-sandbox
+      - --disable-gpu
+      - --disable-dev-shm-usage
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-port=9222
+      - --hide-scrollbars
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  hoarder-meilisearch:
+    image: getmeili/meilisearch:v1.11.3
+    container_name: hoarder-meilisearch
+    hostname: hoarder-meilisearch
+    restart: unless-stopped
+    environment:
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_MASTER_KEY=${HOARDER_MEILI_KEY}
+    volumes:
+      - ${DOCKER_DATA}/hoarder/meilisearch:/meili_data
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

@@ -296,6 +296,68 @@ detect_port_conflicts() {
     fi
 }
 
+# ─── Deterministic Auto-Port Assignment ──────────────────────────────────────
+declare -A AUTO_PORT_ASSIGNMENTS=()
+
+get_base_port() {
+    local base=30000
+    local candidate
+
+    candidate=$(awk -F= '/^BASE_PORT=[0-9]+$/ { print $2; exit }' "${TEMPLATE_ENV}" 2>/dev/null || true)
+    if [[ -n "${candidate}" && "${candidate}" =~ ^[0-9]+$ ]]; then
+        base="${candidate}"
+    fi
+
+    echo "${base}"
+}
+
+assign_auto_ports() {
+    AUTO_PORT_ASSIGNMENTS=()
+
+    local base_port
+    base_port="$(get_base_port)"
+
+    # Reserve already-defined numeric PORT_* values from template to avoid accidental overlap.
+    declare -A used_ports=()
+    if [[ -f "${TEMPLATE_ENV}" ]]; then
+        local line varname value
+        while IFS= read -r line; do
+            [[ "${line}" =~ ^[[:space:]]*# ]] && continue
+            [[ "${line}" =~ ^([A-Za-z_][A-Za-z_0-9]*)=([0-9]+)$ ]] || continue
+            varname="${BASH_REMATCH[1]}"
+            value="${BASH_REMATCH[2]}"
+            if [[ "${varname}" =~ ^PORT_[A-Z0-9_]+$ ]]; then
+                used_ports["${value}"]=1
+            fi
+        done < "${TEMPLATE_ENV}"
+    fi
+
+    local i
+    local next_port="${base_port}"
+    for (( i=0; i<${#SVC_NAMES[@]}; i++ )); do
+        local svc_name="${SVC_NAMES[$i]}"
+        [[ -n "${SELECTED[$svc_name]+x}" && "${SELECTED[$svc_name]}" -eq 1 ]] || continue
+
+        local pvar
+        for pvar in ${SVC_PORTS[$i]}; do
+            [[ -n "${pvar}" ]] || continue
+            [[ "${pvar}" =~ ^PORT_[A-Z0-9_]+$ ]] || continue
+
+            local auto_var="${pvar/PORT_/AUTO_PORT_}"
+            if [[ -n "${AUTO_PORT_ASSIGNMENTS[$auto_var]+x}" ]]; then
+                continue
+            fi
+
+            while [[ -n "${used_ports[$next_port]+x}" ]]; do
+                next_port=$(( next_port + 1 ))
+            done
+            AUTO_PORT_ASSIGNMENTS["${auto_var}"]="${next_port}"
+            used_ports["${next_port}"]=1
+            next_port=$(( next_port + 1 ))
+        done
+    done
+}
+
 # ─── Generate .env ───────────────────────────────────────────────────────────
 generate_env() {
     # Back up existing .env
@@ -322,6 +384,40 @@ DEFAULT_NETWORK=proxy
 BASE_PORT=30000
 EOF
     fi
+
+    assign_auto_ports
+
+    local selected_list
+    selected_list="$(get_selected_list)"
+
+    {
+        echo ""
+        echo "# ── Auto-generated Selection (Do not edit YAML; configure here) ───────────────"
+        echo "# Source of truth: registry/services.json + selected service list"
+        echo "SELECTED_SERVICES=${selected_list}"
+        echo ""
+        echo "# Auto-assigned host ports"
+        echo "# To override a port, set PORT_<SERVICE>=<PORT> below or elsewhere in this file."
+
+        local i
+        for (( i=0; i<${#SVC_NAMES[@]}; i++ )); do
+            local svc_name="${SVC_NAMES[$i]}"
+            [[ -n "${SELECTED[$svc_name]+x}" && "${SELECTED[$svc_name]}" -eq 1 ]] || continue
+
+            local pvar
+            for pvar in ${SVC_PORTS[$i]}; do
+                [[ -n "${pvar}" ]] || continue
+                [[ "${pvar}" =~ ^PORT_[A-Z0-9_]+$ ]] || continue
+
+                local auto_var="${pvar/PORT_/AUTO_PORT_}"
+                local auto_value="${AUTO_PORT_ASSIGNMENTS[$auto_var]:-}"
+                [[ -n "${auto_value}" ]] || continue
+
+                echo "${auto_var}=${auto_value}"
+                echo "# ${pvar}="
+            done
+        done
+    } >> "${OUTPUT_ENV}"
 
     print_success ".env generated: ${OUTPUT_ENV}"
 }
@@ -573,9 +669,8 @@ print_final_summary() {
 
     echo ""
     print_info "Next steps:"
-    echo "  1. Edit ${OUTPUT_ENV} — set BASE_DOMAIN, DOCKER_DATA, passwords, etc."
-    echo "  2. Review stacks under ${STACKS_DIR}/"
-    echo "  3. Run: docker compose -f stacks/combined-stack.yaml up -d"
+    echo "  1. Edit ${OUTPUT_ENV} only — set BASE_DOMAIN, DOCKER_DATA, passwords, and optional PORT_* overrides"
+    echo "  2. Run: docker compose -f stacks/combined-stack.yaml up -d"
     echo ""
 }
 

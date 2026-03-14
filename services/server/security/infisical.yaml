@@ -1,0 +1,88 @@
+# INFISICAL
+# GitHub: https://github.com/Infisical/infisical
+# Image: infisical/infisical:latest
+# Docs: https://infisical.com/docs/self-hosting/deployment-options/docker-compose
+#
+# Open-source, end-to-end encrypted secrets management platform. Centralises
+# API keys, environment variables, and credentials across teams and CI/CD
+# pipelines. Requires PostgreSQL for storage and Redis for caching/queuing.
+
+services:
+  infisical:
+    image: infisical/infisical:latest
+    container_name: infisical
+    hostname: infisical
+    restart: unless-stopped
+    depends_on:
+      infisical-postgres:
+        condition: service_healthy
+      infisical-redis:
+        condition: service_started
+    environment:
+      - TZ=${TZ}
+      # Node environment
+      - NODE_ENV=production
+      # 32-character hex key used to encrypt secrets at rest (generate: openssl rand -hex 16)
+      - ENCRYPTION_KEY=${INFISICAL_ENCRYPTION_KEY}
+      # Auth secret for signing JWT tokens (generate: openssl rand -hex 32)
+      - AUTH_SECRET=${SECRET_KEY}
+      # PostgreSQL connection URI
+      - DB_CONNECTION_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@infisical-postgres:5432/infisical
+      # Redis connection URI
+      - REDIS_URL=redis://infisical-redis:6379
+      # Public URL this instance is reachable at (no trailing slash)
+      - SITE_URL=https://infisical.${BASE_DOMAIN}
+      # Optional SMTP settings for email invitations and notifications
+      # - SMTP_HOST=smtp.${BASE_DOMAIN}
+      # - SMTP_PORT=587
+      # - SMTP_USERNAME=infisical@${BASE_DOMAIN}
+      # - SMTP_PASSWORD=changeme
+      # - SMTP_FROM_NAME=Infisical
+      # - SMTP_FROM_ADDRESS=noreply@${BASE_DOMAIN}
+      # Telemetry (set to false to opt out)
+      # - TELEMETRY_ENABLED=false
+    volumes:
+      - ${DOCKER_DATA}/infisical/config:/app/config
+    ports:
+      - ${PORT_INFISICAL}:8080
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  infisical-postgres:
+    image: postgres:16-alpine
+    container_name: infisical-postgres
+    hostname: infisical-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=infisical
+    volumes:
+      - ${DOCKER_DATA}/infisical/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d infisical"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+  infisical-redis:
+    image: redis:7-alpine
+    container_name: infisical-redis
+    hostname: infisical-redis
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    # Uncomment to require Redis auth (also update REDIS_URL above)
+    # command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${DOCKER_DATA}/infisical/redis:/data
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+# networks:
+#   proxy:
+#     external: true

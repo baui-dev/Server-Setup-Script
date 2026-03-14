@@ -1,0 +1,87 @@
+# OPENHANDS (formerly OpenDevin)
+# GitHub: https://github.com/All-Hands-AI/OpenHands
+# Image: ghcr.io/all-hands-ai/openhands:main
+# Docs: https://docs.all-hands.dev/modules/usage/installation
+#
+# OpenHands is an autonomous AI software development agent platform. It uses LLMs to
+# write code, run tests, browse the web, execute commands, and interact with codebases —
+# all inside an isolated Docker sandbox. Supports OpenAI, Anthropic, Gemini, Ollama,
+# and many other LLM providers via LiteLLM.
+#
+# IMPORTANT: OpenHands spawns Docker containers for its sandboxed runtime. It requires
+# access to the host Docker socket AND sufficient privileges to manage containers.
+#
+# === QUICK START ===
+# 1. Copy config.env to .env and set LLM_API_KEY and LLM_MODEL
+# 2. Set WORKSPACE_MOUNT_PATH to the absolute path of the directory you want the agent to work in
+# 3. docker compose -f openhands.yaml up -d
+# 4. Navigate to http://localhost:${PORT_OPENHANDS}
+#
+# === SECURITY NOTE ===
+# OpenHands runs code autonomously. Only expose this service to trusted users.
+# Do NOT expose to the public internet without authentication middleware.
+
+services:
+  openhands:
+    image: ghcr.io/all-hands-ai/openhands:main
+    container_name: openhands
+    hostname: openhands
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+
+      # --- LLM Configuration ---
+      # OpenHands uses LiteLLM, so model names follow LiteLLM conventions.
+      # Examples: claude-3-5-sonnet-20241022, gpt-4o, ollama/llama3.1:70b, gemini/gemini-1.5-pro
+      - LLM_MODEL=${OPENHANDS_LLM_MODEL:-claude-3-5-sonnet-20241022}
+      - LLM_API_KEY=${OPENHANDS_LLM_API_KEY}        # API key for chosen LLM provider
+      # - LLM_BASE_URL=                              # Override API base URL (e.g. for Ollama: http://host.docker.internal:11434)
+      # - LLM_OLLAMA_BASE_URL=http://host.docker.internal:11434  # Explicit Ollama base URL
+
+      # --- Workspace ---
+      # WORKSPACE_MOUNT_PATH: the directory on your HOST that the agent will be able to read/write.
+      # The agent sees this directory as /workspace inside its sandbox container.
+      - WORKSPACE_MOUNT_PATH=${OPENHANDS_WORKSPACE:-/opt/docker/openhands/workspace}
+      # - WORKSPACE_BASE_DIR=/workspace              # Internal mount point (usually /workspace)
+
+      # --- Sandbox / Runtime ---
+      # - SANDBOX_USER_ID=${PUID}                    # UID to run as inside the sandbox container
+      # - SANDBOX_RUNTIME_CONTAINER_IMAGE=ghcr.io/all-hands-ai/runtime:main  # Sandbox runtime image
+      # - SANDBOX_TIMEOUT=120                        # Seconds before idle sandbox is killed
+      # - SANDBOX_VOLUMES=                           # Extra volumes to mount into the sandbox (host:container)
+      # - PERSIST_SANDBOX=false                      # Keep sandbox container between sessions
+
+      # --- Server ---
+      # - OPENHANDS_PORT=3000                        # Internal listen port
+      # - DEBUG=false                                # Enable verbose debug logging
+
+      # --- Features ---
+      # - SECURITY_ANALYZER=                         # Enable invariant security analysis (requires key)
+      # - EVALUATION_HARNESS=false                   # Enable evaluation harness for benchmarking
+
+    volumes:
+      - ${DOCKER_DATA}/openhands/config:/.openhands    # OpenHands settings, history, and session data
+      # Docker socket: REQUIRED for spawning sandbox runtime containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Workspace volume (mount the same path as WORKSPACE_MOUNT_PATH so files persist)
+      - ${OPENHANDS_WORKSPACE:-/opt/docker/openhands/workspace}:/opt/workspace_base
+
+    ports:
+      - ${PORT_OPENHANDS}:3000                       # WebUI
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"          # Allow container to reach host services (Ollama)
+
+    # networks:
+    #   - ${DEFAULT_NETWORK}
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.openhands.rule=Host(`openhands.${BASE_DOMAIN}`)"
+    #   - "traefik.http.routers.openhands.entrypoints=websecure"
+    #   - "traefik.http.routers.openhands.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.openhands.loadbalancer.server.port=3000"
+
+# networks:
+#   proxy:
+#     external: true

@@ -1,5 +1,7 @@
 https://selfh.st/apps/
-
+https://www.awesome-homelab.com/
+https://github.com/awesome-selfhosted/awesome-selfhosted
+https://awesome-docker-compose.com/
 
 https://awesome-docker-compose.com/
 https://github.com/cynegeirus/linux-initialization-script
@@ -19,3 +21,4 @@ https://github.com/I-am-PUID-0/DUMB
 https://github.com/frierun/frierun
 https://github.com/Ravencentric/awesome-arr
 https://github.com/kinduff/pirate
+https://github.com/6ameDev/selfhosted?tab=readme-ov-file
